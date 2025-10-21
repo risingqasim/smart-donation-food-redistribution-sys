@@ -1,0 +1,88 @@
+@model IEnumerable<SmartDonationSystem.Controllers.UserManagementViewModel>
+
+@{
+    ViewData["Title"] = "User Management";
+}
+
+<h1>User Management</h1>
+
+<div class="row mb-3">
+    <div class="col-12">
+        <a asp-action="Dashboard" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Donations</th>
+                        <th>Joined</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var userVM in Model)
+                    {
+                        <tr>
+                            <td>@userVM.User.FirstName @userVM.User.LastName</td>
+                            <td>@userVM.User.Email</td>
+                            <td>
+                                @foreach (var role in userVM.Roles)
+                                {
+                                    <span class="badge bg-@(role == "Admin" ? "danger" : role == "NGO" ? "info" : "success")">@role</span>
+                                }
+                            </td>
+                            <td>@userVM.DonationCount</td>
+                            <td>@userVM.User.CreatedAt.ToString("MMM dd, yyyy")</td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-sm btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown">
+                                        Change Role
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="#" onclick="changeRole('@userVM.User.Id', 'Donor')">Donor</a></li>
+                                        <li><a class="dropdown-item" href="#" onclick="changeRole('@userVM.User.Id', 'NGO')">NGO</a></li>
+                                        <li><a class="dropdown-item" href="#" onclick="changeRole('@userVM.User.Id', 'Admin')">Admin</a></li>
+                                    </ul>
+                                </div>
+                                @if (userVM.DonationCount == 0)
+                                {
+                                    <form asp-action="DeleteUser" method="post" class="d-inline">
+                                        <input type="hidden" name="userId" value="@userVM.User.Id" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                                onclick="return confirm('Are you sure you want to delete this user?')">
+                                            Delete
+                                        </button>
+                                    </form>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<form asp-action="ChangeUserRole" method="post" id="roleChangeForm">
+    <input type="hidden" name="userId" id="roleUserId" />
+    <input type="hidden" name="newRole" id="newRole" />
+</form>
+
+@section Scripts {
+    <script>
+        function changeRole(userId, newRole) {
+            if (confirm('Are you sure you want to change this user\'s role to ' + newRole + '?')) {
+                document.getElementById('roleUserId').value = userId;
+                document.getElementById('newRole').value = newRole;
+                document.getElementById('roleChangeForm').submit();
+            }
+        }
+    </script>
+}

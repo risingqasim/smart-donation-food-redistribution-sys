@@ -1,0 +1,102 @@
+@model IEnumerable<SmartDonationSystem.Models.Donation>
+
+@{
+    ViewData["Title"] = "My Donations";
+}
+
+<h1>My Donations</h1>
+
+<div class="row mb-3">
+    <div class="col-12">
+        <a asp-action="Dashboard" class="btn btn-secondary">Back to Dashboard</a>
+        <a asp-controller="Donations" asp-action="Create" class="btn btn-success">Create New Donation</a>
+    </div>
+</div>
+
+<div class="row">
+    @foreach (var donation in Model)
+    {
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                @if (!string.IsNullOrEmpty(donation.ImageUrl))
+                {
+                    <img src="@donation.ImageUrl" class="card-img-top" alt="@donation.Title" style="height: 200px; object-fit: cover;">
+                }
+                <div class="card-body">
+                    <h5 class="card-title">@donation.Title</h5>
+                    <p class="card-text">@donation.Description</p>
+                    
+                    <div class="row mb-2">
+                        <div class="col-6">
+                            <small class="text-muted">
+                                <strong>Type:</strong> @donation.FoodType
+                            </small>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted">
+                                <strong>Quantity:</strong> @donation.Quantity @donation.Unit
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-2">
+                        <div class="col-6">
+                            <small class="text-muted">
+                                <strong>Status:</strong> 
+                                <span class="badge bg-@(donation.Status == "Available" ? "success" : donation.Status == "Reserved" ? "warning" : "secondary")">@donation.Status</span>
+                            </small>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted">
+                                <strong>Expires:</strong> @donation.ExpiryDate.ToString("MMM dd, yyyy")
+                            </small>
+                        </div>
+                    </div>
+                    
+                    @if (donation.NGO != null)
+                    {
+                        <p class="card-text">
+                            <small class="text-muted">
+                                <strong>Reserved by:</strong> @donation.NGO.Name
+                            </small>
+                        </p>
+                    }
+                    
+                    <p class="card-text">
+                        <small class="text-muted">
+                            <strong>Created:</strong> @donation.CreatedAt.ToString("MMM dd, yyyy")
+                        </small>
+                    </p>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a asp-controller="Donations" asp-action="Details" asp-route-id="@donation.Id" 
+                           class="btn btn-outline-primary btn-sm">View Details</a>
+                        <a asp-controller="Donations" asp-action="Edit" asp-route-id="@donation.Id" 
+                           class="btn btn-outline-secondary btn-sm">Edit</a>
+                        @if (donation.Status == "Reserved")
+                        {
+                            <form asp-action="MarkAsCollected" method="post" class="d-inline">
+                                <input type="hidden" name="donationId" value="@donation.Id" />
+                                <button type="submit" class="btn btn-success btn-sm" 
+                                        onclick="return confirm('Mark this donation as collected?')">
+                                    Mark as Collected
+                                </button>
+                            </form>
+                        }
+                        <a asp-controller="Donations" asp-action="Delete" asp-route-id="@donation.Id" 
+                           class="btn btn-outline-danger btn-sm">Delete</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        <h4>No Donations Created</h4>
+        <p>You haven't created any donations yet. Start by creating your first donation!</p>
+        <a asp-controller="Donations" asp-action="Create" class="btn btn-primary">Create First Donation</a>
+    </div>
+}

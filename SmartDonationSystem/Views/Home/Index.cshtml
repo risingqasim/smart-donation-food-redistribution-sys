@@ -1,0 +1,126 @@
+﻿@{
+    ViewData["Title"] = "Smart Donation System";
+}
+
+<div class="text-center mb-5">
+    <h1 class="display-4">Smart Donation System</h1>
+    <p class="lead">Connecting donors with NGOs to reduce food waste and fight hunger</p>
+</div>
+
+@if (User.Identity.IsAuthenticated)
+{
+    <div class="row">
+        @if (User.IsInRole("Admin"))
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card bg-primary text-white">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Admin Dashboard</h5>
+                        <p class="card-text">Manage users, donations, and system analytics</p>
+                        <a asp-controller="Admin" asp-action="Dashboard" class="btn btn-light">Go to Dashboard</a>
+                    </div>
+                </div>
+            </div>
+        }
+        
+        @if (User.IsInRole("Donor"))
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card bg-success text-white">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Create Donation</h5>
+                        <p class="card-text">Share your surplus food with those in need</p>
+                        <a asp-controller="Donations" asp-action="Create" class="btn btn-light">Create Donation</a>
+                    </div>
+                </div>
+            </div>
+        }
+        
+        @if (User.IsInRole("NGO"))
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card bg-info text-white">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">NGO Dashboard</h5>
+                        <p class="card-text">View available donations and manage requests</p>
+                        <a asp-controller="NGO" asp-action="Dashboard" class="btn btn-light">Go to Dashboard</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Quick Actions</h5>
+                    <div class="row">
+                        <div class="col-md-3 mb-2">
+                            <a asp-controller="Donations" asp-action="Index" class="btn btn-outline-primary btn-block">View All Donations</a>
+                        </div>
+                        @if (User.IsInRole("Donor"))
+                        {
+                            <div class="col-md-3 mb-2">
+                                <a asp-controller="Donations" asp-action="Create" class="btn btn-outline-success btn-block">Create New Donation</a>
+                            </div>
+                        }
+                        @if (User.IsInRole("NGO"))
+                        {
+                            <div class="col-md-3 mb-2">
+                                <a asp-controller="NGO" asp-action="AvailableDonations" class="btn btn-outline-info btn-block">Browse Available Donations</a>
+                            </div>
+                        }
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <div class="col-md-3 mb-2">
+                                <a asp-controller="Admin" asp-action="Users" class="btn btn-outline-warning btn-block">Manage Users</a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">For Donors</h5>
+                    <p class="card-text">Share your surplus food and help reduce waste</p>
+                    <ul class="list-unstyled">
+                        <li>✓ Easy donation posting</li>
+                        <li>✓ Track your impact</li>
+                        <li>✓ Connect with NGOs</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">For NGOs</h5>
+                    <p class="card-text">Access fresh food donations for your community</p>
+                    <ul class="list-unstyled">
+                        <li>✓ Browse available donations</li>
+                        <li>✓ Request donations easily</li>
+                        <li>✓ Manage your requests</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Get Started</h5>
+                    <p class="card-text">Join our community and make a difference</p>
+                    <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-primary">Register Now</a>
+                    <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-outline-primary">Login</a>
+                </div>
+            </div>
+        </div>
+    </div>
+}

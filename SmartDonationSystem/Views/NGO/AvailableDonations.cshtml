@@ -1,0 +1,126 @@
+@model IEnumerable<SmartDonationSystem.Models.Donation>
+
+@{
+    ViewData["Title"] = "Available Donations";
+}
+
+<h1>Available Donations</h1>
+
+<div class="row mb-3">
+    <div class="col-12">
+        <a asp-action="Dashboard" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+</div>
+
+<div class="row">
+    @foreach (var donation in Model)
+    {
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                @if (!string.IsNullOrEmpty(donation.ImageUrl))
+                {
+                    <img src="@donation.ImageUrl" class="card-img-top" alt="@donation.Title" style="height: 200px; object-fit: cover;">
+                }
+                <div class="card-body">
+                    <h5 class="card-title">@donation.Title</h5>
+                    <p class="card-text">@donation.Description</p>
+                    
+                    <div class="row mb-2">
+                        <div class="col-6">
+                            <small class="text-muted">
+                                <strong>Type:</strong> @donation.FoodType
+                            </small>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted">
+                                <strong>Quantity:</strong> @donation.Quantity @donation.Unit
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-2">
+                        <div class="col-6">
+                            <small class="text-muted">
+                                <strong>Expires:</strong> @donation.ExpiryDate.ToString("MMM dd, yyyy")
+                            </small>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted">
+                                <strong>Location:</strong> @donation.Location
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <p class="card-text">
+                        <small class="text-muted">
+                            <strong>Pickup Address:</strong> @donation.PickupAddress
+                        </small>
+                    </p>
+                    
+                    <p class="card-text">
+                        <small class="text-muted">
+                            <strong>Donor:</strong> @donation.Donor?.FirstName @donation.Donor?.LastName
+                        </small>
+                    </p>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="DonationDetails" asp-route-id="@donation.Id" 
+                           class="btn btn-outline-primary btn-sm">View Details</a>
+                        <button type="button" class="btn btn-success btn-sm" 
+                                data-bs-toggle="modal" data-bs-target="#requestModal" 
+                                data-donation-id="@donation.Id" data-donation-title="@donation.Title">
+                            Request Donation
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        <h4>No Available Donations</h4>
+        <p>There are currently no donations available for request.</p>
+    </div>
+}
+
+<!-- Request Modal -->
+<div class="modal fade" id="requestModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Request Donation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-action="RequestDonation" method="post">
+                <div class="modal-body">
+                    <input type="hidden" id="donationId" name="donationId" />
+                    <div class="mb-3">
+                        <label for="message" class="form-label">Message to Donor</label>
+                        <textarea class="form-control" id="message" name="message" rows="3" 
+                                  placeholder="Explain why your organization needs this donation..." required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Submit Request</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('requestModal').addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            var donationId = button.getAttribute('data-donation-id');
+            var donationTitle = button.getAttribute('data-donation-title');
+            
+            document.getElementById('donationId').value = donationId;
+            document.querySelector('#requestModal .modal-title').textContent = 'Request: ' + donationTitle;
+        });
+    </script>
+}

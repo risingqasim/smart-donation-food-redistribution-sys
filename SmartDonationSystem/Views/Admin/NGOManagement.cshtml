@@ -1,0 +1,61 @@
+@model IEnumerable<SmartDonationSystem.Models.NGO>
+
+@{
+    ViewData["Title"] = "NGO Management";
+}
+
+<h1>NGO Management</h1>
+
+<div class="row mb-3">
+    <div class="col-12">
+        <a asp-action="Dashboard" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+</div>
+
+<div class="row">
+    @foreach (var ngo in Model)
+    {
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">@ngo.Name</h5>
+                    <p class="card-text">
+                        <strong>Contact:</strong> @ngo.Contact<br>
+                        <strong>Location:</strong> @ngo.Location<br>
+                        <strong>Capacity:</strong> @ngo.Capacity<br>
+                        <strong>User:</strong> @ngo.User?.FirstName @ngo.User?.LastName (@ngo.User?.Email)
+                    </p>
+                    @if (!string.IsNullOrEmpty(ngo.Description))
+                    {
+                        <p class="card-text">@ngo.Description</p>
+                    }
+                    <div class="row">
+                        <div class="col-6">
+                            <small class="text-muted">
+                                <strong>Donations:</strong> @ngo.Donations.Count<br>
+                                <strong>Requests:</strong> @ngo.DonationRequests.Count
+                            </small>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted">
+                                <strong>Created:</strong> @ngo.CreatedAt.ToString("MMM dd, yyyy")
+                            </small>
+                        </div>
+                    </div>
+                    @if (!string.IsNullOrEmpty(ngo.Website))
+                    {
+                        <a href="@ngo.Website" target="_blank" class="btn btn-sm btn-outline-primary">Visit Website</a>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        <h4>No NGOs Found</h4>
+        <p>There are currently no registered NGOs in the system.</p>
+    </div>
+}

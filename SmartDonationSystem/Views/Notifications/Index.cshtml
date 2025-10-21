@@ -1,0 +1,318 @@
+@model IEnumerable<SmartDonationSystem.Models.Notification>
+
+@{
+    ViewData["Title"] = "Notifications";
+}
+
+<h1>Notifications</h1>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">All Notifications</h5>
+                <div>
+                    <button class="btn btn-sm btn-outline-primary" id="markAllAsRead">Mark All as Read</button>
+                    <button class="btn btn-sm btn-outline-danger" id="deleteAllRead">Delete All Read</button>
+                </div>
+            </div>
+            <div class="card-body">
+                @if (Model != null && Model.Any())
+                {
+                    <div class="notification-list">
+                        @foreach (var notification in Model)
+                        {
+                            <div class="notification-item @(notification.IsRead ? "" : "unread")" data-notification-id="@notification.Id">
+                                <div class="notification-icon">
+                                    <i class="fas @(notification.Type switch {
+                                        "DonationUpdate" => "fa-gift",
+                                        "RequestStatus" => "fa-hand-paper",
+                                        "System" => "fa-info-circle",
+                                        _ => "fa-bell"
+                                    })"></i>
+                                </div>
+                                <div class="notification-content">
+                                    <div class="notification-title">@notification.Title</div>
+                                    <div class="notification-message">@notification.Message</div>
+                                    <div class="notification-time">@notification.Timestamp.ToString("MMM dd, yyyy HH:mm")</div>
+                                </div>
+                                <div class="notification-actions">
+                                    @if (!notification.IsRead)
+                                    {
+                                        <button class="btn btn-sm btn-outline-primary mark-as-read" data-id="@notification.Id">Mark as Read</button>
+                                    }
+                                    <button class="btn btn-sm btn-outline-danger delete-notification" data-id="@notification.Id">Delete</button>
+                                </div>
+                                @if (!notification.IsRead)
+                                {
+                                    <div class="notification-unread-indicator"></div>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-5">
+                        <i class="fas fa-bell-slash fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No notifications</h5>
+                        <p class="text-muted">You don't have any notifications yet.</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>Notification Settings</h5>
+            </div>
+            <div class="card-body">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
+                    <label class="form-check-label" for="emailNotifications">
+                        Email Notifications
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="pushNotifications" checked>
+                    <label class="form-check-label" for="pushNotifications">
+                        Push Notifications
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="donationNotifications" checked>
+                    <label class="form-check-label" for="donationNotifications">
+                        Donation Notifications
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="requestNotifications" checked>
+                    <label class="form-check-label" for="requestNotifications">
+                        Request Notifications
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="statusNotifications" checked>
+                    <label class="form-check-label" for="statusNotifications">
+                        Status Notifications
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="systemNotifications" checked>
+                    <label class="form-check-label" for="systemNotifications">
+                        System Notifications
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .notification-list {
+        max-height: 600px;
+        overflow-y: auto;
+    }
+
+    .notification-item {
+        padding: 15px;
+        border-bottom: 1px solid #f8f9fa;
+        display: flex;
+        align-items: flex-start;
+        transition: background-color 0.2s ease;
+        position: relative;
+    }
+
+    .notification-item:hover {
+        background-color: #f8f9fa;
+    }
+
+    .notification-item.unread {
+        background-color: #e3f2fd;
+        border-left: 3px solid #2196f3;
+    }
+
+    .notification-icon {
+        margin-right: 15px;
+        margin-top: 5px;
+    }
+
+    .notification-icon i {
+        font-size: 18px;
+        color: #6c757d;
+    }
+
+    .notification-content {
+        flex: 1;
+    }
+
+    .notification-title {
+        font-weight: 600;
+        font-size: 16px;
+        color: #212529;
+        margin-bottom: 5px;
+    }
+
+    .notification-message {
+        font-size: 14px;
+        color: #6c757d;
+        margin-bottom: 5px;
+        line-height: 1.4;
+    }
+
+    .notification-time {
+        font-size: 12px;
+        color: #adb5bd;
+    }
+
+    .notification-actions {
+        margin-left: 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .notification-unread-indicator {
+        position: absolute;
+        top: 50%;
+        right: 15px;
+        transform: translateY(-50%);
+        width: 10px;
+        height: 10px;
+        background-color: #dc3545;
+        border-radius: 50%;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        // Mark as read functionality
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('mark-as-read')) {
+                const notificationId = e.target.getAttribute('data-id');
+                markAsRead(notificationId);
+            }
+        });
+
+        // Delete notification functionality
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('delete-notification')) {
+                const notificationId = e.target.getAttribute('data-id');
+                deleteNotification(notificationId);
+            }
+        });
+
+        // Mark all as read
+        document.getElementById('markAllAsRead').addEventListener('click', function() {
+            markAllAsRead();
+        });
+
+        // Delete all read
+        document.getElementById('deleteAllRead').addEventListener('click', function() {
+            deleteAllRead();
+        });
+
+        function markAsRead(notificationId) {
+            fetch(`/Notifications/MarkAsRead/${notificationId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const item = document.querySelector(`[data-notification-id="${notificationId}"]`);
+                    if (item) {
+                        item.classList.remove('unread');
+                        const indicator = item.querySelector('.notification-unread-indicator');
+                        if (indicator) {
+                            indicator.remove();
+                        }
+                        const markButton = item.querySelector('.mark-as-read');
+                        if (markButton) {
+                            markButton.remove();
+                        }
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error marking as read:', error);
+            });
+        }
+
+        function deleteNotification(notificationId) {
+            if (confirm('Are you sure you want to delete this notification?')) {
+                fetch(`/Notifications/Delete/${notificationId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const item = document.querySelector(`[data-notification-id="${notificationId}"]`);
+                        if (item) {
+                            item.remove();
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting notification:', error);
+                });
+            }
+        }
+
+        function markAllAsRead() {
+            fetch('/Notifications/MarkAllAsRead', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const items = document.querySelectorAll('.notification-item');
+                    items.forEach(item => {
+                        item.classList.remove('unread');
+                        const indicator = item.querySelector('.notification-unread-indicator');
+                        if (indicator) {
+                            indicator.remove();
+                        }
+                        const markButton = item.querySelector('.mark-as-read');
+                        if (markButton) {
+                            markButton.remove();
+                        }
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error marking all as read:', error);
+            });
+        }
+
+        function deleteAllRead() {
+            if (confirm('Are you sure you want to delete all read notifications?')) {
+                fetch('/Notifications/DeleteAllRead', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting all read notifications:', error);
+                });
+            }
+        }
+    </script>
+}

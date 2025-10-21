@@ -1,0 +1,228 @@
+@{
+    ViewData["Title"] = "Interactive Map";
+}
+
+<h1>Interactive Map</h1>
+
+<div class="row">
+    <div class="col-md-8">
+        <div id="map" style="height: 500px; width: 100%;"></div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>Map Controls</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="addressInput" class="form-label">Search Address</label>
+                    <input type="text" id="addressInput" class="form-control" placeholder="Enter address to search">
+                    <button id="searchBtn" class="btn btn-primary btn-sm mt-2">Search</button>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="radiusSelect" class="form-label">Search Radius</label>
+                    <select id="radiusSelect" class="form-control">
+                        <option value="10">10 km</option>
+                        <option value="25">25 km</option>
+                        <option value="50" selected>50 km</option>
+                        <option value="100">100 km</option>
+                    </select>
+                </div>
+                
+                <div class="mb-3">
+                    <button id="findNearbyNGOs" class="btn btn-success">Find Nearby NGOs</button>
+                    <button id="showDonations" class="btn btn-info">Show Donations</button>
+                </div>
+                
+                <div id="nearbyNGOs" class="mt-3">
+                    <h6>Nearby NGOs</h6>
+                    <div id="ngoList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let map;
+        let userLocation = null;
+        let currentMarkers = [];
+
+        function initMap() {
+            map = new google.maps.Map(document.getElementById("map"), {
+                center: { lat: 40.7128, lng: -74.0060 }, // Default to NYC
+                zoom: 12
+            });
+
+            // Try to get user's current location
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        userLocation = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        };
+                        map.setCenter(userLocation);
+                        map.setZoom(15);
+                        
+                        // Add user marker
+                        new google.maps.Marker({
+                            position: userLocation,
+                            map: map,
+                            title: "Your Location",
+                            icon: {
+                                url: "/images/user-marker.png",
+                                scaledSize: new google.maps.Size(30, 30)
+                            }
+                        });
+                    },
+                    function() {
+                        console.log("Geolocation failed");
+                    }
+                );
+            }
+        }
+
+        document.getElementById("searchBtn").addEventListener("click", function() {
+            const address = document.getElementById("addressInput").value;
+            if (address) {
+                geocodeAddress(address);
+            }
+        });
+
+        document.getElementById("findNearbyNGOs").addEventListener("click", function() {
+            if (userLocation) {
+                findNearbyNGOs(userLocation.lat, userLocation.lng);
+            } else {
+                alert("Please allow location access or search for an address first");
+            }
+        });
+
+        document.getElementById("showDonations").addEventListener("click", function() {
+            loadDonations();
+        });
+
+        function geocodeAddress(address) {
+            fetch('/Map/GeocodeAddress', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ address: address })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.latitude && data.longitude) {
+                    userLocation = {
+                        lat: data.latitude,
+                        lng: data.longitude
+                    };
+                    map.setCenter(userLocation);
+                    map.setZoom(15);
+                    
+                    // Add marker for searched location
+                    new google.maps.Marker({
+                        position: userLocation,
+                        map: map,
+                        title: "Searched Location",
+                        icon: {
+                            url: "/images/search-marker.png",
+                            scaledSize: new google.maps.Size(30, 30)
+                        }
+                    });
+                } else {
+                    alert("Address not found");
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("Error geocoding address");
+            });
+        }
+
+        function findNearbyNGOs(lat, lng) {
+            const radius = document.getElementById("radiusSelect").value;
+            
+            fetch(`/Map/NearbyNGOs?latitude=${lat}&longitude=${lng}&radiusKm=${radius}`)
+            .then(response => response.json())
+            .then(data => {
+                clearMarkers();
+                displayNGOs(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+        function displayNGOs(ngos) {
+            const ngoList = document.getElementById("ngoList");
+            ngoList.innerHTML = "";
+
+            ngos.forEach(ngo => {
+                const marker = new google.maps.Marker({
+                    position: { lat: ngo.location.latitude, lng: ngo.location.longitude },
+                    map: map,
+                    title: ngo.name,
+                    icon: {
+                        url: "/images/ngo-marker.png",
+                        scaledSize: new google.maps.Size(25, 25)
+                    }
+                });
+
+                const infoWindow = new google.maps.InfoWindow({
+                    content: `
+                        <div>
+                            <h6>${ngo.name}</h6>
+                            <p>${ngo.description || ''}</p>
+                            <p><strong>Distance:</strong> ${ngo.distanceKm} km</p>
+                            <p><strong>Contact:</strong> ${ngo.contact}</p>
+                            <p><strong>Capacity:</strong> ${ngo.capacity}</p>
+                        </div>
+                    `
+                });
+
+                marker.addListener("click", () => {
+                    infoWindow.open(map, marker);
+                });
+
+                currentMarkers.push(marker);
+
+                // Add to list
+                const ngoItem = document.createElement("div");
+                ngoItem.className = "card mb-2";
+                ngoItem.innerHTML = `
+                    <div class="card-body p-2">
+                        <h6 class="card-title">${ngo.name}</h6>
+                        <p class="card-text small">${ngo.distanceKm} km away</p>
+                        <p class="card-text small">${ngo.contact}</p>
+                    </div>
+                `;
+                ngoItem.addEventListener("click", () => {
+                    map.setCenter({ lat: ngo.location.latitude, lng: ngo.location.longitude });
+                    map.setZoom(15);
+                    infoWindow.open(map, marker);
+                });
+                ngoList.appendChild(ngoItem);
+            });
+        }
+
+        function loadDonations() {
+            fetch('/Map/DonationMap')
+            .then(response => response.text())
+            .then(html => {
+                // This would load the donation map view
+                // For now, we'll just show a message
+                alert("Donation map feature coming soon!");
+            });
+        }
+
+        function clearMarkers() {
+            currentMarkers.forEach(marker => marker.setMap(null));
+            currentMarkers = [];
+        }
+    </script>
+    
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=@ViewBag.GoogleMapsApiKey&callback=initMap"></script>
+}

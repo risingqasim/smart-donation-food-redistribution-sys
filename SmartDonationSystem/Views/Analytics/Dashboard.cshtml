@@ -1,0 +1,382 @@
+@{
+    ViewData["Title"] = "Analytics Dashboard";
+}
+
+<h1>Analytics Dashboard</h1>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">System Overview</h5>
+                <div>
+                    <button class="btn btn-success" id="exportExcel">Export Excel</button>
+                    <button class="btn btn-danger" id="exportPdf">Export PDF</button>
+                    <button class="btn btn-primary" id="refreshData">Refresh Data</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Key Metrics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title" id="totalDonations">@ViewBag.Metrics.TotalDonations</h4>
+                        <p class="card-text">Total Donations</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-gift fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title" id="totalFoodSaved">@ViewBag.Metrics.TotalFoodSavedKg kg</h4>
+                        <p class="card-text">Food Saved</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-leaf fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title" id="activeDonors">@ViewBag.Metrics.ActiveDonors</h4>
+                        <p class="card-text">Active Donors</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-users fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title" id="activeNGOs">@ViewBag.Metrics.ActiveNGOs</h4>
+                        <p class="card-text">Active NGOs</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-building fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Monthly Trends</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="monthlyTrendsChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Food Type Distribution</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="foodTypeChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Region Distribution Map -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>Region-wise Distribution</h5>
+            </div>
+            <div class="card-body">
+                <div id="regionMap" style="height: 400px; width: 100%;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Top Performers -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Top Donors</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Donor Name</th>
+                                <th>Donations</th>
+                                <th>Food Saved (kg)</th>
+                                <th>Last Donation</th>
+                            </tr>
+                        </thead>
+                        <tbody id="topDonorsTable">
+                            @foreach (var donor in ViewBag.TopDonors)
+                            {
+                                <tr>
+                                    <td>@donor.DonorName</td>
+                                    <td>@donor.DonationCount</td>
+                                    <td>@donor.TotalFoodSaved</td>
+                                    <td>@donor.LastDonationDate</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Top NGOs</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>NGO Name</th>
+                                <th>Donations</th>
+                                <th>Food Received (kg)</th>
+                                <th>Last Activity</th>
+                            </tr>
+                        </thead>
+                        <tbody id="topNGOsTable">
+                            @foreach (var ngo in ViewBag.TopNGOs)
+                            {
+                                <tr>
+                                    <td>@ngo.NGOName</td>
+                                    <td>@ngo.DonationCount</td>
+                                    <td>@ngo.TotalFoodReceived</td>
+                                    <td>@ngo.LastActivityDate</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- System Health -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>System Health</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <h3 class="text-success">@ViewBag.SystemHealth.SystemUptime%</h3>
+                            <p>System Uptime</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <h3 class="text-info">@ViewBag.SystemHealth.ActiveUsers</h3>
+                            <p>Active Users (30 days)</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <h3 class="text-warning">@ViewBag.SystemHealth.PendingRequests</h3>
+                            <p>Pending Requests</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <h3 class="text-primary">@ViewBag.SystemHealth.CompletedTransactions</h3>
+                            <p>Completed Transactions</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+
+    <script>
+        // Monthly Trends Chart
+        const monthlyTrendsData = @Html.Raw(Json.Serialize(ViewBag.MonthlyTrends));
+        const monthlyTrendsCtx = document.getElementById('monthlyTrendsChart').getContext('2d');
+        new Chart(monthlyTrendsCtx, {
+            type: 'line',
+            data: {
+                labels: monthlyTrendsData.map(item => item.month),
+                datasets: [{
+                    label: 'Donations',
+                    data: monthlyTrendsData.map(item => item.donationCount),
+                    borderColor: 'rgb(75, 192, 192)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    tension: 0.1
+                }, {
+                    label: 'Food Saved (kg)',
+                    data: monthlyTrendsData.map(item => item.foodSavedKg),
+                    borderColor: 'rgb(255, 99, 132)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Food Type Distribution Chart
+        const foodTypeData = @Html.Raw(Json.Serialize(ViewBag.FoodTypeData));
+        const foodTypeCtx = document.getElementById('foodTypeChart').getContext('2d');
+        new Chart(foodTypeCtx, {
+            type: 'doughnut',
+            data: {
+                labels: foodTypeData.map(item => item.foodType),
+                datasets: [{
+                    data: foodTypeData.map(item => item.count),
+                    backgroundColor: [
+                        '#FF6384',
+                        '#36A2EB',
+                        '#FFCE56',
+                        '#4BC0C0',
+                        '#9966FF',
+                        '#FF9F40'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        // Region Distribution Map
+        const regionData = @Html.Raw(Json.Serialize(ViewBag.RegionData));
+        const map = L.map('regionMap').setView([40.7128, -74.0060], 10);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        regionData.forEach(region => {
+            if (region.latitude && region.longitude) {
+                L.marker([region.latitude, region.longitude])
+                    .addTo(map)
+                    .bindPopup(`
+                        <strong>${region.region}</strong><br>
+                        Donations: ${region.donationCount}<br>
+                        Food Saved: ${region.foodSavedKg} kg<br>
+                        Active Donors: ${region.activeDonors}<br>
+                        Active NGOs: ${region.activeNGOs}
+                    `);
+            }
+        });
+
+        // Export functionality
+        document.getElementById('exportExcel').addEventListener('click', function() {
+            exportReport('excel');
+        });
+
+        document.getElementById('exportPdf').addEventListener('click', function() {
+            exportReport('pdf');
+        });
+
+        document.getElementById('refreshData').addEventListener('click', function() {
+            location.reload();
+        });
+
+        function exportReport(format) {
+            const requestData = {
+                reportType: 'analytics',
+                format: format,
+                includeCharts: true
+            };
+
+            fetch('/Analytics/Export', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Analytics_Report_${new Date().toISOString().slice(0, 10)}.${format === 'excel' ? 'xlsx' : 'pdf'}`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            })
+            .catch(error => {
+                console.error('Export error:', error);
+                alert('Error exporting report');
+            });
+        }
+
+        // Auto-refresh data every 5 minutes
+        setInterval(function() {
+            refreshMetrics();
+        }, 300000); // 5 minutes
+
+        function refreshMetrics() {
+            fetch('/Analytics/GetMetrics')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('totalDonations').textContent = data.totalDonations;
+                    document.getElementById('totalFoodSaved').textContent = data.totalFoodSavedKg + ' kg';
+                    document.getElementById('activeDonors').textContent = data.activeDonors;
+                    document.getElementById('activeNGOs').textContent = data.activeNGOs;
+                })
+                .catch(error => {
+                    console.error('Error refreshing metrics:', error);
+                });
+        }
+    </script>
+}

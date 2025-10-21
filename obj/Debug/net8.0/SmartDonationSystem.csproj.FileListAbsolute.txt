@@ -1,0 +1,10 @@
+D:\GitHub\smart-donation-food-redistribution-sys\obj\Debug\net8.0\SmartDonationSystem.csproj.AssemblyReference.cache
+D:\GitHub\smart-donation-food-redistribution-sys\obj\Debug\net8.0\rpswa.dswa.cache.json
+D:\GitHub\smart-donation-food-redistribution-sys\obj\Debug\net8.0\SmartDonationSystem.GeneratedMSBuildEditorConfig.editorconfig
+D:\GitHub\smart-donation-food-redistribution-sys\obj\Debug\net8.0\SmartDonationSystem.AssemblyInfoInputs.cache
+D:\GitHub\smart-donation-food-redistribution-sys\obj\Debug\net8.0\SmartDonationSystem.AssemblyInfo.cs
+D:\GitHub\smart-donation-food-redistribution-sys\obj\Debug\net8.0\SmartDonationSystem.csproj.CoreCompileInputs.cache
+D:\GitHub\smart-donation-food-redistribution-sys\obj\Debug\net8.0\SmartDonationSystem.MvcApplicationPartsAssemblyInfo.cache
+D:\GitHub\smart-donation-food-redistribution-sys\obj\Debug\net8.0\SmartDonationSystem.RazorAssemblyInfo.cache
+D:\GitHub\smart-donation-food-redistribution-sys\obj\Debug\net8.0\SmartDonationSystem.RazorAssemblyInfo.cs
+D:\GitHub\smart-donation-food-redistribution-sys\obj\Debug\net8.0\SmartDonationSystem.sourcelink.json

@@ -1,0 +1,172 @@
+@{
+    ViewData["Title"] = "AI Analytics Dashboard";
+}
+
+<h1>AI Analytics Dashboard</h1>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>NGO Demand Predictions</h5>
+            </div>
+            <div class="card-body">
+                <button id="loadDemandLevels" class="btn btn-primary">Load Demand Levels</button>
+                <div id="demandLevels" class="mt-3"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Model Training</h5>
+            </div>
+            <div class="card-body">
+                <button id="trainModel" class="btn btn-success">Train Model</button>
+                <div id="trainingStatus" class="mt-3"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>NGO Performance Analytics</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped" id="ngoAnalyticsTable">
+                        <thead>
+                            <tr>
+                                <th>NGO Name</th>
+                                <th>Predicted Demand</th>
+                                <th>Demand Score</th>
+                                <th>Match Score</th>
+                                <th>Capacity</th>
+                                <th>Response Time (hrs)</th>
+                                <th>Completion Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody id="analyticsTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById("loadDemandLevels").addEventListener("click", function() {
+            loadDemandLevels();
+        });
+
+        document.getElementById("trainModel").addEventListener("click", function() {
+            trainModel();
+        });
+
+        function loadDemandLevels() {
+            const statusDiv = document.getElementById("demandLevels");
+            statusDiv.innerHTML = "<div class='spinner-border spinner-border-sm' role='status'></div> Loading...";
+
+            fetch('/api/ML/GetAllNGODemandLevels')
+            .then(response => response.json())
+            .then(data => {
+                displayDemandLevels(data);
+                updateAnalyticsTable(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                statusDiv.innerHTML = "<div class='alert alert-danger'>Error loading demand levels</div>";
+            });
+        }
+
+        function displayDemandLevels(data) {
+            const statusDiv = document.getElementById("demandLevels");
+            
+            const highDemand = data.filter(n => n.predictedDemandLevel === "High").length;
+            const mediumDemand = data.filter(n => n.predictedDemandLevel === "Medium").length;
+            const lowDemand = data.filter(n => n.predictedDemandLevel === "Low").length;
+
+            statusDiv.innerHTML = `
+                <div class="row">
+                    <div class="col-4">
+                        <div class="text-center">
+                            <h3 class="text-danger">${highDemand}</h3>
+                            <p>High Demand</p>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="text-center">
+                            <h3 class="text-warning">${mediumDemand}</h3>
+                            <p>Medium Demand</p>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="text-center">
+                            <h3 class="text-success">${lowDemand}</h3>
+                            <p>Low Demand</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateAnalyticsTable(data) {
+            const tbody = document.getElementById("analyticsTableBody");
+            tbody.innerHTML = "";
+
+            data.forEach(ngo => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${ngo.ngoName}</td>
+                    <td><span class="badge bg-${getDemandBadgeColor(ngo.predictedDemandLevel)}">${ngo.predictedDemandLevel}</span></td>
+                    <td>${(ngo.demandScore * 100).toFixed(1)}%</td>
+                    <td>${(ngo.matchScore * 100).toFixed(1)}%</td>
+                    <td>${ngo.capacity}</td>
+                    <td>${ngo.responseTime.toFixed(1)}</td>
+                    <td>${(ngo.completionRate * 100).toFixed(1)}%</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function trainModel() {
+            const statusDiv = document.getElementById("trainingStatus");
+            statusDiv.innerHTML = "<div class='spinner-border spinner-border-sm' role='status'></div> Training model...";
+
+            fetch('/api/ML/TrainModel', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                statusDiv.innerHTML = "<div class='alert alert-success'>Model trained successfully!</div>";
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                statusDiv.innerHTML = "<div class='alert alert-danger'>Error training model</div>";
+            });
+        }
+
+        function getDemandBadgeColor(demandLevel) {
+            switch (demandLevel) {
+                case "High": return "danger";
+                case "Medium": return "warning";
+                case "Low": return "success";
+                default: return "secondary";
+            }
+        }
+
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDemandLevels();
+        });
+    </script>
+}

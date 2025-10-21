@@ -1,0 +1,65 @@
+@model IEnumerable<SmartDonationSystem.Models.Donation>
+
+@{
+    ViewData["Title"] = "Donation Management";
+}
+
+<h1>Donation Management</h1>
+
+<div class="row mb-3">
+    <div class="col-12">
+        <a asp-action="Dashboard" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Donor</th>
+                        <th>Food Type</th>
+                        <th>Quantity</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var donation in Model)
+                    {
+                        <tr>
+                            <td>
+                                <strong>@donation.Title</strong>
+                                <br>
+                                <small class="text-muted">@donation.Description</small>
+                            </td>
+                            <td>@donation.Donor?.FirstName @donation.Donor?.LastName</td>
+                            <td>@donation.FoodType</td>
+                            <td>@donation.Quantity @donation.Unit</td>
+                            <td>
+                                <span class="badge bg-@(donation.Status == "Available" ? "success" : donation.Status == "Reserved" ? "warning" : "secondary")">
+                                    @donation.Status
+                                </span>
+                            </td>
+                            <td>@donation.CreatedAt.ToString("MMM dd, yyyy")</td>
+                            <td>
+                                <a asp-controller="Donations" asp-action="Details" asp-route-id="@donation.Id" 
+                                   class="btn btn-sm btn-outline-primary">View</a>
+                                <form asp-action="DeleteDonation" method="post" class="d-inline">
+                                    <input type="hidden" name="id" value="@donation.Id" />
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                            onclick="return confirm('Are you sure you want to delete this donation?')">
+                                        Delete
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

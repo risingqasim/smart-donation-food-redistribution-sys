@@ -1,0 +1,78 @@
+@model IEnumerable<SmartDonationSystem.Models.DonationRequest>
+
+@{
+    ViewData["Title"] = "My Requests";
+}
+
+<h1>My Donation Requests</h1>
+
+<div class="row mb-3">
+    <div class="col-12">
+        <a asp-action="Dashboard" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        @if (Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Donation</th>
+                            <th>Donor</th>
+                            <th>Message</th>
+                            <th>Status</th>
+                            <th>Requested</th>
+                            <th>Response</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var request in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <strong>@request.Donation?.Title</strong>
+                                    <br>
+                                    <small class="text-muted">@request.Donation?.FoodType - @request.Donation?.Quantity @request.Donation?.Unit</small>
+                                </td>
+                                <td>@request.Donation?.Donor?.FirstName @request.Donation?.Donor?.LastName</td>
+                                <td>@request.Message</td>
+                                <td>
+                                    <span class="badge bg-@(request.Status == "Approved" ? "success" : request.Status == "Rejected" ? "danger" : "warning")">
+                                        @request.Status
+                                    </span>
+                                </td>
+                                <td>@request.CreatedAt.ToString("MMM dd, yyyy")</td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(request.ResponseMessage))
+                                    {
+                                        <span class="text-muted">@request.ResponseMessage</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">No response yet</span>
+                                    }
+                                </td>
+                                <td>
+                                    <a asp-action="DonationDetails" asp-route-id="@request.DonationId" 
+                                       class="btn btn-sm btn-outline-primary">View Donation</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                <h4>No Requests Made</h4>
+                <p>You haven't made any donation requests yet.</p>
+                <a asp-action="AvailableDonations" class="btn btn-primary">Browse Available Donations</a>
+            </div>
+        }
+    </div>
+</div>

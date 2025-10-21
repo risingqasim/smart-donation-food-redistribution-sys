@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  smart-donation-system:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+      - "8443:443"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=SmartDonationSystemDb;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=true;MultipleActiveResultSets=true;
+      - JwtSettings__SecretKey=YourSuperSecretKeyThatIsAtLeast32CharactersLong!
+      - GoogleMaps__ApiKey=${GOOGLE_MAPS_API_KEY}
+    depends_on:
+      - sqlserver
+    volumes:
+      - uploads:/app/wwwroot/uploads
+    networks:
+      - smart-donation-network
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStrong@Passw0rd
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    networks:
+      - smart-donation-network
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - smart-donation-network
+
+volumes:
+  sqlserver_data:
+  redis_data:
+  uploads:
+
+networks:
+  smart-donation-network:
+    driver: bridge
