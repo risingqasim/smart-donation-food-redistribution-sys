@@ -1,9 +1,8 @@
 {
   "ExpandedNodes": [
     "",
-    "\\SmartDonationSystem",
-    "\\SmartDonationSystem\\Models"
+    "\\SmartDonationSystem"
   ],
-  "SelectedNode": "\\SmartDonationSystem\\Models\\ApplicationUser.cs",
+  "SelectedNode": "\\SmartDonationSystem\\Models",
   "PreviewInSolutionExplorer": false
 }

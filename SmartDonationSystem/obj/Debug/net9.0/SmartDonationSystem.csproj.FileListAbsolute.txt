@@ -359,4 +359,3 @@ D:\GitHub\smart-donation-food-redistribution-sys\SmartDonationSystem\obj\Debug\n
 D:\GitHub\smart-donation-food-redistribution-sys\SmartDonationSystem\obj\Debug\net9.0\SmartDonationSystem.pdb
 D:\GitHub\smart-donation-food-redistribution-sys\SmartDonationSystem\obj\Debug\net9.0\SmartDonationSystem.genruntimeconfig.cache
 D:\GitHub\smart-donation-food-redistribution-sys\SmartDonationSystem\obj\Debug\net9.0\ref\SmartDonationSystem.dll
-D:\GitHub\smart-donation-food-redistribution-sys\SmartDonationSystem\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt
