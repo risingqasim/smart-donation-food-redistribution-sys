@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SmartDonationSystem.Data;
-using SmartDonationSystem.Models.ML;
+using SmartDonationSystem.ML;
 using SmartDonationSystem.Services;
 using System.Security.Claims;
 

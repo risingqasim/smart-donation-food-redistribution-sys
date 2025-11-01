@@ -1,6 +1,6 @@
 using Microsoft.ML.Data;
 
-namespace SmartDonationSystem.Models.ML
+namespace SmartDonationSystem.ML
 {
     public class NGOData
     {
@@ -83,3 +83,4 @@ namespace SmartDonationSystem.Models.ML
         public DateTime CreatedAt { get; set; }
     }
 }
+

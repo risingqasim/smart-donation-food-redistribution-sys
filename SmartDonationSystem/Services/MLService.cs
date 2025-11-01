@@ -3,7 +3,7 @@ using Microsoft.ML.Data;
 using Microsoft.EntityFrameworkCore;
 using SmartDonationSystem.Data;
 using SmartDonationSystem.Models;
-using SmartDonationSystem.Models.ML;
+using SmartDonationSystem.ML;
 using System.Text.Json;
 
 namespace SmartDonationSystem.Services
