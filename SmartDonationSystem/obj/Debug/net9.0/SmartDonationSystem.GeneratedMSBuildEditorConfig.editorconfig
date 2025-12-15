@@ -17,141 +17,141 @@ build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = SmartDonationSystem
 build_property.RootNamespace = SmartDonationSystem
-build_property.ProjectDir = d:\GitHub\smart-donation-food-redistribution-sys\SmartDonationSystem\
+build_property.ProjectDir = D:\GitHub\smart-donation-food-redistribution-sys\SmartDonationSystem\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.RazorLangVersion = 9.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
-build_property.MSBuildProjectDirectory = d:\GitHub\smart-donation-food-redistribution-sys\SmartDonationSystem
+build_property.MSBuildProjectDirectory = D:\GitHub\smart-donation-food-redistribution-sys\SmartDonationSystem
 build_property._RazorSourceGeneratorDebug = 
 build_property.EffectiveAnalysisLevelStyle = 9.0
 build_property.EnableCodeStyleSeverity = 
 
-[d:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Areas/Identity/Pages/Account/Login.cshtml]
+[D:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Areas/Identity/Pages/Account/Login.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSWRlbnRpdHlcUGFnZXNcQWNjb3VudFxMb2dpbi5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[d:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Areas/Identity/Pages/Account/Logout.cshtml]
+[D:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Areas/Identity/Pages/Account/Logout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSWRlbnRpdHlcUGFnZXNcQWNjb3VudFxMb2dvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[d:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Areas/Identity/Pages/Account/Register.cshtml]
+[D:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Areas/Identity/Pages/Account/Register.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSWRlbnRpdHlcUGFnZXNcQWNjb3VudFxSZWdpc3Rlci5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[d:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Areas/Identity/Pages/_ViewStart.cshtml]
+[D:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Areas/Identity/Pages/_ViewStart.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSWRlbnRpdHlcUGFnZXNcX1ZpZXdTdGFydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[d:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/Admin/Dashboard.cshtml]
+[D:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/Admin/Dashboard.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cRGFzaGJvYXJkLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[d:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/Admin/Donations.cshtml]
+[D:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/Admin/Donations.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cRG9uYXRpb25zLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[d:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/Admin/NGOManagement.cshtml]
+[D:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/Admin/NGOManagement.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTkdPTWFuYWdlbWVudC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[d:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/Admin/Users.cshtml]
+[D:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/Admin/Users.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cVXNlcnMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[d:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/Analytics/Dashboard.cshtml]
+[D:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/Analytics/Dashboard.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQW5hbHl0aWNzXERhc2hib2FyZC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[d:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/Donations/Create.cshtml]
+[D:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/Donations/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRG9uYXRpb25zXENyZWF0ZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[d:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/Donations/Delete.cshtml]
+[D:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/Donations/Delete.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRG9uYXRpb25zXERlbGV0ZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[d:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/Donations/Details.cshtml]
+[D:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/Donations/Details.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRG9uYXRpb25zXERldGFpbHMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[d:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/Donations/Edit.cshtml]
+[D:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/Donations/Edit.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRG9uYXRpb25zXEVkaXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[d:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/Donations/Index.cshtml]
+[D:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/Donations/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRG9uYXRpb25zXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[d:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/Donor/Dashboard.cshtml]
+[D:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/Donor/Dashboard.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRG9ub3JcRGFzaGJvYXJkLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[d:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/Donor/DonationRequests.cshtml]
+[D:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/Donor/DonationRequests.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRG9ub3JcRG9uYXRpb25SZXF1ZXN0cy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[d:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/Donor/MyDonations.cshtml]
+[D:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/Donor/MyDonations.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRG9ub3JcTXlEb25hdGlvbnMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[d:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/Home/Index.cshtml]
+[D:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/Home/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[d:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/Home/Privacy.cshtml]
+[D:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/Home/Privacy.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[d:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/Map/Index.cshtml]
+[D:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/Map/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWFwXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[d:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/ML/Analytics.cshtml]
+[D:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/ML/Analytics.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTUxcQW5hbHl0aWNzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[d:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/NGO/AvailableDonations.cshtml]
+[D:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/NGO/AvailableDonations.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTkdPXEF2YWlsYWJsZURvbmF0aW9ucy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[d:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/NGO/Dashboard.cshtml]
+[D:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/NGO/Dashboard.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTkdPXERhc2hib2FyZC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[d:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/NGO/MyRequests.cshtml]
+[D:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/NGO/MyRequests.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTkdPXE15UmVxdWVzdHMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[d:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/Notifications/Index.cshtml]
+[D:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/Notifications/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTm90aWZpY2F0aW9uc1xJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[d:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/Shared/Error.cshtml]
+[D:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/Shared/Error.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXEVycm9yLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[d:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/Shared/_LoginPartial.cshtml]
+[D:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/Shared/_LoginPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9Mb2dpblBhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[d:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/Shared/_NotificationPartial.cshtml]
+[D:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/Shared/_NotificationPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9Ob3RpZmljYXRpb25QYXJ0aWFsLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[d:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/Shared/_ValidationScriptsPartial.cshtml]
+[D:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[d:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/_ViewImports.cshtml]
+[D:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/_ViewImports.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[d:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/_ViewStart.cshtml]
+[D:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/_ViewStart.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdTdGFydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[d:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/Shared/_Layout.cshtml]
+[D:/GitHub/smart-donation-food-redistribution-sys/SmartDonationSystem/Views/Shared/_Layout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = b-5cmpodf7v6
