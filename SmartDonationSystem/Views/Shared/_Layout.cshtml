@@ -1,108 +1,248 @@
-﻿<!DOCTYPE html>
+﻿@inject IConfiguration Configuration
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - SmartDonationSystem</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <meta name="description" content="Smart Donation and Food Redistribution System - Connecting donors with NGOs to reduce food waste" />
+    <title>@ViewData["Title"] - Smart Donation System</title>
+    
+    <!-- Bootstrap 5 CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" 
+          integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" 
+          crossorigin="anonymous">
+    
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" 
+          integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" 
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <!-- Custom Styles -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/SmartDonationSystem.styles.css" asp-append-version="true" />
+    
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">SmartDonationSystem</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+            <div class="container-fluid px-4">
+                <!-- Brand -->
+                <a class="navbar-brand fw-bold d-flex align-items-center" asp-area="" asp-controller="Home" asp-action="Index">
+                    <i class="fas fa-hands-helping me-2 fs-5"></i>
+                    <span>Smart Donation System</span>
+                </a>
+                
+                <!-- Mobile Toggle -->
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" 
+                        aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                
+                <!-- Navbar Content -->
+                <div class="collapse navbar-collapse" id="navbarContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <!-- Home -->
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Donations" asp-action="Index">Donations</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Map" asp-action="Index">Map</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Notifications" asp-action="Index">Notifications</a>
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">
+                                <i class="fas fa-home me-1"></i>Home
+                            </a>
                         </li>
                         
+                        <!-- Donations -->
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Donations" asp-action="Index">
+                                <i class="fas fa-gift me-1"></i>Donations
+                            </a>
+                        </li>
+                        
+                        <!-- Map -->
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Map" asp-action="Index">
+                                <i class="fas fa-map-marked-alt me-1"></i>Map
+                            </a>
+                        </li>
+                        
+                        <!-- Notifications -->
+                        <li class="nav-item">
+                            <a class="nav-link position-relative" asp-area="" asp-controller="Notifications" asp-action="Index">
+                                <i class="fas fa-bell me-1"></i>Notifications
+                            </a>
+                        </li>
+                        
+                        <!-- Admin Menu -->
                         @if (User.IsInRole("Admin"))
                         {
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle text-dark" href="#" role="button" data-bs-toggle="dropdown">
-                                    Admin
+                                <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" 
+                                   data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-user-shield me-1"></i>Admin
                                 </a>
-                                <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" asp-controller="Admin" asp-action="Dashboard">Dashboard</a></li>
-                        <li><a class="dropdown-item" asp-controller="Admin" asp-action="Users">Manage Users</a></li>
-                        <li><a class="dropdown-item" asp-controller="Admin" asp-action="Donations">Manage Donations</a></li>
-                        <li><a class="dropdown-item" asp-controller="Admin" asp-action="NGOManagement">Manage NGOs</a></li>
-                        <li><a class="dropdown-item" asp-controller="Analytics" asp-action="Dashboard">Analytics Dashboard</a></li>
-                        <li><a class="dropdown-item" asp-controller="ML" asp-action="Analytics">AI Analytics</a></li>
+                                <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="adminDropdown">
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Admin" asp-action="Dashboard">
+                                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Admin" asp-action="Users">
+                                            <i class="fas fa-users me-2"></i>Manage Users
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Admin" asp-action="Donations">
+                                            <i class="fas fa-gift me-2"></i>Manage Donations
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Admin" asp-action="NGOManagement">
+                                            <i class="fas fa-building me-2"></i>Manage NGOs
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Analytics" asp-action="Dashboard">
+                                            <i class="fas fa-chart-bar me-2"></i>Analytics Dashboard
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="ML" asp-action="Analytics">
+                                            <i class="fas fa-brain me-2"></i>AI Analytics
+                                        </a>
+                                    </li>
                                 </ul>
                             </li>
                         }
                         
+                        <!-- NGO Menu -->
                         @if (User.IsInRole("NGO"))
                         {
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle text-dark" href="#" role="button" data-bs-toggle="dropdown">
-                                    NGO
+                                <a class="nav-link dropdown-toggle" href="#" id="ngoDropdown" role="button" 
+                                   data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-building me-1"></i>NGO
                                 </a>
-                                <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" asp-controller="NGO" asp-action="Dashboard">Dashboard</a></li>
-                                    <li><a class="dropdown-item" asp-controller="NGO" asp-action="AvailableDonations">Available Donations</a></li>
-                                    <li><a class="dropdown-item" asp-controller="NGO" asp-action="MyRequests">My Requests</a></li>
+                                <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="ngoDropdown">
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="NGO" asp-action="Dashboard">
+                                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="NGO" asp-action="AvailableDonations">
+                                            <i class="fas fa-list me-2"></i>Available Donations
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="NGO" asp-action="MyRequests">
+                                            <i class="fas fa-inbox me-2"></i>My Requests
+                                        </a>
+                                    </li>
                                 </ul>
                             </li>
                         }
                         
+                        <!-- Donor Menu -->
                         @if (User.IsInRole("Donor"))
                         {
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle text-dark" href="#" role="button" data-bs-toggle="dropdown">
-                                    Donor
+                                <a class="nav-link dropdown-toggle" href="#" id="donorDropdown" role="button" 
+                                   data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-user me-1"></i>Donor
                                 </a>
-                                <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" asp-controller="Donor" asp-action="Dashboard">Dashboard</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Donor" asp-action="MyDonations">My Donations</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Donor" asp-action="DonationRequests">Requests</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Donations" asp-action="Create">Create Donation</a></li>
+                                <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="donorDropdown">
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Donor" asp-action="Dashboard">
+                                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Donor" asp-action="MyDonations">
+                                            <i class="fas fa-gift me-2"></i>My Donations
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Donor" asp-action="DonationRequests">
+                                            <i class="fas fa-inbox me-2"></i>Requests
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Donations" asp-action="Create">
+                                            <i class="fas fa-plus-circle me-2"></i>Create Donation
+                                        </a>
+                                    </li>
                                 </ul>
                             </li>
                         }
-                        
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
                     </ul>
-                    <partial name="_LoginPartial" />
-        <partial name="_NotificationPartial" />
+                    
+                    <!-- Right Side: Notifications & Login -->
+                    <ul class="navbar-nav ms-auto">
+                        <partial name="_NotificationPartial" />
+                        <partial name="_LoginPartial" />
+                    </ul>
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - SmartDonationSystem - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <!-- Main Content -->
+    <main role="main" class="flex-shrink-0">
+        <div class="container-fluid px-4 py-4">
+            @RenderBody()
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-light border-top mt-auto py-4">
+        <div class="container-fluid px-4">
+            <div class="row align-items-center">
+                <div class="col-md-6 mb-3 mb-md-0">
+                    <p class="mb-0 text-muted small">
+                        <i class="fas fa-copyright me-1"></i>
+                        @DateTime.Now.Year Smart Donation and Food Redistribution System. All rights reserved.
+                    </p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0 text-muted small">
+                        <i class="fas fa-heart text-danger me-1"></i>
+                        Connecting donors with NGOs to reduce food waste
+                    </p>
+                </div>
+            </div>
         </div>
     </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <!-- Scripts -->
+    <!-- jQuery (if needed for existing functionality) -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" 
+            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" 
+            crossorigin="anonymous"></script>
+    
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" 
+            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" 
+            crossorigin="anonymous"></script>
+    
+    <!-- SignalR - Load before other scripts that use it -->
     <script src="https://unpkg.com/@@microsoft/signalr@latest/dist/browser/signalr.min.js"></script>
+    
+    <!-- Google Maps API Script -->
+    @{
+        var googleMapsApiKey = Configuration.GetValue<string>("GoogleMaps:ApiKey") ?? "";
+    }
+    @if (!string.IsNullOrEmpty(googleMapsApiKey) && googleMapsApiKey != "YOUR_GOOGLE_MAPS_API_KEY_HERE" && googleMapsApiKey != "YOUR_API_KEY")
+    {
+        <script src="https://maps.googleapis.com/maps/api/js?key=@googleMapsApiKey&libraries=places,geometry&loading=async" 
+                async defer></script>
+    }
+    
+    <!-- Custom Site Scripts -->
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

@@ -2,64 +2,213 @@
 
 @{
     ViewData["Title"] = "Donor Dashboard";
+    var activeDonations = Model.AvailableDonations + Model.ReservedDonations;
 }
 
-<h1>Donor Dashboard</h1>
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">
+            <i class="fas fa-tachometer-alt me-2 text-primary"></i>Donor Dashboard
+        </h2>
+        <p class="text-muted mb-0">Manage your donations and track your impact</p>
+    </div>
+    <a asp-controller="Donations" asp-action="Create" class="btn btn-primary">
+        <i class="fas fa-plus-circle me-2"></i>Create New Donation
+    </a>
+</div>
 
 <!-- Statistics Cards -->
-<div class="row mb-4">
-    <div class="col-md-3 mb-3">
-        <div class="card bg-primary text-white">
-            <div class="card-body text-center">
-                <h4 class="card-title">@Model.TotalDonations</h4>
-                <p class="card-text">Total Donations</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3 mb-3">
-        <div class="card bg-success text-white">
-            <div class="card-body text-center">
-                <h4 class="card-title">@Model.AvailableDonations</h4>
-                <p class="card-text">Available</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3 mb-3">
-        <div class="card bg-warning text-white">
-            <div class="card-body text-center">
-                <h4 class="card-title">@Model.ReservedDonations</h4>
-                <p class="card-text">Reserved</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3 mb-3">
-        <div class="card bg-info text-white">
-            <div class="card-body text-center">
-                <h4 class="card-title">@Model.CollectedDonations</h4>
-                <p class="card-text">Collected</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Quick Actions -->
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="card">
+<div class="row g-4 mb-4">
+    <!-- Total Donations -->
+    <div class="col-md-6 col-lg-3">
+        <div class="card border-0 shadow-sm h-100">
             <div class="card-body">
-                <h5 class="card-title">Quick Actions</h5>
-                <div class="row">
-                    <div class="col-md-3 mb-2">
-                        <a asp-controller="Donations" asp-action="Create" class="btn btn-success btn-block">Create New Donation</a>
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h6 class="text-muted text-uppercase small fw-semibold mb-2">Total Donations</h6>
+                        <h2 class="fw-bold mb-0">@Model.TotalDonations</h2>
                     </div>
-                    <div class="col-md-3 mb-2">
-                        <a asp-action="MyDonations" class="btn btn-primary btn-block">My Donations</a>
+                    <div class="bg-primary bg-opacity-10 rounded-circle p-3">
+                        <i class="fas fa-gift fa-2x text-primary"></i>
                     </div>
-                    <div class="col-md-3 mb-2">
-                        <a asp-action="DonationRequests" class="btn btn-warning btn-block">View Requests</a>
+                </div>
+                <p class="text-muted small mb-0">
+                    <i class="fas fa-chart-line me-1"></i>All time donations
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Donations -->
+    <div class="col-md-6 col-lg-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h6 class="text-muted text-uppercase small fw-semibold mb-2">Active Donations</h6>
+                        <h2 class="fw-bold mb-0">@activeDonations</h2>
                     </div>
-                    <div class="col-md-3 mb-2">
-                        <a asp-controller="Donations" asp-action="Index" class="btn btn-secondary btn-block">All Donations</a>
+                    <div class="bg-success bg-opacity-10 rounded-circle p-3">
+                        <i class="fas fa-clock fa-2x text-success"></i>
+                    </div>
+                </div>
+                <p class="text-muted small mb-0">
+                    <i class="fas fa-info-circle me-1"></i>Available + Reserved
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Available Donations -->
+    <div class="col-md-6 col-lg-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h6 class="text-muted text-uppercase small fw-semibold mb-2">Available</h6>
+                        <h2 class="fw-bold mb-0 text-success">@Model.AvailableDonations</h2>
+                    </div>
+                    <div class="bg-success bg-opacity-10 rounded-circle p-3">
+                        <i class="fas fa-check-circle fa-2x text-success"></i>
+                    </div>
+                </div>
+                <p class="text-muted small mb-0">
+                    <i class="fas fa-map-marker-alt me-1"></i>Ready for pickup
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Collected Donations -->
+    <div class="col-md-6 col-lg-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h6 class="text-muted text-uppercase small fw-semibold mb-2">Collected</h6>
+                        <h2 class="fw-bold mb-0 text-info">@Model.CollectedDonations</h2>
+                    </div>
+                    <div class="bg-info bg-opacity-10 rounded-circle p-3">
+                        <i class="fas fa-check-double fa-2x text-info"></i>
+                    </div>
+                </div>
+                <p class="text-muted small mb-0">
+                    <i class="fas fa-truck me-1"></i>Successfully distributed
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Donation Status Widget -->
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-bottom py-3">
+                <h5 class="mb-0 fw-semibold">
+                    <i class="fas fa-chart-pie me-2 text-primary"></i>Donation Status
+                </h5>
+            </div>
+            <div class="card-body">
+                @if (Model.TotalDonations > 0)
+                {
+                    var availablePercent = Model.TotalDonations > 0 ? (Model.AvailableDonations * 100.0 / Model.TotalDonations) : 0;
+                    var reservedPercent = Model.TotalDonations > 0 ? (Model.ReservedDonations * 100.0 / Model.TotalDonations) : 0;
+                    var collectedPercent = Model.TotalDonations > 0 ? (Model.CollectedDonations * 100.0 / Model.TotalDonations) : 0;
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="small fw-semibold">
+                                <i class="fas fa-circle text-success me-1" style="font-size: 0.5rem;"></i>Available
+                            </span>
+                            <span class="small text-muted">@Model.AvailableDonations (@availablePercent.ToString("F1"))%</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-success" role="progressbar" 
+                                 style="width: @availablePercent%" 
+                                 aria-valuenow="@availablePercent" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="small fw-semibold">
+                                <i class="fas fa-circle text-warning me-1" style="font-size: 0.5rem;"></i>Reserved
+                            </span>
+                            <span class="small text-muted">@Model.ReservedDonations (@reservedPercent.ToString("F1"))%</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-warning" role="progressbar" 
+                                 style="width: @reservedPercent%" 
+                                 aria-valuenow="@reservedPercent" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="small fw-semibold">
+                                <i class="fas fa-circle text-info me-1" style="font-size: 0.5rem;"></i>Collected
+                            </span>
+                            <span class="small text-muted">@Model.CollectedDonations (@collectedPercent.ToString("F1"))%</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-info" role="progressbar" 
+                                 style="width: @collectedPercent%" 
+                                 aria-valuenow="@collectedPercent" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+
+                    <hr class="my-3">
+
+                    <div class="text-center">
+                        <a asp-action="MyDonations" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-list me-1"></i>View All Donations
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-4">
+                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                        <p class="text-muted mb-0">No donations yet</p>
+                        <a asp-controller="Donations" asp-action="Create" class="btn btn-sm btn-primary mt-3">
+                            <i class="fas fa-plus me-1"></i>Create First Donation
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Map Widget -->
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-bottom py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-semibold">
+                        <i class="fas fa-map-marked-alt me-2 text-primary"></i>Donation Pickup Locations
+                    </h5>
+                    <a asp-controller="Map" asp-action="Index" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-external-link-alt me-1"></i>View Full Map
+                    </a>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div id="donorMap" style="height: 400px; width: 100%; border-radius: 0 0 0.5rem 0.5rem;">
+                    <!-- Google Maps will be integrated here -->
+                    <div class="d-flex align-items-center justify-content-center h-100 bg-light">
+                        <div class="text-center">
+                            <i class="fas fa-map-marked-alt fa-4x text-muted mb-3"></i>
+                            <h6 class="fw-semibold mb-2">Map Integration</h6>
+                            <p class="text-muted small mb-0">
+                                Google Maps will display your donation pickup locations here
+                            </p>
+                            <p class="text-muted small mt-2">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Replace YOUR_API_KEY in _Layout.cshtml to enable maps
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -67,184 +216,233 @@
     </div>
 </div>
 
-<!-- Pending Requests -->
-@if (Model.PendingRequests.Any())
-{
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Pending Requests (@Model.PendingRequests.Count)</h5>
+<!-- Recent Donations & Pending Requests -->
+<div class="row g-4 mt-2">
+    <!-- Recent Donations -->
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-semibold">
+                        <i class="fas fa-history me-2 text-primary"></i>Recent Donations
+                    </h5>
+                    <a asp-action="MyDonations" class="btn btn-sm btn-outline-primary">View All</a>
                 </div>
-                <div class="card-body">
+            </div>
+            <div class="card-body">
+                @if (Model.RecentDonations.Any())
+                {
                     <div class="table-responsive">
-                        <table class="table table-sm">
+                        <table class="table table-hover mb-0">
                             <thead>
                                 <tr>
                                     <th>Donation</th>
-                                    <th>NGO</th>
-                                    <th>Message</th>
-                                    <th>Requested</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (var request in Model.PendingRequests)
+                                @foreach (var donation in Model.RecentDonations)
                                 {
                                     <tr>
                                         <td>
-                                            <strong>@request.Donation?.Title</strong>
+                                            <strong>@donation.Title</strong>
                                             <br>
-                                            <small class="text-muted">@request.Donation?.FoodType - @request.Donation?.Quantity @request.Donation?.Unit</small>
+                                            <small class="text-muted">@donation.Quantity @donation.Unit</small>
                                         </td>
-                                        <td>@request.NGO?.Name</td>
-                                        <td>@request.Message</td>
-                                        <td>@request.CreatedAt.ToString("MMM dd, yyyy")</td>
                                         <td>
-                                            <div class="btn-group" role="group">
-                                                <button type="button" class="btn btn-sm btn-success" 
-                                                        data-bs-toggle="modal" data-bs-target="#approveModal" 
-                                                        data-request-id="@request.Id" data-donation-title="@request.Donation?.Title">
-                                                    Approve
-                                                </button>
-                                                <button type="button" class="btn btn-sm btn-danger" 
-                                                        data-bs-toggle="modal" data-bs-target="#rejectModal" 
-                                                        data-request-id="@request.Id" data-donation-title="@request.Donation?.Title">
-                                                    Reject
-                                                </button>
-                                            </div>
+                                            <span class="badge bg-secondary">@donation.FoodType</span>
+                                        </td>
+                                        <td>
+                                            @{
+                                                var statusClass = donation.Status switch
+                                                {
+                                                    "Available" => "success",
+                                                    "Reserved" => "warning", /* Yellow for Pending/Reserved */
+                                                    "Collected" => "success", /* Green for Delivered/Collected */
+                                                    _ => "secondary"
+                                                };
+                                            }
+                                            <span class="badge bg-@statusClass">@donation.Status</span>
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">@donation.CreatedAt.ToString("MMM dd, yyyy")</small>
+                                        </td>
+                                        <td>
+                                            <a asp-controller="Donations" asp-action="Details" asp-route-id="@donation.Id" 
+                                               class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
                                         </td>
                                     </tr>
                                 }
                             </tbody>
                         </table>
                     </div>
-                </div>
+                }
+                else
+                {
+                    <div class="text-center py-4">
+                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                        <p class="text-muted mb-0">No donations created yet</p>
+                        <a asp-controller="Donations" asp-action="Create" class="btn btn-sm btn-primary mt-3">
+                            <i class="fas fa-plus me-1"></i>Create First Donation
+                        </a>
+                    </div>
+                }
             </div>
         </div>
     </div>
-}
 
-<!-- Recent Donations -->
-<div class="row">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Recent Donations</h5>
-                <a asp-action="MyDonations" class="btn btn-primary btn-sm">View All</a>
+    <!-- Pending Requests -->
+    <div class="col-lg-5">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-semibold">
+                        <i class="fas fa-bell me-2 text-warning"></i>Pending Requests
+                        @if (Model.PendingRequests.Any())
+                        {
+                            <span class="badge bg-warning ms-2">@Model.PendingRequests.Count</span>
+                        }
+                    </h5>
+                    @if (Model.PendingRequests.Any())
+                    {
+                        <a asp-action="DonationRequests" class="btn btn-sm btn-outline-primary">View All</a>
+                    }
+                </div>
             </div>
             <div class="card-body">
-                @if (Model.RecentDonations.Any())
+                @if (Model.PendingRequests.Any())
                 {
-                    <div class="row">
-                        @foreach (var donation in Model.RecentDonations)
+                    <div class="list-group list-group-flush">
+                        @foreach (var request in Model.PendingRequests.Take(5))
                         {
-                            <div class="col-md-6 mb-3">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <h6 class="card-title">@donation.Title</h6>
-                                        <p class="card-text">@donation.Description</p>
-                                        <p class="card-text">
-                                            <small class="text-muted">
-                                                <strong>Type:</strong> @donation.FoodType | 
-                                                <strong>Quantity:</strong> @donation.Quantity @donation.Unit |
-                                                <strong>Status:</strong> 
-                                                <span class="badge bg-@(donation.Status == "Available" ? "success" : donation.Status == "Reserved" ? "warning" : "secondary")">@donation.Status</span>
-                                            </small>
+                            <div class="list-group-item border-0 px-0">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1 fw-semibold">@request.Donation?.Title</h6>
+                                        <p class="small text-muted mb-1">
+                                            <i class="fas fa-building me-1"></i>@request.NGO?.Name
                                         </p>
-                                        <div class="d-flex justify-content-between">
-                                            <a asp-controller="Donations" asp-action="Details" asp-route-id="@donation.Id" 
-                                               class="btn btn-sm btn-outline-primary">View</a>
-                                            <a asp-controller="Donations" asp-action="Edit" asp-route-id="@donation.Id" 
-                                               class="btn btn-sm btn-outline-secondary">Edit</a>
-                                        </div>
+                                        @if (!string.IsNullOrEmpty(request.Message))
+                                        {
+                                            <p class="small mb-0 text-muted">@(request.Message.Length > 50 ? request.Message.Substring(0, 50) + "..." : request.Message)</p>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        <i class="fas fa-clock me-1"></i>@request.CreatedAt.ToString("MMM dd, yyyy")
+                                    </small>
+                                    <div class="btn-group btn-group-sm">
+                                        <form asp-action="ApproveRequest" method="post" class="d-inline">
+                                            <input type="hidden" name="requestId" value="@request.Id" />
+                                            <button type="submit" class="btn btn-sm btn-info">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                        </form>
+                                        <form asp-action="RejectRequest" method="post" class="d-inline">
+                                            <input type="hidden" name="requestId" value="@request.Id" />
+                                            <button type="submit" class="btn btn-sm btn-danger" 
+                                                    onclick="return confirm('Are you sure you want to reject this request?')">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </form>
                                     </div>
                                 </div>
                             </div>
+                            @if (request != Model.PendingRequests.Last())
+                            {
+                                <hr class="my-2">
+                            }
                         }
                     </div>
                 }
                 else
                 {
-                    <p class="text-muted">No donations created yet.</p>
+                    <div class="text-center py-4">
+                        <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                        <p class="text-muted mb-0">No pending requests</p>
+                        <small class="text-muted">All caught up!</small>
+                    </div>
                 }
             </div>
         </div>
     </div>
 </div>
 
-<!-- Approve Modal -->
-<div class="modal fade" id="approveModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Approve Donation Request</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+<!-- Quick Actions -->
+<div class="row g-4 mt-2">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom py-3">
+                <h5 class="mb-0 fw-semibold">
+                    <i class="fas fa-bolt me-2 text-primary"></i>Quick Actions
+                </h5>
             </div>
-            <form asp-action="ApproveRequest" method="post">
-                <div class="modal-body">
-                    <input type="hidden" id="approveRequestId" name="requestId" />
-                    <div class="mb-3">
-                        <label for="approveResponseMessage" class="form-label">Response Message (Optional)</label>
-                        <textarea class="form-control" id="approveResponseMessage" name="responseMessage" rows="3" 
-                                  placeholder="Add a message for the NGO..."></textarea>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-3 col-sm-6">
+                        <a asp-controller="Donations" asp-action="Create" class="btn btn-primary w-100">
+                            <i class="fas fa-plus-circle me-2"></i>Create Donation
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <a asp-action="MyDonations" class="btn btn-primary w-100">
+                            <i class="fas fa-list me-2"></i>My Donations
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <a asp-action="DonationRequests" class="btn btn-warning w-100">
+                            <i class="fas fa-inbox me-2"></i>View Requests
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <a asp-controller="Donations" asp-action="Index" class="btn btn-secondary w-100">
+                            <i class="fas fa-globe me-2"></i>All Donations
+                        </a>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-success">Approve Request</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Reject Modal -->
-<div class="modal fade" id="rejectModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Reject Donation Request</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form asp-action="RejectRequest" method="post">
-                <div class="modal-body">
-                    <input type="hidden" id="rejectRequestId" name="requestId" />
-                    <div class="mb-3">
-                        <label for="rejectResponseMessage" class="form-label">Reason for Rejection</label>
-                        <textarea class="form-control" id="rejectResponseMessage" name="responseMessage" rows="3" 
-                                  placeholder="Explain why you're rejecting this request..."></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-danger">Reject Request</button>
-                </div>
-            </form>
         </div>
     </div>
 </div>
 
 @section Scripts {
     <script>
-        // Approve modal
-        document.getElementById('approveModal').addEventListener('show.bs.modal', function (event) {
-            var button = event.relatedTarget;
-            var requestId = button.getAttribute('data-request-id');
-            var donationTitle = button.getAttribute('data-donation-title');
-            
-            document.getElementById('approveRequestId').value = requestId;
-            document.querySelector('#approveModal .modal-title').textContent = 'Approve Request for: ' + donationTitle;
-        });
+        // Initialize Google Maps when API key is available
+        function initDonorMap() {
+            // Check if Google Maps API is loaded
+            if (typeof google !== 'undefined' && google.maps) {
+                // Default center (you can use user's location or a default location)
+                const defaultCenter = { lat: 40.7128, lng: -74.0060 }; // New York City as default
+                
+                const map = new google.maps.Map(document.getElementById('donorMap'), {
+                    zoom: 10,
+                    center: defaultCenter,
+                    mapTypeControl: true,
+                    streetViewControl: false,
+                    fullscreenControl: true
+                });
 
-        // Reject modal
-        document.getElementById('rejectModal').addEventListener('show.bs.modal', function (event) {
-            var button = event.relatedTarget;
-            var requestId = button.getAttribute('data-request-id');
-            var donationTitle = button.getAttribute('data-donation-title');
-            
-            document.getElementById('rejectRequestId').value = requestId;
-            document.querySelector('#rejectModal .modal-title').textContent = 'Reject Request for: ' + donationTitle;
+                // Add markers for donations with pickup addresses
+                // This would be populated from server-side data
+                // Example marker:
+                // const marker = new google.maps.Marker({
+                //     position: { lat: 40.7128, lng: -74.0060 },
+                //     map: map,
+                //     title: 'Donation Pickup Location'
+                // });
+            }
+        }
+
+        // Initialize map when page loads
+        window.addEventListener('load', function() {
+            // Wait a bit for Google Maps to load
+            setTimeout(initDonorMap, 1000);
         });
     </script>
 }

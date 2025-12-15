@@ -44,12 +44,24 @@ namespace SmartDonationSystem.Controllers
                 .AsNoTracking()
                 .ToListAsync();
 
-            // Recent users
-            analytics.RecentUsers = await _userManager.Users
+            // Recent users with roles
+            var recentUsers = await _userManager.Users
                 .OrderByDescending(u => u.CreatedAt)
                 .Take(10)
                 .AsNoTracking()
                 .ToListAsync();
+
+            analytics.RecentUsers = recentUsers;
+            analytics.RecentUsersWithRoles = new List<UserWithRoles>();
+            foreach (var user in recentUsers)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                analytics.RecentUsersWithRoles.Add(new UserWithRoles
+                {
+                    User = user,
+                    Roles = roles.ToList()
+                });
+            }
 
             return View(analytics);
         }
@@ -184,6 +196,13 @@ namespace SmartDonationSystem.Controllers
         public int ApprovedRequests { get; set; }
         public List<Donation> RecentDonations { get; set; } = new List<Donation>();
         public List<ApplicationUser> RecentUsers { get; set; } = new List<ApplicationUser>();
+        public List<UserWithRoles> RecentUsersWithRoles { get; set; } = new List<UserWithRoles>();
+    }
+
+    public class UserWithRoles
+    {
+        public ApplicationUser User { get; set; } = new ApplicationUser();
+        public List<string> Roles { get; set; } = new List<string>();
     }
 
     public class UserManagementViewModel

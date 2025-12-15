@@ -1,126 +1,446 @@
 ﻿@{
-    ViewData["Title"] = "Smart Donation System";
+    ViewData["Title"] = "Home - Smart Donation System";
 }
 
-<div class="text-center mb-5">
-    <h1 class="display-4">Smart Donation System</h1>
-    <p class="lead">Connecting donors with NGOs to reduce food waste and fight hunger</p>
-</div>
-
-@if (User.Identity.IsAuthenticated)
-{
-    <div class="row">
-        @if (User.IsInRole("Admin"))
-        {
-            <div class="col-md-4 mb-4">
-                <div class="card bg-primary text-white">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">Admin Dashboard</h5>
-                        <p class="card-text">Manage users, donations, and system analytics</p>
-                        <a asp-controller="Admin" asp-action="Dashboard" class="btn btn-light">Go to Dashboard</a>
-                    </div>
-                </div>
-            </div>
-        }
-        
-        @if (User.IsInRole("Donor"))
-        {
-            <div class="col-md-4 mb-4">
-                <div class="card bg-success text-white">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">Create Donation</h5>
-                        <p class="card-text">Share your surplus food with those in need</p>
-                        <a asp-controller="Donations" asp-action="Create" class="btn btn-light">Create Donation</a>
-                    </div>
-                </div>
-            </div>
-        }
-        
-        @if (User.IsInRole("NGO"))
-        {
-            <div class="col-md-4 mb-4">
-                <div class="card bg-info text-white">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">NGO Dashboard</h5>
-                        <p class="card-text">View available donations and manage requests</p>
-                        <a asp-controller="NGO" asp-action="Dashboard" class="btn btn-light">Go to Dashboard</a>
-                    </div>
-                </div>
-            </div>
-        }
-    </div>
-    
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Quick Actions</h5>
-                    <div class="row">
-                        <div class="col-md-3 mb-2">
-                            <a asp-controller="Donations" asp-action="Index" class="btn btn-outline-primary btn-block">View All Donations</a>
-                        </div>
+<!-- Hero Section -->
+<section class="hero-section bg-primary text-white py-5 mb-5">
+    <div class="container">
+        <div class="row align-items-center min-vh-50">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <h1 class="display-4 fw-bold mb-4">
+                    <i class="fas fa-hands-helping me-3"></i>
+                    Reduce Food Waste, Feed the Needy
+                </h1>
+                <p class="lead mb-4">
+                    Connect surplus food from donors with NGOs and communities in need. 
+                    Together, we can fight hunger and reduce food waste through smart technology.
+                </p>
+                <div class="d-flex flex-wrap gap-3">
+                    @if (!User.Identity.IsAuthenticated)
+                    {
+                        <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-light btn-lg px-4">
+                            <i class="fas fa-user-plus me-2"></i>Get Started
+                        </a>
+                        <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-outline-light btn-lg px-4">
+                            <i class="fas fa-sign-in-alt me-2"></i>Login
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-controller="Donations" asp-action="Index" class="btn btn-light btn-lg px-4">
+                            <i class="fas fa-gift me-2"></i>View Donations
+                        </a>
                         @if (User.IsInRole("Donor"))
                         {
-                            <div class="col-md-3 mb-2">
-                                <a asp-controller="Donations" asp-action="Create" class="btn btn-outline-success btn-block">Create New Donation</a>
-                            </div>
+                            <a asp-controller="Donations" asp-action="Create" class="btn btn-outline-light btn-lg px-4">
+                                <i class="fas fa-plus-circle me-2"></i>Create Donation
+                            </a>
                         }
-                        @if (User.IsInRole("NGO"))
+                    }
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                <div class="hero-image-container">
+                    <i class="fas fa-globe-americas" style="font-size: 15rem; opacity: 0.3;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="how-it-works py-5 mb-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold mb-3">How It Works</h2>
+            <p class="lead text-muted">Simple steps to make a big impact</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm text-center">
+                    <div class="card-body p-4">
+                        <div class="step-icon bg-primary bg-gradient text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-4" 
+                             style="width: 80px; height: 80px;">
+                            <i class="fas fa-gift fa-2x"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">1. Donate</h4>
+                        <p class="text-muted">
+                            Donors post surplus food donations with details like quantity, 
+                            type, and location. Quick and easy process.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm text-center">
+                    <div class="card-body p-4">
+                        <div class="step-icon bg-success bg-gradient text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-4" 
+                             style="width: 80px; height: 80px;">
+                            <i class="fas fa-map-marked-alt fa-2x"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">2. Map</h4>
+                        <p class="text-muted">
+                            Our intelligent mapping system shows donation locations and 
+                            helps NGOs find the nearest available food sources.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm text-center">
+                    <div class="card-body p-4">
+                        <div class="step-icon bg-info bg-gradient text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-4" 
+                             style="width: 80px; height: 80px;">
+                            <i class="fas fa-truck fa-2x"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">3. Distribute</h4>
+                        <p class="text-muted">
+                            NGOs request donations and coordinate pickup. Food reaches 
+                            those in need efficiently and safely.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- AI Prediction Feature Highlight -->
+<section class="ai-feature bg-light py-5 mb-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <div class="ai-preview-card bg-white rounded shadow-lg p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="ai-icon bg-primary bg-gradient text-white rounded-circle d-inline-flex align-items-center justify-content-center me-3" 
+                             style="width: 60px; height: 60px;">
+                            <i class="fas fa-brain fa-2x"></i>
+                        </div>
+                        <h3 class="fw-bold mb-0">AI-Powered Predictions</h3>
+                    </div>
+                    <p class="text-muted mb-4">
+                        Our machine learning algorithms analyze donation patterns, 
+                        predict food demand, and optimize distribution routes to 
+                        maximize impact and reduce waste.
+                    </p>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            <strong>Demand Forecasting:</strong> Predict food needs by area
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            <strong>Route Optimization:</strong> Efficient distribution paths
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            <strong>Pattern Analysis:</strong> Identify donation trends
+                        </li>
+                    </ul>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <a asp-controller="ML" asp-action="Analytics" class="btn btn-primary mt-3">
+                            <i class="fas fa-chart-line me-2"></i>View AI Analytics
+                        </a>
+                    }
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="ai-visualization bg-white rounded shadow-sm p-4 text-center">
+                    <i class="fas fa-chart-bar text-primary mb-3" style="font-size: 5rem;"></i>
+                    <h5 class="fw-bold mb-2">Real-Time Analytics</h5>
+                    <p class="text-muted small mb-0">
+                        Track donation patterns, predict demand, and optimize 
+                        food distribution with intelligent insights.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Google Maps Integration Preview -->
+<section class="maps-preview py-5 mb-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold mb-3">Interactive Map Integration</h2>
+            <p class="lead text-muted">Visualize donations and find the nearest food sources</p>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="card border-0 shadow-lg">
+                    <div class="card-body p-0">
+                        <div class="map-preview-container bg-light position-relative" style="height: 400px; border-radius: 0.5rem;">
+                            <div class="position-absolute top-50 start-50 translate-middle text-center">
+                                <i class="fas fa-map-marked-alt text-primary mb-3" style="font-size: 4rem;"></i>
+                                <h5 class="fw-bold mb-2">Interactive Map View</h5>
+                                <p class="text-muted mb-3">
+                                    See all donation locations, NGO centers, and distribution points on an interactive map
+                                </p>
+                                <a asp-controller="Map" asp-action="Index" class="btn btn-primary">
+                                    <i class="fas fa-map me-2"></i>Explore Map
+                                </a>
+                            </div>
+                            <!-- Google Maps will be integrated here -->
+                            <div id="homeMapPreview" style="width: 100%; height: 100%; border-radius: 0.5rem; display: none;">
+                                <!-- Map container for future integration -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-4 g-3">
+            <div class="col-md-4">
+                <div class="text-center">
+                    <i class="fas fa-map-pin text-primary mb-2" style="font-size: 2rem;"></i>
+                    <h6 class="fw-bold">Donation Locations</h6>
+                    <p class="text-muted small mb-0">View all available food donations on the map</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center">
+                    <i class="fas fa-building text-success mb-2" style="font-size: 2rem;"></i>
+                    <h6 class="fw-bold">NGO Centers</h6>
+                    <p class="text-muted small mb-0">Find nearby NGOs ready to receive donations</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center">
+                    <i class="fas fa-route text-info mb-2" style="font-size: 2rem;"></i>
+                    <h6 class="fw-bold">Optimal Routes</h6>
+                    <p class="text-muted small mb-0">Get directions and optimize pickup routes</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Role-Based Access Cards -->
+<section class="role-cards py-5 mb-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold mb-3">Join Our Community</h2>
+            <p class="lead text-muted">Choose your role and start making a difference</p>
+        </div>
+        <div class="row g-4">
+            <!-- Donor Card -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 border-0 shadow-lg role-card">
+                    <div class="card-header bg-primary bg-gradient text-white text-center py-4 border-0">
+                        <i class="fas fa-user-circle fa-3x mb-3"></i>
+                        <h4 class="fw-bold mb-0">Donor</h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <p class="text-muted mb-4">
+                            Share your surplus food and help reduce waste while feeding those in need.
+                        </p>
+                        <ul class="list-unstyled mb-4">
+                            <li class="mb-3">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                Easy donation posting
+                            </li>
+                            <li class="mb-3">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                Track your impact
+                            </li>
+                            <li class="mb-3">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                Connect with NGOs
+                            </li>
+                            <li class="mb-3">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                Real-time notifications
+                            </li>
+                        </ul>
+                        @if (!User.Identity.IsAuthenticated)
                         {
-                            <div class="col-md-3 mb-2">
-                                <a asp-controller="NGO" asp-action="AvailableDonations" class="btn btn-outline-info btn-block">Browse Available Donations</a>
-                            </div>
+                            <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-primary w-100">
+                                <i class="fas fa-user-plus me-2"></i>Register as Donor
+                            </a>
                         }
+                        else if (User.IsInRole("Donor"))
+                        {
+                            <a asp-controller="Donor" asp-action="Dashboard" class="btn btn-primary w-100">
+                                <i class="fas fa-tachometer-alt me-2"></i>Go to Dashboard
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-controller="Donations" asp-action="Create" class="btn btn-outline-success w-100">
+                                <i class="fas fa-gift me-2"></i>Create Donation
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- NGO Card -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 border-0 shadow-lg role-card">
+                    <div class="card-header bg-info bg-gradient text-white text-center py-4 border-0">
+                        <i class="fas fa-building fa-3x mb-3"></i>
+                        <h4 class="fw-bold mb-0">NGO</h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <p class="text-muted mb-4">
+                            Access fresh food donations for your community and manage requests efficiently.
+                        </p>
+                        <ul class="list-unstyled mb-4">
+                            <li class="mb-3">
+                                <i class="fas fa-check-circle text-info me-2"></i>
+                                Browse available donations
+                            </li>
+                            <li class="mb-3">
+                                <i class="fas fa-check-circle text-info me-2"></i>
+                                Request donations easily
+                            </li>
+                            <li class="mb-3">
+                                <i class="fas fa-check-circle text-info me-2"></i>
+                                Manage your requests
+                            </li>
+                            <li class="mb-3">
+                                <i class="fas fa-check-circle text-info me-2"></i>
+                                Track distribution
+                            </li>
+                        </ul>
+                        @if (!User.Identity.IsAuthenticated)
+                        {
+                            <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-info w-100">
+                                <i class="fas fa-building me-2"></i>Register as NGO
+                            </a>
+                        }
+                        else if (User.IsInRole("NGO"))
+                        {
+                            <a asp-controller="NGO" asp-action="Dashboard" class="btn btn-info w-100">
+                                <i class="fas fa-tachometer-alt me-2"></i>Go to Dashboard
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-controller="NGO" asp-action="AvailableDonations" class="btn btn-outline-info w-100">
+                                <i class="fas fa-list me-2"></i>Browse Donations
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Card -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 border-0 shadow-lg role-card">
+                    <div class="card-header bg-primary bg-gradient text-white text-center py-4 border-0">
+                        <i class="fas fa-user-shield fa-3x mb-3"></i>
+                        <h4 class="fw-bold mb-0">Admin</h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <p class="text-muted mb-4">
+                            Manage the platform, analyze data, and ensure smooth operations.
+                        </p>
+                        <ul class="list-unstyled mb-4">
+                            <li class="mb-3">
+                                <i class="fas fa-check-circle text-primary me-2"></i>
+                                User management
+                            </li>
+                            <li class="mb-3">
+                                <i class="fas fa-check-circle text-primary me-2"></i>
+                                System analytics
+                            </li>
+                            <li class="mb-3">
+                                <i class="fas fa-check-circle text-primary me-2"></i>
+                                AI insights
+                            </li>
+                            <li class="mb-3">
+                                <i class="fas fa-check-circle text-primary me-2"></i>
+                                Platform oversight
+                            </li>
+                        </ul>
                         @if (User.IsInRole("Admin"))
                         {
-                            <div class="col-md-3 mb-2">
-                                <a asp-controller="Admin" asp-action="Users" class="btn btn-outline-warning btn-block">Manage Users</a>
-                            </div>
+                            <a asp-controller="Admin" asp-action="Dashboard" class="btn btn-primary w-100">
+                                <i class="fas fa-tachometer-alt me-2"></i>Go to Dashboard
+                            </a>
+                        }
+                        else
+                        {
+                            <button class="btn btn-outline-primary w-100" disabled>
+                                <i class="fas fa-lock me-2"></i>Admin Access Only
+                            </button>
                         }
                     </div>
                 </div>
             </div>
         </div>
     </div>
-}
-else
+</section>
+
+<!-- Call to Action Section -->
+@if (!User.Identity.IsAuthenticated)
 {
-    <div class="row">
-        <div class="col-md-4 mb-4">
-            <div class="card">
-                <div class="card-body text-center">
-                    <h5 class="card-title">For Donors</h5>
-                    <p class="card-text">Share your surplus food and help reduce waste</p>
-                    <ul class="list-unstyled">
-                        <li>✓ Easy donation posting</li>
-                        <li>✓ Track your impact</li>
-                        <li>✓ Connect with NGOs</li>
-                    </ul>
-                </div>
-            </div>
+    <section class="cta-section bg-primary text-white py-5">
+        <div class="container text-center">
+            <h2 class="display-5 fw-bold mb-3">Ready to Make a Difference?</h2>
+            <p class="lead mb-4">
+                Join thousands of donors and NGOs working together to reduce food waste and fight hunger.
+            </p>
+            <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-light btn-lg px-5">
+                <i class="fas fa-rocket me-2"></i>Get Started Today
+            </a>
         </div>
-        <div class="col-md-4 mb-4">
-            <div class="card">
-                <div class="card-body text-center">
-                    <h5 class="card-title">For NGOs</h5>
-                    <p class="card-text">Access fresh food donations for your community</p>
-                    <ul class="list-unstyled">
-                        <li>✓ Browse available donations</li>
-                        <li>✓ Request donations easily</li>
-                        <li>✓ Manage your requests</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 mb-4">
-            <div class="card">
-                <div class="card-body text-center">
-                    <h5 class="card-title">Get Started</h5>
-                    <p class="card-text">Join our community and make a difference</p>
-                    <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-primary">Register Now</a>
-                    <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-outline-primary">Login</a>
-                </div>
-            </div>
-        </div>
-    </div>
+    </section>
+}
+
+@section Styles {
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+            min-height: 60vh;
+            display: flex;
+            align-items: center;
+        }
+
+        .min-vh-50 {
+            min-height: 50vh;
+        }
+
+        .step-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover .step-icon {
+            transform: scale(1.1);
+        }
+
+        .role-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .role-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important;
+        }
+
+        .ai-preview-card {
+            border-left: 4px solid #0d6efd;
+        }
+
+        .map-preview-container {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+
+        @@media (max-width: 768px) {
+            .hero-section {
+                min-height: auto;
+                padding: 3rem 0 !important;
+            }
+
+            .display-4 {
+                font-size: 2rem;
+            }
+
+            .display-5 {
+                font-size: 1.75rem;
+            }
+        }
+    </style>
 }

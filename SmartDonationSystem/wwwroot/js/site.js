@@ -2,3 +2,10 @@
 // for details on configuring this project to bundle and minify static web assets.
 
 // Write your JavaScript code.
+// Site-wide JavaScript functionality
+
+// Ensure DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Add any site-wide initialization code here
+    console.log('Smart Donation System loaded');
+});

@@ -1,4 +1,7 @@
-@model List<SmartDonationSystem.Models.Notification>
+@* Model is optional - notifications are loaded via JavaScript/SignalR *@
+@{
+    var notifications = Model as List<SmartDonationSystem.Models.Notification>;
+}
 
 <div class="notification-container">
     <!-- Notification Bell -->
@@ -14,9 +17,9 @@
             <button class="btn btn-sm btn-outline-secondary" id="markAllAsRead">Mark All as Read</button>
         </div>
         <div class="notification-list" id="notificationList">
-            @if (Model != null && Model.Any())
+            @if (notifications != null && notifications.Any())
             {
-                @foreach (var notification in Model.Take(10))
+                @foreach (var notification in notifications.Take(10))
                 {
                     <div class="notification-item @(notification.IsRead ? "" : "unread")" data-notification-id="@notification.Id">
                         <div class="notification-icon">
@@ -250,35 +253,48 @@
 
 <script>
     // SignalR connection for real-time notifications
-    const connection = new signalR.HubConnectionBuilder()
-        .withUrl("/notificationHub")
-        .build();
-
+    // Wait for SignalR to be loaded
     let notificationCount = 0;
+    let connection = null;
 
-    // Start SignalR connection
-    connection.start().then(function () {
-        console.log("SignalR connected");
-    }).catch(function (err) {
-        console.error("SignalR connection error: " + err.toString());
-    });
+    function initializeSignalR() {
+        if (typeof signalR === 'undefined') {
+            console.warn('SignalR not yet loaded, retrying...');
+            setTimeout(initializeSignalR, 100);
+            return;
+        }
+        
+        connection = new signalR.HubConnectionBuilder()
+            .withUrl("/notificationHub")
+            .build();
 
-    // Handle incoming notifications
-    connection.on("ReceiveNotification", function (notification) {
-        showNotificationToast(notification);
-        updateNotificationCount(1);
-        addNotificationToList(notification);
-    });
+        // Start SignalR connection
+        connection.start().then(function () {
+            console.log("SignalR connected");
+        }).catch(function (err) {
+            console.error("SignalR connection error: " + err.toString());
+        });
 
-    // Handle notification count updates
-    connection.on("UpdateNotificationCount", function (count) {
-        updateNotificationCount(count);
-    });
+        // Handle incoming notifications
+        connection.on("ReceiveNotification", function (notification) {
+            showNotificationToast(notification);
+            updateNotificationCount(1);
+            addNotificationToList(notification);
+        });
 
-    // Handle notification marked as read
-    connection.on("NotificationMarkedAsRead", function (notificationId) {
-        markNotificationAsRead(notificationId);
-    });
+        // Handle notification count updates
+        connection.on("UpdateNotificationCount", function (count) {
+            updateNotificationCount(count);
+        });
+
+        // Handle notification marked as read
+        connection.on("NotificationMarkedAsRead", function (notificationId) {
+            markNotificationAsRead(notificationId);
+        });
+    }
+
+    // Initialize SignalR when script loads
+    initializeSignalR();
 
     // Toggle notification dropdown
     document.getElementById('notificationBell').addEventListener('click', function() {
@@ -376,8 +392,8 @@
     }
 
     function markAllNotificationsAsRead() {
-        fetch('/api/Notifications/MarkAllAsRead', {
-            method: 'POST',
+        fetch('/api/Notifications/mark-all-read', {
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
             }
@@ -401,12 +417,23 @@
     }
 
     // Load initial notification count
-    fetch('/api/Notifications/Count')
-        .then(response => response.json())
+    fetch('/api/Notifications/count')
+        .then(response => {
+            if (!response.ok) {
+                // If unauthorized (401), user is not logged in - that's okay
+                if (response.status === 401) {
+                    return Promise.resolve(0);
+                }
+                throw new Error('Failed to load notification count');
+            }
+            return response.json();
+        })
         .then(count => {
             updateNotificationCount(count);
         })
         .catch(error => {
             console.error('Error loading notification count:', error);
+            // Silently fail - user might not be logged in
+            updateNotificationCount(0);
         });
 </script>

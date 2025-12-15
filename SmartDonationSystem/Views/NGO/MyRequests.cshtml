@@ -41,7 +41,7 @@
                                 <td>@request.Donation?.Donor?.FirstName @request.Donation?.Donor?.LastName</td>
                                 <td>@request.Message</td>
                                 <td>
-                                    <span class="badge bg-@(request.Status == "Approved" ? "success" : request.Status == "Rejected" ? "danger" : "warning")">
+                                    <span class="badge bg-@(request.Status == "Approved" ? "info" : request.Status == "Rejected" ? "danger" : "warning")">
                                         @request.Status
                                     </span>
                                 </td>

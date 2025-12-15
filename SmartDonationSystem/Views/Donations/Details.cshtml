@@ -23,7 +23,7 @@
                     </div>
                     <div class="col-md-6">
                         <strong>Status:</strong> 
-                        <span class="badge bg-@(Model.Status == "Available" ? "success" : Model.Status == "Reserved" ? "warning" : "secondary")">@Model.Status</span>
+                        <span class="badge bg-@(Model.Status == "Available" ? "success" : Model.Status == "Reserved" ? "warning" : Model.Status == "Collected" ? "success" : "secondary")">@Model.Status</span>
                     </div>
                 </div>
                 

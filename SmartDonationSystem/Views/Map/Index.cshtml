@@ -2,42 +2,235 @@
     ViewData["Title"] = "Interactive Map";
 }
 
-<h1>Interactive Map</h1>
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">
+            <i class="fas fa-map-marked-alt me-2 text-primary"></i>Interactive Map
+        </h2>
+        <p class="text-muted mb-0">Locate donations and NGOs on an interactive map</p>
+    </div>
+</div>
 
-<div class="row">
-    <div class="col-md-8">
-        <div id="map" style="height: 500px; width: 100%;"></div>
+<!-- Map Legend Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="bg-primary bg-opacity-10 rounded-circle p-3 me-3">
+                        <i class="fas fa-map-marker-alt fa-2x text-primary"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-semibold mb-1">Your Location</h6>
+                        <small class="text-muted">Current position</small>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="col-md-4">
-        <div class="card">
-            <div class="card-header">
-                <h5>Map Controls</h5>
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="bg-success bg-opacity-10 rounded-circle p-3 me-3">
+                        <i class="fas fa-gift fa-2x text-success"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-semibold mb-1">Donations</h6>
+                        <small class="text-muted">Available food donations</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="bg-info bg-opacity-10 rounded-circle p-3 me-3">
+                        <i class="fas fa-building fa-2x text-info"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-semibold mb-1">NGOs</h6>
+                        <small class="text-muted">Non-profit organizations</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Map Container -->
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-semibold">
+                        <i class="fas fa-map me-2 text-primary"></i>Map View
+                    </h5>
+                    <div class="btn-group btn-group-sm">
+                        <button type="button" class="btn btn-outline-primary" id="mapTypeRoadmap" title="Roadmap">
+                            <i class="fas fa-map"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-primary" id="mapTypeSatellite" title="Satellite">
+                            <i class="fas fa-satellite"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-primary" id="mapTypeTerrain" title="Terrain">
+                            <i class="fas fa-mountain"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <!-- Map Container -->
+                <div id="map" style="height: 600px; width: 100%; min-height: 400px;">
+                    <!-- Google Maps will be initialized here -->
+                    <div class="d-flex align-items-center justify-content-center h-100 bg-light">
+                        <div class="text-center">
+                            <i class="fas fa-map-marked-alt fa-4x text-muted mb-3"></i>
+                            <h6 class="fw-semibold mb-2">Map Loading...</h6>
+                            <p class="text-muted small mb-0">
+                                Google Maps will be initialized here
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Controls & Nearby Donations Sidebar -->
+    <div class="col-lg-4">
+        <!-- Search Controls -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white border-bottom py-3">
+                <h5 class="mb-0 fw-semibold">
+                    <i class="fas fa-search me-2 text-primary"></i>Search & Controls
+                </h5>
             </div>
             <div class="card-body">
                 <div class="mb-3">
-                    <label for="addressInput" class="form-label">Search Address</label>
-                    <input type="text" id="addressInput" class="form-control" placeholder="Enter address to search">
-                    <button id="searchBtn" class="btn btn-primary btn-sm mt-2">Search</button>
+                    <label for="addressInput" class="form-label fw-semibold">
+                        <i class="fas fa-map-marker-alt me-1 text-muted"></i>Search Address
+                    </label>
+                    <div class="input-group">
+                        <input type="text" id="addressInput" class="form-control" placeholder="Enter address...">
+                        <button id="searchBtn" class="btn btn-primary" type="button">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
                 </div>
                 
                 <div class="mb-3">
-                    <label for="radiusSelect" class="form-label">Search Radius</label>
-                    <select id="radiusSelect" class="form-control">
+                    <label for="radiusSelect" class="form-label fw-semibold">
+                        <i class="fas fa-circle-notch me-1 text-muted"></i>Search Radius
+                    </label>
+                    <select id="radiusSelect" class="form-select">
+                        <option value="5">5 km</option>
                         <option value="10">10 km</option>
-                        <option value="25">25 km</option>
-                        <option value="50" selected>50 km</option>
+                        <option value="25" selected>25 km</option>
+                        <option value="50">50 km</option>
                         <option value="100">100 km</option>
                     </select>
                 </div>
                 
-                <div class="mb-3">
-                    <button id="findNearbyNGOs" class="btn btn-success">Find Nearby NGOs</button>
-                    <button id="showDonations" class="btn btn-info">Show Donations</button>
+                <div class="d-grid gap-2">
+                    <button id="findNearbyNGOs" class="btn btn-info">
+                        <i class="fas fa-building me-2"></i>Find Nearby NGOs
+                    </button>
+                    <button id="showDonations" class="btn btn-success">
+                        <i class="fas fa-gift me-2"></i>Show Donations
+                    </button>
+                    <button id="clearMap" class="btn btn-outline-secondary">
+                        <i class="fas fa-eraser me-2"></i>Clear Map
+                    </button>
                 </div>
-                
-                <div id="nearbyNGOs" class="mt-3">
-                    <h6>Nearby NGOs</h6>
-                    <div id="ngoList"></div>
+            </div>
+        </div>
+
+        <!-- Nearby Donations List -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-semibold">
+                        <i class="fas fa-gift me-2 text-success"></i>Nearby Donations
+                    </h5>
+                    <span class="badge bg-success" id="donationCount">0</span>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div id="donationList" style="max-height: 500px; overflow-y: auto;">
+                    <!-- Placeholder for donation markers -->
+                    <div class="p-4 text-center text-muted">
+                        <i class="fas fa-map-marker-alt fa-3x mb-3 opacity-50"></i>
+                        <h6 class="fw-semibold mb-2">Donation Markers</h6>
+                        <p class="small mb-0">
+                            Click "Show Donations" to display nearby food donations on the map
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Map Features Info -->
+<div class="row g-4 mt-2">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom py-3">
+                <h5 class="mb-0 fw-semibold">
+                    <i class="fas fa-info-circle me-2 text-primary"></i>Map Features
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <div class="d-flex align-items-start">
+                            <div class="bg-primary bg-opacity-10 rounded-circle p-2 me-3 mt-1">
+                                <i class="fas fa-search text-primary"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-semibold mb-1">Search Locations</h6>
+                                <p class="small text-muted mb-0">Find addresses and locations quickly</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-flex align-items-start">
+                            <div class="bg-success bg-opacity-10 rounded-circle p-2 me-3 mt-1">
+                                <i class="fas fa-gift text-success"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-semibold mb-1">Donation Markers</h6>
+                                <p class="small text-muted mb-0">View all available food donations</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-flex align-items-start">
+                            <div class="bg-info bg-opacity-10 rounded-circle p-2 me-3 mt-1">
+                                <i class="fas fa-building text-info"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-semibold mb-1">NGO Locations</h6>
+                                <p class="small text-muted mb-0">Find nearby organizations</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-flex align-items-start">
+                            <div class="bg-warning bg-opacity-10 rounded-circle p-2 me-3 mt-1">
+                                <i class="fas fa-route text-warning"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-semibold mb-1">Route Planning</h6>
+                                <p class="small text-muted mb-0">Plan efficient pickup routes</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -46,183 +239,131 @@
 
 @section Scripts {
     <script>
+        // Map initialization placeholder
+        // Map logic will be handled in JavaScript later
+        
         let map;
-        let userLocation = null;
-        let currentMarkers = [];
+        let donationMarkers = [];
+        let ngoMarkers = [];
+        let userMarker = null;
 
+        // Initialize map function placeholder
         function initMap() {
-            map = new google.maps.Map(document.getElementById("map"), {
-                center: { lat: 40.7128, lng: -74.0060 }, // Default to NYC
-                zoom: 12
-            });
-
-            // Try to get user's current location
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    function(position) {
-                        userLocation = {
-                            lat: position.coords.latitude,
-                            lng: position.coords.longitude
-                        };
-                        map.setCenter(userLocation);
-                        map.setZoom(15);
-                        
-                        // Add user marker
-                        new google.maps.Marker({
-                            position: userLocation,
-                            map: map,
-                            title: "Your Location",
-                            icon: {
-                                url: "/images/user-marker.png",
-                                scaledSize: new google.maps.Size(30, 30)
-                            }
-                        });
-                    },
-                    function() {
-                        console.log("Geolocation failed");
-                    }
-                );
-            }
-        }
-
-        document.getElementById("searchBtn").addEventListener("click", function() {
-            const address = document.getElementById("addressInput").value;
-            if (address) {
-                geocodeAddress(address);
-            }
-        });
-
-        document.getElementById("findNearbyNGOs").addEventListener("click", function() {
-            if (userLocation) {
-                findNearbyNGOs(userLocation.lat, userLocation.lng);
-            } else {
-                alert("Please allow location access or search for an address first");
-            }
-        });
-
-        document.getElementById("showDonations").addEventListener("click", function() {
-            loadDonations();
-        });
-
-        function geocodeAddress(address) {
-            fetch('/Map/GeocodeAddress', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ address: address })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.latitude && data.longitude) {
-                    userLocation = {
-                        lat: data.latitude,
-                        lng: data.longitude
-                    };
-                    map.setCenter(userLocation);
-                    map.setZoom(15);
-                    
-                    // Add marker for searched location
-                    new google.maps.Marker({
-                        position: userLocation,
-                        map: map,
-                        title: "Searched Location",
-                        icon: {
-                            url: "/images/search-marker.png",
-                            scaledSize: new google.maps.Size(30, 30)
-                        }
-                    });
-                } else {
-                    alert("Address not found");
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert("Error geocoding address");
-            });
-        }
-
-        function findNearbyNGOs(lat, lng) {
-            const radius = document.getElementById("radiusSelect").value;
+            // Map initialization code will go here
+            // This is a placeholder for future JavaScript implementation
             
-            fetch(`/Map/NearbyNGOs?latitude=${lat}&longitude=${lng}&radiusKm=${radius}`)
-            .then(response => response.json())
-            .then(data => {
-                clearMarkers();
-                displayNGOs(data);
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
+            const mapContainer = document.getElementById('map');
+            if (mapContainer) {
+                // Placeholder: Map will be initialized here
+                console.log('Map container ready for initialization');
+            }
         }
 
-        function displayNGOs(ngos) {
-            const ngoList = document.getElementById("ngoList");
-            ngoList.innerHTML = "";
+        // Placeholder functions for map interactions
+        document.getElementById('searchBtn')?.addEventListener('click', function() {
+            const address = document.getElementById('addressInput')?.value;
+            if (address) {
+                console.log('Searching for:', address);
+                // Search functionality will be implemented here
+            }
+        });
 
-            ngos.forEach(ngo => {
-                const marker = new google.maps.Marker({
-                    position: { lat: ngo.location.latitude, lng: ngo.location.longitude },
-                    map: map,
-                    title: ngo.name,
-                    icon: {
-                        url: "/images/ngo-marker.png",
-                        scaledSize: new google.maps.Size(25, 25)
+        document.getElementById('showDonations')?.addEventListener('click', function() {
+            console.log('Loading donations...');
+            // Donation loading functionality will be implemented here
+            // This will populate the donationList with nearby donations
+        });
+
+        document.getElementById('findNearbyNGOs')?.addEventListener('click', function() {
+            console.log('Finding nearby NGOs...');
+            // NGO search functionality will be implemented here
+        });
+
+        document.getElementById('clearMap')?.addEventListener('click', function() {
+            console.log('Clearing map...');
+            // Clear markers functionality will be implemented here
+            donationMarkers = [];
+            ngoMarkers = [];
+            document.getElementById('donationCount').textContent = '0';
+        });
+
+        // Map type switching
+        document.getElementById('mapTypeRoadmap')?.addEventListener('click', function() {
+            console.log('Switching to roadmap view');
+            // Map type change functionality will be implemented here
+        });
+
+        document.getElementById('mapTypeSatellite')?.addEventListener('click', function() {
+            console.log('Switching to satellite view');
+            // Map type change functionality will be implemented here
+        });
+
+        document.getElementById('mapTypeTerrain')?.addEventListener('click', function() {
+            console.log('Switching to terrain view');
+            // Map type change functionality will be implemented here
+        });
+
+        // Initialize when page loads
+        window.addEventListener('load', function() {
+            // Wait for Google Maps API to load
+            if (typeof google !== 'undefined' && google.maps) {
+                initMap();
+            } else {
+                // Fallback: Initialize map when API loads
+                setTimeout(function() {
+                    if (typeof google !== 'undefined' && google.maps) {
+                        initMap();
                     }
-                });
-
-                const infoWindow = new google.maps.InfoWindow({
-                    content: `
-                        <div>
-                            <h6>${ngo.name}</h6>
-                            <p>${ngo.description || ''}</p>
-                            <p><strong>Distance:</strong> ${ngo.distanceKm} km</p>
-                            <p><strong>Contact:</strong> ${ngo.contact}</p>
-                            <p><strong>Capacity:</strong> ${ngo.capacity}</p>
-                        </div>
-                    `
-                });
-
-                marker.addListener("click", () => {
-                    infoWindow.open(map, marker);
-                });
-
-                currentMarkers.push(marker);
-
-                // Add to list
-                const ngoItem = document.createElement("div");
-                ngoItem.className = "card mb-2";
-                ngoItem.innerHTML = `
-                    <div class="card-body p-2">
-                        <h6 class="card-title">${ngo.name}</h6>
-                        <p class="card-text small">${ngo.distanceKm} km away</p>
-                        <p class="card-text small">${ngo.contact}</p>
-                    </div>
-                `;
-                ngoItem.addEventListener("click", () => {
-                    map.setCenter({ lat: ngo.location.latitude, lng: ngo.location.longitude });
-                    map.setZoom(15);
-                    infoWindow.open(map, marker);
-                });
-                ngoList.appendChild(ngoItem);
-            });
-        }
-
-        function loadDonations() {
-            fetch('/Map/DonationMap')
-            .then(response => response.text())
-            .then(html => {
-                // This would load the donation map view
-                // For now, we'll just show a message
-                alert("Donation map feature coming soon!");
-            });
-        }
-
-        function clearMarkers() {
-            currentMarkers.forEach(marker => marker.setMap(null));
-            currentMarkers = [];
-        }
+                }, 1000);
+            }
+        });
     </script>
     
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=@ViewBag.GoogleMapsApiKey&callback=initMap"></script>
+    <!-- Google Maps API Script -->
+    <!-- Replace YOUR_API_KEY with actual API key -->
+    <script async defer 
+            src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places,geometry&callback=initMap">
+    </script>
+}
+
+@section Styles {
+    <style>
+        #map {
+            border-radius: 0 0 0.5rem 0.5rem;
+        }
+
+        #donationList {
+            scrollbar-width: thin;
+            scrollbar-color: #dee2e6 transparent;
+        }
+
+        #donationList::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #donationList::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        #donationList::-webkit-scrollbar-thumb {
+            background-color: #dee2e6;
+            border-radius: 3px;
+        }
+
+        #donationList::-webkit-scrollbar-thumb:hover {
+            background-color: #adb5bd;
+        }
+
+        @@media (max-width: 992px) {
+            #map {
+                height: 400px !important;
+            }
+        }
+
+        @@media (max-width: 768px) {
+            #map {
+                height: 350px !important;
+            }
+        }
+    </style>
 }

@@ -41,7 +41,7 @@
                                 <td>@request.NGO?.Name</td>
                                 <td>@request.Message</td>
                                 <td>
-                                    <span class="badge bg-@(request.Status == "Approved" ? "success" : request.Status == "Rejected" ? "danger" : "warning")">
+                                    <span class="badge bg-@(request.Status == "Approved" ? "info" : request.Status == "Rejected" ? "danger" : "warning")">
                                         @request.Status
                                     </span>
                                 </td>
@@ -112,7 +112,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-success">Approve Request</button>
+                    <button type="submit" class="btn btn-info">Approve Request</button>
                 </div>
             </form>
         </div>

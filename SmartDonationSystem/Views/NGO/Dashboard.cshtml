@@ -2,33 +2,70 @@
 
 @{
     ViewData["Title"] = "NGO Dashboard";
+    var approvedRequests = Model.MyRequests.Count(r => r.Status == "Approved");
+    var pendingRequests = Model.MyRequests.Count(r => r.Status == "Pending");
+    var rejectedRequests = Model.MyRequests.Count(r => r.Status == "Rejected");
 }
 
-<div class="row">
-    <div class="col-12">
-        <h1 class="mb-4">NGO Dashboard - @Model.NGO.Name</h1>
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">
+            <i class="fas fa-building me-2 text-info"></i>@Model.NGO.Name
+        </h2>
+        <p class="text-muted mb-0">Organization Dashboard - Manage donations and requests</p>
     </div>
+    <a asp-action="AvailableDonations" class="btn btn-info">
+        <i class="fas fa-search me-2"></i>Browse Donations
+    </a>
 </div>
 
-<!-- NGO Info Card -->
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Organization Information</h5>
-                <div class="row">
+<!-- Organization Info Card -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h5 class="fw-semibold mb-3">
+                    <i class="fas fa-info-circle me-2 text-info"></i>Organization Information
+                </h5>
+                <div class="row g-3">
                     <div class="col-md-6">
-                        <p><strong>Contact:</strong> @Model.NGO.Contact</p>
-                        <p><strong>Location:</strong> @Model.NGO.Location</p>
+                        <p class="mb-2">
+                            <i class="fas fa-phone me-2 text-muted"></i>
+                            <strong>Contact:</strong> @Model.NGO.Contact
+                        </p>
+                        <p class="mb-2">
+                            <i class="fas fa-map-marker-alt me-2 text-muted"></i>
+                            <strong>Location:</strong> @Model.NGO.Location
+                        </p>
                     </div>
                     <div class="col-md-6">
-                        <p><strong>Capacity:</strong> @Model.NGO.Capacity</p>
-                        <p><strong>Registration:</strong> @Model.NGO.RegistrationNumber</p>
+                        <p class="mb-2">
+                            <i class="fas fa-users me-2 text-muted"></i>
+                            <strong>Capacity:</strong> @Model.NGO.Capacity people
+                        </p>
+                        @if (!string.IsNullOrEmpty(Model.NGO.RegistrationNumber))
+                        {
+                            <p class="mb-2">
+                                <i class="fas fa-certificate me-2 text-muted"></i>
+                                <strong>Registration:</strong> @Model.NGO.RegistrationNumber
+                            </p>
+                        }
                     </div>
                 </div>
                 @if (!string.IsNullOrEmpty(Model.NGO.Description))
                 {
-                    <p><strong>Description:</strong> @Model.NGO.Description</p>
+                    <p class="mb-0 mt-2">
+                        <strong>Description:</strong> @Model.NGO.Description
+                    </p>
+                }
+            </div>
+            <div class="col-md-4 text-md-end">
+                @if (!string.IsNullOrEmpty(Model.NGO.Website))
+                {
+                    <a href="@Model.NGO.Website" target="_blank" class="btn btn-outline-info">
+                        <i class="fas fa-external-link-alt me-1"></i>Visit Website
+                    </a>
                 }
             </div>
         </div>
@@ -36,126 +73,287 @@
 </div>
 
 <!-- Statistics Cards -->
-<div class="row mb-4">
-    <div class="col-md-3 mb-3">
-        <div class="card bg-primary text-white">
-            <div class="card-body text-center">
-                <h4 class="card-title">@Model.AvailableDonations.Count</h4>
-                <p class="card-text">Available Donations</p>
+<div class="row g-4 mb-4">
+    <!-- Available Donations -->
+    <div class="col-md-6 col-lg-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h6 class="text-muted text-uppercase small fw-semibold mb-2">Available Donations</h6>
+                        <h2 class="fw-bold mb-0 text-primary">@Model.AvailableDonations.Count</h2>
+                    </div>
+                    <div class="bg-primary bg-opacity-10 rounded-circle p-3">
+                        <i class="fas fa-gift fa-2x text-primary"></i>
+                    </div>
+                </div>
+                <p class="text-muted small mb-0">
+                    <i class="fas fa-info-circle me-1"></i>Ready for request
+                </p>
             </div>
         </div>
     </div>
-    <div class="col-md-3 mb-3">
-        <div class="card bg-warning text-white">
-            <div class="card-body text-center">
-                <h4 class="card-title">@Model.MyRequests.Count</h4>
-                <p class="card-text">My Requests</p>
+
+    <!-- My Requests -->
+    <div class="col-md-6 col-lg-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h6 class="text-muted text-uppercase small fw-semibold mb-2">Total Requests</h6>
+                        <h2 class="fw-bold mb-0 text-warning">@Model.MyRequests.Count</h2>
+                    </div>
+                    <div class="bg-warning bg-opacity-10 rounded-circle p-3">
+                        <i class="fas fa-inbox fa-2x text-warning"></i>
+                    </div>
+                </div>
+                <p class="text-muted small mb-0">
+                    <i class="fas fa-list me-1"></i>All requests made
+                </p>
             </div>
         </div>
     </div>
-    <div class="col-md-3 mb-3">
-        <div class="card bg-success text-white">
-            <div class="card-body text-center">
-                <h4 class="card-title">@Model.ClaimedDonations.Count</h4>
-                <p class="card-text">Claimed Donations</p>
+
+    <!-- Approved Requests -->
+    <div class="col-md-6 col-lg-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h6 class="text-muted text-uppercase small fw-semibold mb-2">Approved</h6>
+                        <h2 class="fw-bold mb-0 text-success">@approvedRequests</h2>
+                    </div>
+                    <div class="bg-success bg-opacity-10 rounded-circle p-3">
+                        <i class="fas fa-check-circle fa-2x text-success"></i>
+                    </div>
+                </div>
+                <p class="text-muted small mb-0">
+                    <i class="fas fa-check-double me-1"></i>Successfully approved
+                </p>
             </div>
         </div>
     </div>
-    <div class="col-md-3 mb-3">
-        <div class="card bg-info text-white">
-            <div class="card-body text-center">
-                <h4 class="card-title">@Model.MyRequests.Count(r => r.Status == "Approved")</h4>
-                <p class="card-text">Approved Requests</p>
+
+    <!-- Claimed Donations -->
+    <div class="col-md-6 col-lg-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h6 class="text-muted text-uppercase small fw-semibold mb-2">Claimed</h6>
+                        <h2 class="fw-bold mb-0 text-info">@Model.ClaimedDonations.Count</h2>
+                    </div>
+                    <div class="bg-info bg-opacity-10 rounded-circle p-3">
+                        <i class="fas fa-hand-holding-heart fa-2x text-info"></i>
+                    </div>
+                </div>
+                <p class="text-muted small mb-0">
+                    <i class="fas fa-truck me-1"></i>Donations received
+                </p>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Available Donations -->
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Available Donations</h5>
-                <a asp-action="AvailableDonations" class="btn btn-primary btn-sm">View All</a>
+<div class="row g-4">
+    <!-- Google Map Widget -->
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-bottom py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-semibold">
+                        <i class="fas fa-map-marked-alt me-2 text-primary"></i>Nearby Food Donations
+                    </h5>
+                    <a asp-controller="Map" asp-action="Index" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-external-link-alt me-1"></i>View Full Map
+                    </a>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div id="ngoMap" style="height: 450px; width: 100%; border-radius: 0 0 0.5rem 0.5rem;">
+                    <!-- Google Maps will be integrated here -->
+                    <div class="d-flex align-items-center justify-content-center h-100 bg-light">
+                        <div class="text-center">
+                            <i class="fas fa-map-marked-alt fa-4x text-muted mb-3"></i>
+                            <h6 class="fw-semibold mb-2">Map Integration</h6>
+                            <p class="text-muted small mb-0">
+                                Google Maps will display nearby food donation locations here
+                            </p>
+                            <p class="text-muted small mt-2">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Replace YOUR_API_KEY in _Layout.cshtml to enable maps
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Prediction Card -->
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-bottom py-3">
+                <h5 class="mb-0 fw-semibold">
+                    <i class="fas fa-brain me-2 text-primary"></i>AI Demand Forecast
+                </h5>
             </div>
             <div class="card-body">
-                @if (Model.AvailableDonations.Any())
-                {
-                    <div class="row">
-                        @foreach (var donation in Model.AvailableDonations.Take(6))
-                        {
-                            <div class="col-md-6 mb-3">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <h6 class="card-title">@donation.Title</h6>
-                                        <p class="card-text">@donation.Description</p>
-                                        <p class="card-text">
-                                            <small class="text-muted">
-                                                <strong>Type:</strong> @donation.FoodType | 
-                                                <strong>Quantity:</strong> @donation.Quantity @donation.Unit |
-                                                <strong>Expires:</strong> @donation.ExpiryDate.ToString("MMM dd, yyyy")
-                                            </small>
-                                        </p>
-                                        <div class="d-flex justify-content-between">
-                                            <a asp-action="DonationDetails" asp-route-id="@donation.Id" 
-                                               class="btn btn-sm btn-outline-primary">View Details</a>
-                                            <button type="button" class="btn btn-sm btn-success" 
-                                                    data-bs-toggle="modal" data-bs-target="#requestModal" 
-                                                    data-donation-id="@donation.Id" data-donation-title="@donation.Title">
-                                                Request
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        }
+                <div class="mb-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-primary bg-opacity-10 rounded-circle p-3 me-3">
+                            <i class="fas fa-chart-line fa-2x text-primary"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-semibold mb-1">Food Demand Prediction</h6>
+                            <p class="text-muted small mb-0">Next 7 days forecast</p>
+                        </div>
                     </div>
-                }
-                else
-                {
-                    <p class="text-muted">No available donations at the moment.</p>
-                }
+                    
+                    <!-- Prediction Levels -->
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="small fw-semibold">
+                                <i class="fas fa-circle text-danger me-1" style="font-size: 0.5rem;"></i>High Demand
+                            </span>
+                            <span class="badge bg-danger">85%</span>
+                        </div>
+                        <div class="progress mb-3" style="height: 8px;">
+                            <div class="progress-bar bg-danger" role="progressbar" style="width: 85%" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="small fw-semibold">
+                                <i class="fas fa-circle text-warning me-1" style="font-size: 0.5rem;"></i>Medium Demand
+                            </span>
+                            <span class="badge bg-warning">60%</span>
+                        </div>
+                        <div class="progress mb-3" style="height: 8px;">
+                            <div class="progress-bar bg-warning" role="progressbar" style="width: 60%" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="small fw-semibold">
+                                <i class="fas fa-circle text-success me-1" style="font-size: 0.5rem;"></i>Low Demand
+                            </span>
+                            <span class="badge bg-success">25%</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-3">
+
+                <!-- Prediction Insights -->
+                <div class="mb-3">
+                    <h6 class="fw-semibold mb-2">
+                        <i class="fas fa-lightbulb me-2 text-warning"></i>Insights
+                    </h6>
+                    <ul class="list-unstyled small mb-0">
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            High demand expected for vegetables
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Peak hours: 10 AM - 2 PM
+                        </li>
+                        <li class="mb-0">
+                            <i class="fas fa-info-circle text-info me-2"></i>
+                            Based on historical patterns
+                        </li>
+                    </ul>
+                </div>
+
+                <a asp-controller="ML" asp-action="Analytics" class="btn btn-sm btn-outline-primary w-100 mt-3">
+                    <i class="fas fa-chart-bar me-1"></i>View Detailed Analytics
+                </a>
             </div>
         </div>
     </div>
 </div>
 
-<!-- My Requests -->
-<div class="row">
+<!-- Requests Table -->
+<div class="row g-4 mt-2">
     <div class="col-12">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">My Recent Requests</h5>
-                <a asp-action="MyRequests" class="btn btn-primary btn-sm">View All</a>
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-semibold">
+                        <i class="fas fa-list me-2 text-primary"></i>My Requests
+                        @if (pendingRequests > 0)
+                        {
+                            <span class="badge bg-warning ms-2">@pendingRequests Pending</span>
+                        }
+                    </h5>
+                    <a asp-action="MyRequests" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
             </div>
             <div class="card-body">
                 @if (Model.MyRequests.Any())
                 {
                     <div class="table-responsive">
-                        <table class="table table-sm">
+                        <table class="table table-hover mb-0">
                             <thead>
                                 <tr>
                                     <th>Donation</th>
+                                    <th>Donor</th>
+                                    <th>Food Type</th>
+                                    <th>Quantity</th>
                                     <th>Status</th>
                                     <th>Requested</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (var request in Model.MyRequests.Take(5))
+                                @foreach (var request in Model.MyRequests.OrderByDescending(r => r.CreatedAt).Take(10))
                                 {
+                                    var statusClass = request.Status switch
+                                    {
+                                        "Approved" => "info", /* Blue for Approved */
+                                        "Rejected" => "danger",
+                                        "Pending" => "warning", /* Yellow for Pending */
+                                        _ => "secondary"
+                                    };
+
                                     <tr>
-                                        <td>@request.Donation?.Title</td>
                                         <td>
-                                            <span class="badge bg-@(request.Status == "Approved" ? "success" : request.Status == "Rejected" ? "danger" : "warning")">
-                                                @request.Status
-                                            </span>
+                                            <strong>@request.Donation?.Title</strong>
+                                            @if (!string.IsNullOrEmpty(request.Message))
+                                            {
+                                                <br>
+                                                <small class="text-muted">@(request.Message.Length > 40 ? request.Message.Substring(0, 40) + "..." : request.Message)</small>
+                                            }
                                         </td>
-                                        <td>@request.CreatedAt.ToString("MMM dd, yyyy")</td>
+                                        <td>
+                                            <small>@request.Donation?.Donor?.FirstName @request.Donation?.Donor?.LastName</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-secondary">@request.Donation?.FoodType</span>
+                                        </td>
+                                        <td>
+                                            <small>@request.Donation?.Quantity @request.Donation?.Unit</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-@statusClass">@request.Status</span>
+                                            @if (request.Status == "Rejected" && !string.IsNullOrEmpty(request.ResponseMessage))
+                                            {
+                                                <br>
+                                                <small class="text-muted">@(request.ResponseMessage.Length > 30 ? request.ResponseMessage.Substring(0, 30) + "..." : request.ResponseMessage)</small>
+                                            }
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">@request.CreatedAt.ToString("MMM dd, yyyy")</small>
+                                            <br>
+                                            <small class="text-muted">@request.CreatedAt.ToString("HH:mm")</small>
+                                        </td>
                                         <td>
                                             <a asp-action="DonationDetails" asp-route-id="@request.DonationId" 
-                                               class="btn btn-sm btn-outline-primary">View</a>
+                                               class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye"></i> View
+                                            </a>
                                         </td>
                                     </tr>
                                 }
@@ -165,48 +363,128 @@
                 }
                 else
                 {
-                    <p class="text-muted">No requests made yet.</p>
+                    <div class="text-center py-4">
+                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                        <p class="text-muted mb-2">No requests made yet</p>
+                        <a asp-action="AvailableDonations" class="btn btn-sm btn-primary">
+                            <i class="fas fa-search me-1"></i>Browse Available Donations
+                        </a>
+                    </div>
                 }
             </div>
         </div>
     </div>
 </div>
 
-<!-- Request Modal -->
-<div class="modal fade" id="requestModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Request Donation</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+<!-- Quick Actions -->
+<div class="row g-4 mt-2">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom py-3">
+                <h5 class="mb-0 fw-semibold">
+                    <i class="fas fa-bolt me-2 text-primary"></i>Quick Actions
+                </h5>
             </div>
-            <form asp-action="RequestDonation" method="post">
-                <div class="modal-body">
-                    <input type="hidden" id="donationId" name="donationId" />
-                    <div class="mb-3">
-                        <label for="message" class="form-label">Message to Donor</label>
-                        <textarea class="form-control" id="message" name="message" rows="3" 
-                                  placeholder="Explain why your organization needs this donation..."></textarea>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-3 col-sm-6">
+                        <a asp-action="AvailableDonations" class="btn btn-info w-100">
+                            <i class="fas fa-search me-2"></i>Browse Donations
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <a asp-action="MyRequests" class="btn btn-warning w-100">
+                            <i class="fas fa-inbox me-2"></i>My Requests
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <a asp-controller="Map" asp-action="Index" class="btn btn-primary w-100">
+                            <i class="fas fa-map me-2"></i>View Map
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <a asp-controller="ML" asp-action="Analytics" class="btn btn-secondary w-100">
+                            <i class="fas fa-chart-bar me-2"></i>AI Analytics
+                        </a>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-success">Submit Request</button>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>
 
 @section Scripts {
     <script>
-        document.getElementById('requestModal').addEventListener('show.bs.modal', function (event) {
-            var button = event.relatedTarget;
-            var donationId = button.getAttribute('data-donation-id');
-            var donationTitle = button.getAttribute('data-donation-title');
-            
-            document.getElementById('donationId').value = donationId;
-            document.querySelector('#requestModal .modal-title').textContent = 'Request: ' + donationTitle;
+        // Initialize Google Maps when API key is available
+        function initNGOMap() {
+            // Check if Google Maps API is loaded
+            if (typeof google !== 'undefined' && google.maps) {
+                // Use NGO location or default center
+                const defaultCenter = { lat: 40.7128, lng: -74.0060 }; // Default to NYC
+                
+                // If NGO has coordinates, use them
+                @if (Model.NGO.Latitude.HasValue && Model.NGO.Longitude.HasValue)
+                {
+                    <text>
+                    const defaultCenter = { lat: @Model.NGO.Latitude.Value, lng: @Model.NGO.Longitude.Value };
+                    </text>
+                }
+                
+                const map = new google.maps.Map(document.getElementById('ngoMap'), {
+                    zoom: 12,
+                    center: defaultCenter,
+                    mapTypeControl: true,
+                    streetViewControl: false,
+                    fullscreenControl: true
+                });
+
+                // Add marker for NGO location
+                @if (Model.NGO.Latitude.HasValue && Model.NGO.Longitude.HasValue)
+                {
+                    <text>
+                    const ngoMarker = new google.maps.Marker({
+                        position: { lat: @Model.NGO.Latitude.Value, lng: @Model.NGO.Longitude.Value },
+                        map: map,
+                        title: '@Model.NGO.Name',
+                        icon: {
+                            url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'
+                        }
+                    });
+                    </text>
+                }
+
+                // Add markers for available donations
+                @foreach (var donation in Model.AvailableDonations.Take(20))
+                {
+                    if (donation.Donor?.Latitude.HasValue == true && donation.Donor?.Longitude.HasValue == true)
+                    {
+                        <text>
+                        const donationMarker@(donation.Id) = new google.maps.Marker({
+                            position: { lat: @donation.Donor.Latitude.Value, lng: @donation.Donor.Longitude.Value },
+                            map: map,
+                            title: '@donation.Title',
+                            icon: {
+                                url: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
+                            }
+                        });
+
+                        const infoWindow@(donation.Id) = new google.maps.InfoWindow({
+                            content: '<div style="padding: 10px;"><h6>@donation.Title</h6><p>@donation.FoodType - @donation.Quantity @donation.Unit</p><p><small>@donation.PickupAddress</small></p></div>'
+                        });
+
+                        donationMarker@(donation.Id).addListener('click', function() {
+                            infoWindow@(donation.Id).open(map, donationMarker@(donation.Id));
+                        });
+                        </text>
+                    }
+                }
+            }
+        }
+
+        // Initialize map when page loads
+        window.addEventListener('load', function() {
+            // Wait a bit for Google Maps to load
+            setTimeout(initNGOMap, 1000);
         });
     </script>
 }

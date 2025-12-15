@@ -32,7 +32,7 @@
                     </p>
                     <p class="card-text">
                         <small class="text-muted">
-                            Status: <span class="badge bg-@(item.Status == "Available" ? "success" : item.Status == "Reserved" ? "warning" : "secondary")">@item.Status</span>
+                            Status: <span class="badge bg-@(item.Status == "Available" ? "success" : item.Status == "Reserved" ? "warning" : item.Status == "Collected" ? "success" : "secondary")">@item.Status</span>
                         </small>
                     </p>
                     <p class="card-text">

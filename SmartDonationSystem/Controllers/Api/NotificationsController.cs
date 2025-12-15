@@ -186,5 +186,20 @@ namespace SmartDonationSystem.Controllers.Api
 
             return Ok(stats);
         }
+
+        // GET: api/notifications/count
+        [HttpGet("count")]
+        public async Task<IActionResult> GetNotificationCount()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Ok(0);
+            }
+            
+            var count = await _context.Notifications.CountAsync(n => n.UserId == userId && !n.IsRead);
+            return Ok(count);
+        }
     }
 }
