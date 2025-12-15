@@ -9,9 +9,13 @@ using System.Security.Claims;
 
 namespace SmartDonationSystem.Controllers.Api
 {
+    /// <summary>
+    /// API Controller for donation request operations
+    /// Requires authentication - role-based filtering applied
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+    [Authorize(Roles = "Donor,NGO,Admin")]
     public class DonationRequestsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;

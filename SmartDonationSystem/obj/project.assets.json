@@ -1621,7 +1621,8 @@
           }
         },
         "build": {
-          "build/netstandard2.0/_._": {}
+          "build/netstandard2.0/Microsoft.ML.props": {},
+          "build/netstandard2.0/Microsoft.ML.targets": {}
         },
         "runtimeTargets": {
           "runtimes/linux-arm/native/libLdaNative.so": {
@@ -6650,6 +6651,7 @@
       "Microsoft.EntityFrameworkCore.SqlServer >= 9.0.10",
       "Microsoft.EntityFrameworkCore.Sqlite >= 9.0.10",
       "Microsoft.EntityFrameworkCore.Tools >= 9.0.10",
+      "Microsoft.ML >= 4.0.2",
       "Microsoft.ML.FastTree >= 4.0.2"
     ]
   },
@@ -6738,6 +6740,10 @@
             "target": "Package",
             "version": "[9.0.10, )"
           },
+          "Microsoft.ML": {
+            "target": "Package",
+            "version": "[4.0.2, )"
+          },
           "Microsoft.ML.FastTree": {
             "target": "Package",
             "version": "[4.0.2, )"
@@ -6762,7 +6768,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.306/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.308/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

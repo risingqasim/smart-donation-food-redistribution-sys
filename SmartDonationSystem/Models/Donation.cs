@@ -54,5 +54,6 @@ namespace SmartDonationSystem.Models
 
         // Navigation properties
         public ICollection<DonationRequest> DonationRequests { get; set; } = new List<DonationRequest>();
+        public ICollection<Prediction> Predictions { get; set; } = new List<Prediction>();
     }
 }

@@ -17,6 +17,7 @@ namespace SmartDonationSystem.Controllers
         }
 
         // GET: Analytics/Dashboard
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         public async Task<IActionResult> Dashboard()
         {
             var metrics = await _analyticsService.GetDashboardMetricsAsync();

@@ -8,6 +8,10 @@ using System.Security.Claims;
 
 namespace SmartDonationSystem.Controllers.Api
 {
+    /// <summary>
+    /// API Controller for donation operations
+    /// Requires authentication - role restrictions on specific actions
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
@@ -22,7 +26,12 @@ namespace SmartDonationSystem.Controllers.Api
             _userManager = userManager;
         }
 
+        /// <summary>
+        /// GET: api/Donations
+        /// Get all donations - accessible to authenticated users
+        /// </summary>
         [HttpGet]
+        [Authorize(Roles = "Donor,NGO,Admin")]
         public async Task<IActionResult> GetDonations([FromQuery] string? category = null, [FromQuery] string? status = null)
         {
             var query = _context.Donations
@@ -44,7 +53,61 @@ namespace SmartDonationSystem.Controllers.Api
             return Ok(donations);
         }
 
+        /// <summary>
+        /// GET: api/Donations/Locations
+        /// Returns donation locations (latitude, longitude, status) as JSON for Google Maps integration
+        /// </summary>
+        [HttpGet("Locations")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetDonationLocations([FromQuery] string? status = null)
+        {
+            try
+            {
+                var query = _context.Donations
+                    .Include(d => d.Donor)
+                    .AsNoTracking();
+
+                // Filter by status if provided
+                if (!string.IsNullOrEmpty(status))
+                {
+                    query = query.Where(d => d.Status == status);
+                }
+
+                var donations = await query.ToListAsync();
+
+                // Transform to location data optimized for Google Maps
+                var locations = donations
+                    .Where(d => d.Donor != null && d.Donor.Latitude.HasValue && d.Donor.Longitude.HasValue)
+                    .Select(d => new DonationLocationDto
+                    {
+                        Id = d.Id,
+                        Latitude = d.Donor!.Latitude!.Value,
+                        Longitude = d.Donor.Longitude!.Value,
+                        Status = d.Status,
+                        Title = d.Title,
+                        FoodType = d.FoodType,
+                        Quantity = d.Quantity,
+                        Unit = d.Unit,
+                        PickupAddress = d.PickupAddress,
+                        ExpiryDate = d.ExpiryDate,
+                        CreatedAt = d.CreatedAt
+                    })
+                    .ToList();
+
+                return Ok(locations);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "An error occurred while retrieving donation locations.", message = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// GET: api/Donations/{id}
+        /// Get donation by ID - accessible to authenticated users
+        /// </summary>
         [HttpGet("{id}")]
+        [Authorize(Roles = "Donor,NGO,Admin")]
         public async Task<IActionResult> GetDonation(int id)
         {
             var donation = await _context.Donations
@@ -156,5 +219,23 @@ namespace SmartDonationSystem.Controllers.Api
         {
             return _context.Donations.Any(e => e.Id == id);
         }
+    }
+
+    /// <summary>
+    /// DTO for donation location data optimized for Google Maps integration
+    /// </summary>
+    public class DonationLocationDto
+    {
+        public int Id { get; set; }
+        public double Latitude { get; set; }
+        public double Longitude { get; set; }
+        public string Status { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty;
+        public string FoodType { get; set; } = string.Empty;
+        public int Quantity { get; set; }
+        public string? Unit { get; set; }
+        public string PickupAddress { get; set; } = string.Empty;
+        public DateTime ExpiryDate { get; set; }
+        public DateTime CreatedAt { get; set; }
     }
 }

@@ -15,6 +15,7 @@
             </div>
             <div class="card-body p-4">
                 <form method="post">
+                    @Html.AntiForgeryToken()
                     <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
 
                     <div class="row">

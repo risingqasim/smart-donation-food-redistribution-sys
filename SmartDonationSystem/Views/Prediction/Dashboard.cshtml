@@ -1,0 +1,385 @@
+@model SmartDonationSystem.Controllers.PredictionDashboardViewModel
+
+@{
+    ViewData["Title"] = "AI Prediction Dashboard";
+}
+
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">
+            <i class="fas fa-brain me-2 text-primary"></i>AI Prediction Dashboard
+        </h2>
+        <p class="text-muted mb-0">Food demand predictions powered by ML.NET</p>
+    </div>
+    @if (User.IsInRole("Admin"))
+    {
+        <form asp-action="TrainModel" method="get" class="d-inline">
+            <button type="submit" class="btn btn-success">
+                <i class="fas fa-cog me-2"></i>Train Model
+            </button>
+        </form>
+    }
+</div>
+
+<!-- Summary Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="text-muted mb-1">High Demand</h5>
+                        <h3 class="mb-0 text-danger">@Model.HighDemandCount</h3>
+                    </div>
+                    <div class="text-danger">
+                        <i class="fas fa-arrow-up fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="text-muted mb-1">Medium Demand</h5>
+                        <h3 class="mb-0 text-warning">@Model.MediumDemandCount</h3>
+                    </div>
+                    <div class="text-warning">
+                        <i class="fas fa-equals fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="text-muted mb-1">Low Demand</h5>
+                        <h3 class="mb-0 text-success">@Model.LowDemandCount</h3>
+                    </div>
+                    <div class="text-success">
+                        <i class="fas fa-arrow-down fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="text-muted mb-1">Avg Confidence</h5>
+                        <h3 class="mb-0 text-info">@Model.AverageConfidence.ToString("P0")</h3>
+                    </div>
+                    <div class="text-info">
+                        <i class="fas fa-chart-line fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Time-based Predictions -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-calendar-alt me-2"></i>Time-based Predictions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    @if (Model.TodayPrediction != null)
+                    {
+                        <div class="col-md-4">
+                            <div class="card h-100 @GetDemandCardClass(Model.TodayPrediction.PredictedDemandLevel)">
+                                <div class="card-body">
+                                    <h6 class="card-title">Today</h6>
+                                    <h4 class="mb-3">@Model.TodayPrediction.PredictedDemandLevel</h4>
+                                    <div class="mb-2">
+                                        <small class="text-muted">Confidence:</small>
+                                        <div class="progress">
+                                            <div class="progress-bar" role="progressbar" 
+                                                 style="width: @(Model.TodayPrediction.Confidence * 100)%">
+                                                @Model.TodayPrediction.Confidence.ToString("P0")
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="small">
+                                        <div>High: @Model.TodayPrediction.HighDemandProbability.ToString("P1")</div>
+                                        <div>Medium: @Model.TodayPrediction.MediumDemandProbability.ToString("P1")</div>
+                                        <div>Low: @Model.TodayPrediction.LowDemandProbability.ToString("P1")</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    @if (Model.NextWeekPrediction != null)
+                    {
+                        <div class="col-md-4">
+                            <div class="card h-100 @GetDemandCardClass(Model.NextWeekPrediction.PredictedDemandLevel)">
+                                <div class="card-body">
+                                    <h6 class="card-title">Next Week</h6>
+                                    <h4 class="mb-3">@Model.NextWeekPrediction.PredictedDemandLevel</h4>
+                                    <div class="mb-2">
+                                        <small class="text-muted">Confidence:</small>
+                                        <div class="progress">
+                                            <div class="progress-bar" role="progressbar" 
+                                                 style="width: @(Model.NextWeekPrediction.Confidence * 100)%">
+                                                @Model.NextWeekPrediction.Confidence.ToString("P0")
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="small">
+                                        <div>High: @Model.NextWeekPrediction.HighDemandProbability.ToString("P1")</div>
+                                        <div>Medium: @Model.NextWeekPrediction.MediumDemandProbability.ToString("P1")</div>
+                                        <div>Low: @Model.NextWeekPrediction.LowDemandProbability.ToString("P1")</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    @if (Model.NextMonthPrediction != null)
+                    {
+                        <div class="col-md-4">
+                            <div class="card h-100 @GetDemandCardClass(Model.NextMonthPrediction.PredictedDemandLevel)">
+                                <div class="card-body">
+                                    <h6 class="card-title">Next Month</h6>
+                                    <h4 class="mb-3">@Model.NextMonthPrediction.PredictedDemandLevel</h4>
+                                    <div class="mb-2">
+                                        <small class="text-muted">Confidence:</small>
+                                        <div class="progress">
+                                            <div class="progress-bar" role="progressbar" 
+                                                 style="width: @(Model.NextMonthPrediction.Confidence * 100)%">
+                                                @Model.NextMonthPrediction.Confidence.ToString("P0")
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="small">
+                                        <div>High: @Model.NextMonthPrediction.HighDemandProbability.ToString("P1")</div>
+                                        <div>Medium: @Model.NextMonthPrediction.MediumDemandProbability.ToString("P1")</div>
+                                        <div>Low: @Model.NextMonthPrediction.LowDemandProbability.ToString("P1")</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Food Type Predictions -->
+@if (Model.FoodTypePredictions.Any())
+{
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-utensils me-2"></i>Predictions by Food Type</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Food Type</th>
+                                    <th>Predicted Demand</th>
+                                    <th>Confidence</th>
+                                    <th>High</th>
+                                    <th>Medium</th>
+                                    <th>Low</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var prediction in Model.FoodTypePredictions)
+                                {
+                                    <tr>
+                                        <td><strong>@prediction.FoodType</strong></td>
+                                        <td>
+                                            <span class="badge @GetDemandBadgeClass(prediction.PredictedDemandLevel)">
+                                                @prediction.PredictedDemandLevel
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="progress" style="height: 20px;">
+                                                <div class="progress-bar" role="progressbar" 
+                                                     style="width: @(prediction.Confidence * 100)%">
+                                                    @prediction.Confidence.ToString("P0")
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>@prediction.HighDemandProbability.ToString("P1")</td>
+                                        <td>@prediction.MediumDemandProbability.ToString("P1")</td>
+                                        <td>@prediction.LowDemandProbability.ToString("P1")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Location-specific Prediction (for NGOs) -->
+@if (Model.LocationSpecificPrediction != null && !string.IsNullOrEmpty(Model.NGOLocation))
+{
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Location-specific Prediction</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-3"><strong>Location:</strong> @Model.NGOLocation</p>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4>Predicted Demand: 
+                                <span class="badge @GetDemandBadgeClass(Model.LocationSpecificPrediction.PredictedDemandLevel)">
+                                    @Model.LocationSpecificPrediction.PredictedDemandLevel
+                                </span>
+                            </h4>
+                            <p>Confidence: <strong>@Model.LocationSpecificPrediction.Confidence.ToString("P0")</strong></p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Probability Distribution:</h6>
+                            <ul class="list-unstyled">
+                                <li>High: @Model.LocationSpecificPrediction.HighDemandProbability.ToString("P1")</li>
+                                <li>Medium: @Model.LocationSpecificPrediction.MediumDemandProbability.ToString("P1")</li>
+                                <li>Low: @Model.LocationSpecificPrediction.LowDemandProbability.ToString("P1")</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Custom Prediction Form -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0"><i class="fas fa-magic me-2"></i>Generate Custom Prediction</h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="GeneratePrediction" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="Date" class="form-label">Date</label>
+                                <input type="date" class="form-control" id="Date" name="Date" 
+                                       value="@DateTime.UtcNow.ToString("yyyy-MM-dd")" />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="FoodType" class="form-label">Food Type (Optional)</label>
+                                <select class="form-control" id="FoodType" name="FoodType">
+                                    <option value="">All Types</option>
+                                    <option value="Vegetables">Vegetables</option>
+                                    <option value="Fruits">Fruits</option>
+                                    <option value="Grains">Grains</option>
+                                    <option value="Dairy">Dairy</option>
+                                    <option value="Meat">Meat</option>
+                                    <option value="Bakery">Bakery</option>
+                                    <option value="Beverages">Beverages</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="Location" class="form-label">Location (Optional)</label>
+                                <input type="text" class="form-control" id="Location" name="Location" 
+                                       placeholder="Enter location" />
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-brain me-2"></i>Generate Prediction
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Historical Predictions -->
+@if (Model.HistoricalPredictions.Any())
+{
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0"><i class="fas fa-history me-2"></i>Recent Predictions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Predicted Value</th>
+                                    <th>Confidence</th>
+                                    <th>Demand Score</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var prediction in Model.HistoricalPredictions)
+                                {
+                                    <tr>
+                                        <td>@prediction.CreatedAt.ToString("MMM dd, yyyy HH:mm")</td>
+                                        <td>
+                                            <span class="badge @GetDemandBadgeClass(prediction.PredictedValue)">
+                                                @prediction.PredictedValue
+                                            </span>
+                                        </td>
+                                        <td>@prediction.ConfidenceScore.ToString("P1")</td>
+                                        <td>@prediction.DemandScore?.ToString("P1")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@functions {
+    string GetDemandBadgeClass(string demandLevel)
+    {
+        return demandLevel switch
+        {
+            "High" => "bg-danger",
+            "Medium" => "bg-warning",
+            "Low" => "bg-success",
+            _ => "bg-secondary"
+        };
+    }
+
+    string GetDemandCardClass(string demandLevel)
+    {
+        return demandLevel switch
+        {
+            "High" => "border-danger",
+            "Medium" => "border-warning",
+            "Low" => "border-success",
+            _ => ""
+        };
+    }
+}
+

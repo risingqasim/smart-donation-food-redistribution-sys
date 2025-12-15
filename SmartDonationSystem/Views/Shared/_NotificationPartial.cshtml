@@ -255,57 +255,84 @@
     // SignalR connection for real-time notifications
     // Wait for SignalR to be loaded
     let notificationCount = 0;
-    let connection = null;
+    // Get connection from site.js if available, otherwise it will be created below
+    let notificationConnection = null;
 
     function initializeSignalR() {
         if (typeof signalR === 'undefined') {
-            console.warn('SignalR not yet loaded, retrying...');
+            // SignalR not loaded yet, wait and retry silently
             setTimeout(initializeSignalR, 100);
             return;
         }
         
-        connection = new signalR.HubConnectionBuilder()
-            .withUrl("/notificationHub")
-            .build();
+        // Try to get existing connection from site.js
+        if (typeof window.signalRConnection === 'function') {
+            notificationConnection = window.signalRConnection();
+        }
+        
+        // If no connection exists, create a new one
+        if (!notificationConnection) {
+            notificationConnection = new signalR.HubConnectionBuilder()
+                .withUrl("/notificationHub")
+                .build();
 
-        // Start SignalR connection
-        connection.start().then(function () {
-            console.log("SignalR connected");
-        }).catch(function (err) {
-            console.error("SignalR connection error: " + err.toString());
-        });
+            // Start SignalR connection
+            notificationConnection.start().then(function () {
+                console.log("SignalR connected");
+            }).catch(function (err) {
+                console.error("SignalR connection error: " + err.toString());
+            });
+        }
 
         // Handle incoming notifications
-        connection.on("ReceiveNotification", function (notification) {
+        notificationConnection.on("ReceiveNotification", function (notification) {
             showNotificationToast(notification);
             updateNotificationCount(1);
             addNotificationToList(notification);
         });
 
         // Handle notification count updates
-        connection.on("UpdateNotificationCount", function (count) {
+        notificationConnection.on("UpdateNotificationCount", function (count) {
             updateNotificationCount(count);
         });
 
         // Handle notification marked as read
-        connection.on("NotificationMarkedAsRead", function (notificationId) {
+        notificationConnection.on("NotificationMarkedAsRead", function (notificationId) {
             markNotificationAsRead(notificationId);
         });
     }
 
-    // Initialize SignalR when script loads
-    initializeSignalR();
+    // Wait for DOM and SignalR to be ready before initializing
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait a bit more for SignalR script to load
+            setTimeout(initializeSignalR, 200);
+        });
+    } else {
+        // DOM already loaded, wait for SignalR
+        setTimeout(initializeSignalR, 200);
+    }
 
-    // Toggle notification dropdown
-    document.getElementById('notificationBell').addEventListener('click', function() {
-        const dropdown = document.getElementById('notificationDropdown');
-        dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
-    });
+    // Only attach event listeners if elements exist (they might not be on login page)
+    const notificationBell = document.getElementById('notificationBell');
+    const markAllAsReadBtn = document.getElementById('markAllAsRead');
+    
+    if (notificationBell) {
+        // Toggle notification dropdown
+        notificationBell.addEventListener('click', function() {
+            const dropdown = document.getElementById('notificationDropdown');
+            if (dropdown) {
+                dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+            }
+        });
+    }
 
-    // Mark all as read
-    document.getElementById('markAllAsRead').addEventListener('click', function() {
-        markAllNotificationsAsRead();
-    });
+    if (markAllAsReadBtn) {
+        // Mark all as read
+        markAllAsReadBtn.addEventListener('click', function() {
+            markAllNotificationsAsRead();
+        });
+    }
 
     // Close dropdown when clicking outside
     document.addEventListener('click', function(event) {
@@ -344,8 +371,10 @@
     function updateNotificationCount(count) {
         notificationCount = count;
         const countElement = document.getElementById('notificationCount');
-        countElement.textContent = count;
-        countElement.style.display = count > 0 ? 'flex' : 'none';
+        if (countElement) {
+            countElement.textContent = count;
+            countElement.style.display = count > 0 ? 'flex' : 'none';
+        }
     }
 
     function addNotificationToList(notification) {
@@ -426,13 +455,22 @@
                 }
                 throw new Error('Failed to load notification count');
             }
+            // Check if response is actually JSON before parsing
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                console.warn('Notification count endpoint returned non-JSON response');
+                return Promise.resolve(0);
+            }
             return response.json();
         })
         .then(count => {
             updateNotificationCount(count);
         })
         .catch(error => {
-            console.error('Error loading notification count:', error);
+            // Only log if it's not a JSON parsing error (which we handle above)
+            if (!error.message.includes('JSON')) {
+                console.error('Error loading notification count:', error);
+            }
             // Silently fail - user might not be logged in
             updateNotificationCount(0);
         });

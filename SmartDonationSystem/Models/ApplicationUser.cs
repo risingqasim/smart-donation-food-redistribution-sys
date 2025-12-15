@@ -37,6 +37,7 @@ namespace SmartDonationSystem.Models
         // Navigation properties
         public ICollection<Donation> Donations { get; set; } = new List<Donation>();
         public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+        public ICollection<Prediction> CreatedPredictions { get; set; } = new List<Prediction>();
         public NGO? NGO { get; set; }
     }
 }

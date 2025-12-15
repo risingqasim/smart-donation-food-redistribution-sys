@@ -16,6 +16,7 @@
           "Microsoft.EntityFrameworkCore.SqlServer": "9.0.10",
           "Microsoft.EntityFrameworkCore.Sqlite": "9.0.10",
           "Microsoft.EntityFrameworkCore.Tools": "9.0.10",
+          "Microsoft.ML": "4.0.2",
           "Microsoft.ML.FastTree": "4.0.2"
         },
         "runtime": {

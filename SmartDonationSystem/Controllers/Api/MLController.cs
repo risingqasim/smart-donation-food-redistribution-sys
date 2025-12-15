@@ -8,9 +8,13 @@ using System.Security.Claims;
 
 namespace SmartDonationSystem.Controllers.Api
 {
+    /// <summary>
+    /// API Controller for ML operations
+    /// Accessible to NGO and Admin roles
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+    [Authorize(Roles = "NGO,Admin")]
     public class MLController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -23,7 +27,11 @@ namespace SmartDonationSystem.Controllers.Api
         }
 
         // POST: api/ML/PredictNGODemand
+        /// <summary>
+        /// Predict NGO demand - accessible to NGO and Admin
+        /// </summary>
         [HttpPost("PredictNGODemand")]
+        [Authorize(Roles = "NGO,Admin")]
         public async Task<ActionResult<List<NGORanking>>> PredictNGODemand([FromBody] DonationMatchRequest request)
         {
             try
@@ -38,7 +46,11 @@ namespace SmartDonationSystem.Controllers.Api
         }
 
         // POST: api/ML/GetRecommendedNGOs
+        /// <summary>
+        /// Get recommended NGOs - accessible to NGO and Admin
+        /// </summary>
         [HttpPost("GetRecommendedNGOs")]
+        [Authorize(Roles = "NGO,Admin")]
         public async Task<ActionResult<List<NGORanking>>> GetRecommendedNGOs([FromBody] DonationMatchRequest request)
         {
             try
@@ -60,7 +72,11 @@ namespace SmartDonationSystem.Controllers.Api
         }
 
         // GET: api/ML/GetNGORecommendations/{donationId}
+        /// <summary>
+        /// Get NGO recommendations for a donation - accessible to NGO and Admin
+        /// </summary>
         [HttpGet("GetNGORecommendations/{donationId}")]
+        [Authorize(Roles = "NGO,Admin")]
         public async Task<ActionResult<List<NGORanking>>> GetNGORecommendations(int donationId)
         {
             try
@@ -116,7 +132,11 @@ namespace SmartDonationSystem.Controllers.Api
         }
 
         // GET: api/ML/GetNGODemandLevel/{ngoId}
+        /// <summary>
+        /// Get NGO demand level - accessible to NGO and Admin
+        /// </summary>
         [HttpGet("GetNGODemandLevel/{ngoId}")]
+        [Authorize(Roles = "NGO,Admin")]
         public async Task<ActionResult<object>> GetNGODemandLevel(int ngoId)
         {
             try
@@ -173,7 +193,11 @@ namespace SmartDonationSystem.Controllers.Api
         }
 
         // GET: api/ML/GetAllNGODemandLevels
+        /// <summary>
+        /// Get all NGO demand levels - Admin only
+        /// </summary>
         [HttpGet("GetAllNGODemandLevels")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<List<object>>> GetAllNGODemandLevels()
         {
             try

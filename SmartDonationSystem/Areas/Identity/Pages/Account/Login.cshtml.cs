@@ -4,17 +4,27 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using SmartDonationSystem.Models;
+using SmartDonationSystem.Services;
 
 namespace SmartDonationSystem.Areas.Identity.Pages.Account
 {
+    [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
     public class LoginModel : PageModel
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly AuthRedirectService _authRedirectService;
         private readonly ILogger<LoginModel> _logger;
 
-        public LoginModel(SignInManager<ApplicationUser> signInManager, ILogger<LoginModel> logger)
+        public LoginModel(
+            SignInManager<ApplicationUser> signInManager,
+            UserManager<ApplicationUser> userManager,
+            AuthRedirectService authRedirectService,
+            ILogger<LoginModel> logger)
         {
             _signInManager = signInManager;
+            _userManager = userManager;
+            _authRedirectService = authRedirectService;
             _logger = logger;
         }
 
@@ -53,6 +63,11 @@ namespace SmartDonationSystem.Areas.Identity.Pages.Account
 
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
 
+            // Prevent caching of login page
+            Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+            Response.Headers["Pragma"] = "no-cache";
+            Response.Headers["Expires"] = "0";
+
             ReturnUrl = returnUrl;
         }
 
@@ -70,8 +85,22 @@ namespace SmartDonationSystem.Areas.Identity.Pages.Account
 
                 if (result.Succeeded)
                 {
+                    // Authentication cookie is set via SignInManager.PasswordSignInAsync above
+                    // ASP.NET Core Identity automatically creates authentication cookie/session
                     _logger.LogInformation("User logged in.");
-                    return LocalRedirect(returnUrl);
+                    
+                    // POST-REDIRECT-GET Pattern: Always redirect after successful authentication
+                    // Never return Page() after POST to prevent form resubmission
+                    // Authentication cookie is already set by SignInManager.PasswordSignInAsync above
+                    
+                    // If returnUrl is provided and is a local URL, redirect to it
+                    if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                    {
+                        return LocalRedirect(returnUrl);
+                    }
+
+                    // Always redirect to Home/Index after successful login
+                    return LocalRedirect("/");
                 }
                 else
                 {

@@ -1,0 +1,160 @@
+@model SmartDonationSystem.Models.RegisterRequest
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-7">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-primary text-white text-center py-4">
+                <h3 class="mb-0 fw-bold">
+                    <i class="fas fa-user-plus me-2"></i>Create Account
+                </h3>
+                <p class="mb-0 mt-2 small opacity-75">Join our community and make a difference</p>
+            </div>
+            <div class="card-body p-4">
+                <form method="post" asp-action="Register" asp-controller="Account">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="FirstName" class="form-label fw-semibold">
+                                <i class="fas fa-user me-1 text-muted"></i>First Name <span class="text-danger">*</span>
+                            </label>
+                            <input asp-for="FirstName" class="form-control" name="FirstName" placeholder="Enter first name" />
+                            <span asp-validation-for="FirstName" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="LastName" class="form-label fw-semibold">
+                                <i class="fas fa-user me-1 text-muted"></i>Last Name <span class="text-danger">*</span>
+                            </label>
+                            <input asp-for="LastName" class="form-control" name="LastName" placeholder="Enter last name" />
+                            <span asp-validation-for="LastName" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label fw-semibold">
+                            <i class="fas fa-envelope me-1 text-muted"></i>Email Address <span class="text-danger">*</span>
+                        </label>
+                        <input asp-for="Email" class="form-control" name="Email" autocomplete="username" placeholder="Enter your email" />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Role" class="form-label fw-semibold">
+                            <i class="fas fa-user-tag me-1 text-muted"></i>I want to register as <span class="text-danger">*</span>
+                        </label>
+                        <select asp-for="Role" class="form-select" name="Role">
+                            <option value="">-- Select Role --</option>
+                            <option value="Donor">Donor - Share surplus food</option>
+                            <option value="NGO">NGO - Receive and distribute food</option>
+                            <option value="Admin">Admin - Manage platform</option>
+                        </select>
+                        <span asp-validation-for="Role" class="text-danger small"></span>
+                        <small class="form-text text-muted">
+                            <i class="fas fa-info-circle me-1"></i>Choose your role based on how you want to participate
+                        </small>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Password" class="form-label fw-semibold">
+                                <i class="fas fa-lock me-1 text-muted"></i>Password <span class="text-danger">*</span>
+                            </label>
+                            <input asp-for="Password" class="form-control" name="Password" autocomplete="new-password" placeholder="Enter password" />
+                            <span asp-validation-for="Password" class="text-danger small"></span>
+                            <small class="form-text text-muted">
+                                Minimum 6 characters with uppercase, lowercase, digit, and special character
+                            </small>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="ConfirmPassword" class="form-label fw-semibold">
+                                <i class="fas fa-lock me-1 text-muted"></i>Confirm Password <span class="text-danger">*</span>
+                            </label>
+                            <input asp-for="ConfirmPassword" class="form-control" name="ConfirmPassword" autocomplete="new-password" placeholder="Confirm password" />
+                            <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <hr class="my-4" />
+
+                    <h6 class="fw-semibold mb-3">
+                        <i class="fas fa-map-marker-alt me-2 text-muted"></i>Location Information <span class="text-muted small fw-normal">(Optional)</span>
+                    </h6>
+
+                    <div class="mb-3">
+                        <label asp-for="Address" class="form-label fw-semibold">
+                            <i class="fas fa-home me-1 text-muted"></i>Address
+                        </label>
+                        <input asp-for="Address" class="form-control" name="Address" placeholder="Street address" />
+                        <span asp-validation-for="Address" class="text-danger small"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="City" class="form-label fw-semibold">
+                                <i class="fas fa-city me-1 text-muted"></i>City
+                            </label>
+                            <input asp-for="City" class="form-control" name="City" placeholder="Enter city" />
+                            <span asp-validation-for="City" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="State" class="form-label fw-semibold">
+                                <i class="fas fa-map me-1 text-muted"></i>State/Province
+                            </label>
+                            <input asp-for="State" class="form-control" name="State" placeholder="Enter state/province" />
+                            <span asp-validation-for="State" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="PostalCode" class="form-label fw-semibold">
+                                <i class="fas fa-mail-bulk me-1 text-muted"></i>Postal Code
+                            </label>
+                            <input asp-for="PostalCode" class="form-control" name="PostalCode" placeholder="Enter postal code" />
+                            <span asp-validation-for="PostalCode" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Country" class="form-label fw-semibold">
+                                <i class="fas fa-globe me-1 text-muted"></i>Country
+                            </label>
+                            <input asp-for="Country" class="form-control" name="Country" placeholder="Enter country" />
+                            <span asp-validation-for="Country" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="d-grid mb-3 mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-user-plus me-2"></i>Create Account
+                        </button>
+                    </div>
+
+                    <div class="text-center">
+                        <p class="mb-0 text-muted small">
+                            Already have an account? 
+                            <a asp-controller="Account" asp-action="Login" class="text-decoration-none fw-semibold">Login here</a>
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <a asp-controller="Home" asp-action="Index" class="text-muted text-decoration-none small">
+                <i class="fas fa-arrow-left me-1"></i>Back to Home
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+

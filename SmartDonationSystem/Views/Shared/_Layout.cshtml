@@ -18,7 +18,7 @@
           crossorigin="anonymous" referrerpolicy="no-referrer" />
     
     <!-- Custom Styles -->
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" />
     
     @await RenderSectionAsync("Styles", required: false)
 </head>
@@ -230,18 +230,8 @@
     <!-- SignalR - Load before other scripts that use it -->
     <script src="https://unpkg.com/@@microsoft/signalr@latest/dist/browser/signalr.min.js"></script>
     
-    <!-- Google Maps API Script -->
-    @{
-        var googleMapsApiKey = Configuration.GetValue<string>("GoogleMaps:ApiKey") ?? "";
-    }
-    @if (!string.IsNullOrEmpty(googleMapsApiKey) && googleMapsApiKey != "YOUR_GOOGLE_MAPS_API_KEY_HERE" && googleMapsApiKey != "YOUR_API_KEY")
-    {
-        <script src="https://maps.googleapis.com/maps/api/js?key=@googleMapsApiKey&libraries=places,geometry&loading=async" 
-                async defer></script>
-    }
-    
     <!-- Custom Site Scripts -->
-    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/site.js"></script>
     
     @await RenderSectionAsync("Scripts", required: false)
 </body>

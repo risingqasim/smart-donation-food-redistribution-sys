@@ -11,10 +11,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
     }
 
-    public DbSet<Donation> Donations { get; set; }
-    public DbSet<DonationRequest> DonationRequests { get; set; }
-    public DbSet<NGO> NGOs { get; set; }
-    public DbSet<Notification> Notifications { get; set; }
+    // DbSets for all entities
+    public DbSet<Donation> Donations { get; set; } = null!;
+    public DbSet<DonationRequest> DonationRequests { get; set; } = null!;
+    public DbSet<NGO> NGOs { get; set; } = null!;
+    public DbSet<Notification> Notifications { get; set; } = null!;
+    public DbSet<Prediction> Predictions { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -36,6 +38,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
                 .WithOne(n => n.User)
                 .HasForeignKey<NGO>(n => n.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // One-to-Many relationship with Predictions (created by user)
+            entity.HasMany(u => u.CreatedPredictions)
+                .WithOne(p => p.CreatedByUser)
+                .HasForeignKey(p => p.CreatedByUserId)
+                .OnDelete(DeleteBehavior.SetNull);
         });
 
         // Configure NGO entity
@@ -60,6 +68,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
                 .WithOne(dr => dr.NGO)
                 .HasForeignKey(dr => dr.NGOId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // One-to-Many relationship with Predictions
+            entity.HasMany(n => n.Predictions)
+                .WithOne(p => p.NGO)
+                .HasForeignKey(p => p.NGOId)
+                .OnDelete(DeleteBehavior.SetNull);
         });
 
         // Configure Donation entity
@@ -92,6 +106,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
                 .WithOne(dr => dr.Donation)
                 .HasForeignKey(dr => dr.DonationId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // One-to-Many relationship with Predictions
+            entity.HasMany(d => d.Predictions)
+                .WithOne(p => p.Donation)
+                .HasForeignKey(p => p.DonationId)
+                .OnDelete(DeleteBehavior.SetNull);
         });
 
         // Configure DonationRequest entity
@@ -134,6 +154,44 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             // Index for performance
             entity.HasIndex(e => new { e.UserId, e.IsRead });
             entity.HasIndex(e => e.Timestamp);
+        });
+
+        // Configure Prediction entity
+        builder.Entity<Prediction>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.PredictionType).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.PredictedValue).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.ConfidenceScore).HasColumnType("decimal(5,4)");
+            entity.Property(e => e.MatchScore).HasColumnType("decimal(5,4)");
+            entity.Property(e => e.DemandScore).HasColumnType("decimal(5,4)");
+            entity.Property(e => e.DistanceKm).HasColumnType("decimal(10,2)");
+            entity.Property(e => e.Metadata).HasColumnType("nvarchar(max)");
+            entity.Property(e => e.ActualOutcome).HasMaxLength(100);
+
+            // Many-to-One relationship with Donation (optional)
+            entity.HasOne(p => p.Donation)
+                .WithMany(d => d.Predictions)
+                .HasForeignKey(p => p.DonationId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // Many-to-One relationship with NGO (optional)
+            entity.HasOne(p => p.NGO)
+                .WithMany(n => n.Predictions)
+                .HasForeignKey(p => p.NGOId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            // Many-to-One relationship with ApplicationUser (optional - who created the prediction)
+            entity.HasOne(p => p.CreatedByUser)
+                .WithMany(u => u.CreatedPredictions)
+                .HasForeignKey(p => p.CreatedByUserId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // Indexes for performance
+            entity.HasIndex(e => new { e.DonationId, e.PredictionType });
+            entity.HasIndex(e => new { e.NGOId, e.PredictionType });
+            entity.HasIndex(e => e.CreatedAt);
+            entity.HasIndex(e => e.IsAccurate);
         });
     }
 }

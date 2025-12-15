@@ -335,7 +335,7 @@ namespace SmartDonationSystem.Migrations
 
                     b.HasIndex("NGOId");
 
-                    b.ToTable("Donations");
+                    b.ToTable("Donations", (string)null);
                 });
 
             modelBuilder.Entity("SmartDonationSystem.Models.DonationRequest", b =>
@@ -381,7 +381,7 @@ namespace SmartDonationSystem.Migrations
 
                     b.HasIndex("NGOId");
 
-                    b.ToTable("DonationRequests");
+                    b.ToTable("DonationRequests", (string)null);
                 });
 
             modelBuilder.Entity("SmartDonationSystem.Models.NGO", b =>
@@ -443,7 +443,7 @@ namespace SmartDonationSystem.Migrations
                         .IsUnique()
                         .HasFilter("[UserId] IS NOT NULL");
 
-                    b.ToTable("NGOs");
+                    b.ToTable("NGOs", (string)null);
                 });
 
             modelBuilder.Entity("SmartDonationSystem.Models.Notification", b =>
@@ -497,7 +497,77 @@ namespace SmartDonationSystem.Migrations
 
                     b.HasIndex("UserId", "IsRead");
 
-                    b.ToTable("Notifications");
+                    b.ToTable("Notifications", (string)null);
+                });
+
+            modelBuilder.Entity("SmartDonationSystem.Models.Prediction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ActualOutcome")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<decimal>("ConfidenceScore")
+                        .HasColumnType("decimal(5,4)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedByUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<decimal?>("DemandScore")
+                        .HasColumnType("decimal(5,4)");
+
+                    b.Property<decimal?>("DistanceKm")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<int?>("DonationId")
+                        .HasColumnType("int");
+
+                    b.Property<bool?>("IsAccurate")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal?>("MatchScore")
+                        .HasColumnType("decimal(5,4)");
+
+                    b.Property<string>("Metadata")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("NGOId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("OutcomeRecordedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PredictedValue")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("PredictionType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("IsAccurate");
+
+                    b.HasIndex("DonationId", "PredictionType");
+
+                    b.HasIndex("NGOId", "PredictionType");
+
+                    b.ToTable("Predictions", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -609,8 +679,34 @@ namespace SmartDonationSystem.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("SmartDonationSystem.Models.Prediction", b =>
+                {
+                    b.HasOne("SmartDonationSystem.Models.ApplicationUser", "CreatedByUser")
+                        .WithMany("CreatedPredictions")
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("SmartDonationSystem.Models.Donation", "Donation")
+                        .WithMany("Predictions")
+                        .HasForeignKey("DonationId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("SmartDonationSystem.Models.NGO", "NGO")
+                        .WithMany("Predictions")
+                        .HasForeignKey("NGOId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.Navigation("CreatedByUser");
+
+                    b.Navigation("Donation");
+
+                    b.Navigation("NGO");
+                });
+
             modelBuilder.Entity("SmartDonationSystem.Models.ApplicationUser", b =>
                 {
+                    b.Navigation("CreatedPredictions");
+
                     b.Navigation("Donations");
 
                     b.Navigation("NGO");
@@ -621,6 +717,8 @@ namespace SmartDonationSystem.Migrations
             modelBuilder.Entity("SmartDonationSystem.Models.Donation", b =>
                 {
                     b.Navigation("DonationRequests");
+
+                    b.Navigation("Predictions");
                 });
 
             modelBuilder.Entity("SmartDonationSystem.Models.NGO", b =>
@@ -628,6 +726,8 @@ namespace SmartDonationSystem.Migrations
                     b.Navigation("DonationRequests");
 
                     b.Navigation("Donations");
+
+                    b.Navigation("Predictions");
                 });
 #pragma warning restore 612, 618
         }

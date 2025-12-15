@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using SmartDonationSystem.Models;
+using SmartDonationSystem.Services;
 
 namespace SmartDonationSystem.Areas.Identity.Pages.Account
 {
@@ -11,17 +12,20 @@ namespace SmartDonationSystem.Areas.Identity.Pages.Account
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly AuthRedirectService _authRedirectService;
         private readonly ILogger<RegisterModel> _logger;
 
         public RegisterModel(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             RoleManager<IdentityRole> roleManager,
+            AuthRedirectService authRedirectService,
             ILogger<RegisterModel> logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
+            _authRedirectService = authRedirectService;
             _logger = logger;
         }
 
@@ -129,8 +133,14 @@ namespace SmartDonationSystem.Areas.Identity.Pages.Account
 
                     _logger.LogInformation("User created a new account with password.");
 
+                    // Authenticate user - stores session/cookie via ASP.NET Core Identity
                     await _signInManager.SignInAsync(user, isPersistent: false);
-                    return LocalRedirect(returnUrl);
+                    
+                    // POST-REDIRECT-GET Pattern: Always redirect after successful authentication
+                    // Never return Page() after authentication to prevent form resubmission
+                    var dashboardUrl = await _authRedirectService.GetDashboardUrlAsync(user);
+                    // LocalRedirect performs HTTP 302 redirect (GET request)
+                    return LocalRedirect(dashboardUrl);
                 }
 
                 foreach (var error in result.Errors)

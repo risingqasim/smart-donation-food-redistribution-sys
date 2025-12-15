@@ -79,7 +79,7 @@
         </div>
         
         <div class="mt-3">
-            <form asp-action="Delete">
+            <form asp-action="Delete" method="post">
                 <input type="hidden" asp-for="Id" />
                 <button type="submit" class="btn btn-danger">Delete Donation</button>
                 <a asp-action="Index" class="btn btn-secondary">Cancel</a>

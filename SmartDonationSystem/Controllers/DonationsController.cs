@@ -9,6 +9,10 @@ using System.Security.Claims;
 
 namespace SmartDonationSystem.Controllers
 {
+    /// <summary>
+    /// Controller for donation management
+    /// Requires authentication - role restrictions on specific actions
+    /// </summary>
     [Authorize]
     public class DonationsController : Controller
     {
@@ -26,6 +30,10 @@ namespace SmartDonationSystem.Controllers
         }
 
         // GET: Donations
+        /// <summary>
+        /// View all donations - accessible to all authenticated users
+        /// </summary>
+        [Authorize(Roles = "Donor,NGO,Admin")]
         public async Task<IActionResult> Index()
         {
             var donations = await _context.Donations
@@ -37,6 +45,10 @@ namespace SmartDonationSystem.Controllers
         }
 
         // GET: Donations/Details/5
+        /// <summary>
+        /// View donation details - accessible to all authenticated users
+        /// </summary>
+        [Authorize(Roles = "Donor,NGO,Admin")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)

@@ -189,6 +189,7 @@ namespace SmartDonationSystem.Controllers.Api
 
         // GET: api/notifications/count
         [HttpGet("count")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetNotificationCount()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SmartDonationSystem.Data;
+using SmartDonationSystem.Exceptions;
 using SmartDonationSystem.Models;
+using SmartDonationSystem.Services;
 using System.Security.Claims;
 
 namespace SmartDonationSystem.Controllers
@@ -13,14 +15,23 @@ namespace SmartDonationSystem.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly NGOService _ngoService;
+        private readonly ILogger<DonorController> _logger;
 
-        public DonorController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        public DonorController(
+            ApplicationDbContext context, 
+            UserManager<ApplicationUser> userManager,
+            NGOService ngoService,
+            ILogger<DonorController> logger)
         {
             _context = context;
             _userManager = userManager;
+            _ngoService = ngoService;
+            _logger = logger;
         }
 
         // GET: Donor/Dashboard
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         public async Task<IActionResult> Dashboard()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -41,7 +52,7 @@ namespace SmartDonationSystem.Controllers
                 PendingRequests = await _context.DonationRequests
                     .Include(dr => dr.NGO)
                     .Include(dr => dr.Donation)
-                    .Where(dr => dr.Donation.DonorId == userId && dr.Status == "Pending")
+                    .Where(dr => dr.Donation != null && dr.Donation.DonorId == userId && dr.Status == "Pending")
                     .AsNoTracking()
                     .ToListAsync()
             };
@@ -50,6 +61,7 @@ namespace SmartDonationSystem.Controllers
         }
 
         // GET: Donor/MyDonations
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         public async Task<IActionResult> MyDonations()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -65,6 +77,7 @@ namespace SmartDonationSystem.Controllers
         }
 
         // GET: Donor/DonationRequests
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         public async Task<IActionResult> DonationRequests()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -72,7 +85,7 @@ namespace SmartDonationSystem.Controllers
             var requests = await _context.DonationRequests
                 .Include(dr => dr.NGO)
                 .Include(dr => dr.Donation)
-                .Where(dr => dr.Donation.DonorId == userId)
+                .Where(dr => dr.Donation != null && dr.Donation.DonorId == userId)
                 .AsNoTracking()
                 .ToListAsync();
 
@@ -84,65 +97,51 @@ namespace SmartDonationSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ApproveRequest(int requestId, string responseMessage = "")
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var request = await _context.DonationRequests
-                .Include(dr => dr.Donation)
-                .Include(dr => dr.NGO)
-                .FirstOrDefaultAsync(dr => dr.Id == requestId && dr.Donation.DonorId == userId);
-
-            if (request == null)
+            try
             {
-                return NotFound();
-            }
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrEmpty(userId))
+                {
+                    TempData["Error"] = "User authentication failed. Please log in again.";
+                    return RedirectToAction(nameof(DonationRequests));
+                }
 
-            if (request.Donation.Status != "Available")
-            {
-                TempData["Error"] = "This donation is no longer available.";
+                if (requestId <= 0)
+                {
+                    TempData["Error"] = "Invalid request ID.";
+                    return RedirectToAction(nameof(DonationRequests));
+                }
+
+                // Approve request using service layer (validation happens in service)
+                var result = await _ngoService.ApproveDonationRequestAsync(requestId, userId, responseMessage, isAdmin: false);
+
+                if (!result.Success)
+                {
+                    TempData["Error"] = result.ErrorMessage ?? "Failed to approve donation request.";
+                    return RedirectToAction(nameof(DonationRequests));
+                }
+
+                TempData["Success"] = result.Message ?? "Donation request approved successfully.";
                 return RedirectToAction(nameof(DonationRequests));
             }
-
-            // Approve the request
-            request.Status = "Approved";
-            request.ResponseMessage = responseMessage;
-            request.RespondedAt = DateTime.UtcNow;
-            request.UpdatedAt = DateTime.UtcNow;
-
-            // Update donation status
-            request.Donation.Status = "Reserved";
-            request.Donation.NGOId = request.NGOId;
-            request.Donation.UpdatedAt = DateTime.UtcNow;
-
-            // Reject other pending requests for the same donation
-            var otherRequests = await _context.DonationRequests
-                .Where(dr => dr.DonationId == request.DonationId && dr.Id != requestId && dr.Status == "Pending")
-                .ToListAsync();
-
-            foreach (var otherRequest in otherRequests)
+            catch (DonationRequestNotFoundException ex)
             {
-                otherRequest.Status = "Rejected";
-                otherRequest.ResponseMessage = "Donation has been approved for another organization.";
-                otherRequest.RespondedAt = DateTime.UtcNow;
-                otherRequest.UpdatedAt = DateTime.UtcNow;
+                TempData["Error"] = ex.Message;
+                _logger.LogWarning(ex, "Donation request {RequestId} not found", requestId);
+                return RedirectToAction(nameof(DonationRequests));
             }
-
-            await _context.SaveChangesAsync();
-
-            // Create notification for NGO
-            var notification = new Notification
+            catch (DonationRequestValidationException ex)
             {
-                UserId = request.NGO.UserId!,
-                Title = "Donation Request Approved",
-                Message = $"Your request for '{request.Donation.Title}' has been approved by the donor.",
-                Type = "Success",
-                RelatedEntityId = request.DonationId,
-                RelatedEntityType = "Donation"
-            };
-
-            _context.Notifications.Add(notification);
-            await _context.SaveChangesAsync();
-
-            TempData["Success"] = "Donation request approved successfully.";
-            return RedirectToAction(nameof(DonationRequests));
+                TempData["Error"] = ex.Message;
+                _logger.LogWarning(ex, "Validation failed for approving request {RequestId}", requestId);
+                return RedirectToAction(nameof(DonationRequests));
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "An unexpected error occurred while approving the request. Please try again.";
+                _logger.LogError(ex, "Unexpected error approving request {RequestId}", requestId);
+                return RedirectToAction(nameof(DonationRequests));
+            }
         }
 
         // POST: Donor/RejectRequest
@@ -150,40 +149,51 @@ namespace SmartDonationSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RejectRequest(int requestId, string responseMessage = "")
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var request = await _context.DonationRequests
-                .Include(dr => dr.Donation)
-                .Include(dr => dr.NGO)
-                .FirstOrDefaultAsync(dr => dr.Id == requestId && dr.Donation.DonorId == userId);
-
-            if (request == null)
+            try
             {
-                return NotFound();
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrEmpty(userId))
+                {
+                    TempData["Error"] = "User authentication failed. Please log in again.";
+                    return RedirectToAction(nameof(DonationRequests));
+                }
+
+                if (requestId <= 0)
+                {
+                    TempData["Error"] = "Invalid request ID.";
+                    return RedirectToAction(nameof(DonationRequests));
+                }
+
+                // Reject request using service layer (validation happens in service)
+                var result = await _ngoService.RejectDonationRequestAsync(requestId, userId, responseMessage, isAdmin: false);
+
+                if (!result.Success)
+                {
+                    TempData["Error"] = result.ErrorMessage ?? "Failed to reject donation request.";
+                    return RedirectToAction(nameof(DonationRequests));
+                }
+
+                TempData["Success"] = result.Message ?? "Donation request rejected.";
+                return RedirectToAction(nameof(DonationRequests));
             }
-
-            request.Status = "Rejected";
-            request.ResponseMessage = responseMessage;
-            request.RespondedAt = DateTime.UtcNow;
-            request.UpdatedAt = DateTime.UtcNow;
-
-            await _context.SaveChangesAsync();
-
-            // Create notification for NGO
-            var notification = new Notification
+            catch (DonationRequestNotFoundException ex)
             {
-                UserId = request.NGO.UserId!,
-                Title = "Donation Request Rejected",
-                Message = $"Your request for '{request.Donation.Title}' has been rejected by the donor.",
-                Type = "Warning",
-                RelatedEntityId = request.DonationId,
-                RelatedEntityType = "Donation"
-            };
-
-            _context.Notifications.Add(notification);
-            await _context.SaveChangesAsync();
-
-            TempData["Success"] = "Donation request rejected.";
-            return RedirectToAction(nameof(DonationRequests));
+                TempData["Error"] = ex.Message;
+                _logger.LogWarning(ex, "Donation request {RequestId} not found", requestId);
+                return RedirectToAction(nameof(DonationRequests));
+            }
+            catch (DonationRequestValidationException ex)
+            {
+                TempData["Error"] = ex.Message;
+                _logger.LogWarning(ex, "Validation failed for rejecting request {RequestId}", requestId);
+                return RedirectToAction(nameof(DonationRequests));
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "An unexpected error occurred while rejecting the request. Please try again.";
+                _logger.LogError(ex, "Unexpected error rejecting request {RequestId}", requestId);
+                return RedirectToAction(nameof(DonationRequests));
+            }
         }
 
         // POST: Donor/MarkAsCollected

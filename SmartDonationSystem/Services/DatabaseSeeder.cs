@@ -32,10 +32,21 @@ namespace SmartDonationSystem.Services
             }
             catch (SqlException ex)
             {
+                var connectionString = scope.ServiceProvider.GetRequiredService<IConfiguration>()
+                    .GetConnectionString("DefaultConnection");
                 logger.LogError(ex, "SQL Server connection error. Please ensure SQL Server is running or use LocalDB.");
-                logger.LogError("Connection String: {ConnectionString}", 
-                    scope.ServiceProvider.GetRequiredService<IConfiguration>()
-                        .GetConnectionString("DefaultConnection"));
+                logger.LogError("Connection String: {ConnectionString}", connectionString);
+                logger.LogError("SQL Error Number: {Number}, Message: {Message}", ex.Number, ex.Message);
+                
+                // Provide helpful suggestions based on error number
+                if (ex.Number == -1 || ex.Number == 2)
+                {
+                    logger.LogError("Suggestion: SQL Server might not be running. Please start SQL Server service or try using 'localhost\\SQLEXPRESS' or '(localdb)\\mssqllocaldb'");
+                }
+                else if (ex.Number == 18456)
+                {
+                    logger.LogError("Suggestion: Authentication failed. Check your SQL Server login credentials.");
+                }
                 return;
             }
             catch (Exception ex)
