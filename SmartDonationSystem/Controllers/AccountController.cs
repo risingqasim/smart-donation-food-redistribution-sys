@@ -121,11 +121,13 @@ namespace SmartDonationSystem.Controllers
         [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         public IActionResult Login(string? returnUrl = null)
         {
+            _logger.LogInformation("GET Login action called. ReturnUrl: {ReturnUrl}, Request Path: {Path}, Method: {Method}", 
+                returnUrl, HttpContext.Request.Path, HttpContext.Request.Method);
             ViewData["ReturnUrl"] = returnUrl;
             Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
             Response.Headers["Pragma"] = "no-cache";
             Response.Headers["Expires"] = "0";
-            return View();
+            return View("Login");
         }
 
         [HttpPost]
@@ -133,11 +135,22 @@ namespace SmartDonationSystem.Controllers
         [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         public async Task<IActionResult> Login(LoginRequest model, string? returnUrl = null)
         {
+            _logger.LogInformation("POST Login action called. Email: {Email}, ReturnUrl: {ReturnUrl}, Request Path: {Path}, Method: {Method}", 
+                model?.Email, returnUrl, HttpContext.Request.Path, HttpContext.Request.Method);
+            
             returnUrl ??= Url.Content("~/");
 
             if (!ModelState.IsValid)
             {
-                return View(model);
+                _logger.LogWarning("Login POST: ModelState invalid for Email: {Email}", model?.Email);
+                return View("Login", model);
+            }
+
+            if (model == null)
+            {
+                _logger.LogWarning("Login POST: Model is null");
+                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                return View("Login");
             }
 
             // Find user by email
@@ -145,7 +158,7 @@ namespace SmartDonationSystem.Controllers
             if (user == null)
             {
                 ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-                return View(model);
+                return View("Login", model);
             }
 
             // Attempt to sign in
@@ -168,22 +181,25 @@ namespace SmartDonationSystem.Controllers
                 // If returnUrl is provided and is a local URL, redirect to it
                 if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                 {
+                    _logger.LogInformation("Redirecting to returnUrl: {ReturnUrl}", returnUrl);
                     return LocalRedirect(returnUrl);
                 }
 
-                // Always redirect to Home/Index after successful login
-                return RedirectToAction("Index", "Home");
+                // Redirect to role-specific dashboard using AuthRedirectService (consistent with Register)
+                var dashboardUrl = await _authRedirectService.GetDashboardUrlAsync(user);
+                _logger.LogInformation("Redirecting to dashboard: {DashboardUrl} for user: {Email}", dashboardUrl, model.Email);
+                return LocalRedirect(dashboardUrl);
             }
 
             if (result.IsLockedOut)
             {
                 _logger.LogWarning("User account locked out. Email: {Email}", model.Email);
                 ModelState.AddModelError(string.Empty, "Your account has been locked out. Please try again later.");
-                return View(model);
+                return View("Login", model);
             }
 
             ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-            return View(model);
+            return View("Login", model);
         }
 
         [HttpPost]

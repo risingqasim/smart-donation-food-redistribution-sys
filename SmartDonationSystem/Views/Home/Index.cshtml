@@ -18,10 +18,10 @@
                 <div class="d-flex flex-wrap gap-3">
                     @if (!User.Identity.IsAuthenticated)
                     {
-                        <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-light btn-lg px-4">
+                        <a asp-controller="Account" asp-action="Register" class="btn btn-light btn-lg px-4">
                             <i class="fas fa-user-plus me-2"></i>Get Started
                         </a>
-                        <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-outline-light btn-lg px-4">
+                        <a asp-controller="Account" asp-action="Login" class="btn btn-outline-light btn-lg px-4">
                             <i class="fas fa-sign-in-alt me-2"></i>Login
                         </a>
                     }
@@ -255,7 +255,7 @@
                         </ul>
                         @if (!User.Identity.IsAuthenticated)
                         {
-                            <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-primary w-100">
+                            <a asp-controller="Account" asp-action="Register" class="btn btn-primary w-100">
                                 <i class="fas fa-user-plus me-2"></i>Register as Donor
                             </a>
                         }
@@ -306,7 +306,7 @@
                         </ul>
                         @if (!User.Identity.IsAuthenticated)
                         {
-                            <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-info w-100">
+                            <a asp-controller="Account" asp-action="Register" class="btn btn-info w-100">
                                 <i class="fas fa-building me-2"></i>Register as NGO
                             </a>
                         }
@@ -383,7 +383,7 @@
             <p class="lead mb-4">
                 Join thousands of donors and NGOs working together to reduce food waste and fight hunger.
             </p>
-            <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-light btn-lg px-5">
+            <a asp-controller="Account" asp-action="Register" class="btn btn-light btn-lg px-5">
                 <i class="fas fa-rocket me-2"></i>Get Started Today
             </a>
         </div>
