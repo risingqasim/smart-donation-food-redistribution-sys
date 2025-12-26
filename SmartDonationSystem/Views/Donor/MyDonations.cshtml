@@ -1,102 +1,351 @@
 @model IEnumerable<SmartDonationSystem.Models.Donation>
-
 @{
+    Layout = "_DonorLayout";
     ViewData["Title"] = "My Donations";
 }
 
-<h1>My Donations</h1>
+<style>
+    .page-header {
+        background: white;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e5e7eb;
+        margin-bottom: 2rem;
+    }
 
-<div class="row mb-3">
-    <div class="col-12">
-        <a asp-action="Dashboard" class="btn btn-secondary">Back to Dashboard</a>
-        <a asp-controller="Donations" asp-action="Create" class="btn btn-primary">Create New Donation</a>
+    [data-theme="dark"] .page-header {
+        background: #1f2937;
+        border-color: #374151;
+    }
+
+    .page-header h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    [data-theme="dark"] .page-header h1 {
+        color: #f9fafb;
+    }
+
+    .cta-button-large {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        padding: 1rem 2rem;
+        font-size: 1.125rem;
+        font-weight: 600;
+        border-radius: 0.75rem;
+        border: none;
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+
+    .cta-button-large:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        color: white;
+    }
+
+    .timeline-container {
+        background: white;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e5e7eb;
+    }
+
+    [data-theme="dark"] .timeline-container {
+        background: #1f2937;
+        border-color: #374151;
+    }
+
+    .timeline-item {
+        position: relative;
+        padding-left: 3rem;
+        padding-bottom: 2rem;
+        border-left: 3px solid #e5e7eb;
+    }
+
+    [data-theme="dark"] .timeline-item {
+        border-left-color: #374151;
+    }
+
+    .timeline-item:last-child {
+        border-left: none;
+        padding-bottom: 0;
+    }
+
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -10px;
+        top: 0;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #e5e7eb;
+        border: 4px solid white;
+        z-index: 1;
+    }
+
+    [data-theme="dark"] .timeline-item::before {
+        background: #374151;
+        border-color: #1f2937;
+    }
+
+    .timeline-item.pending::before { background: #f59e0b; border-color: white; }
+    .timeline-item.available::before { background: #3b82f6; border-color: white; }
+    .timeline-item.reserved::before { background: #f59e0b; border-color: white; }
+    .timeline-item.collected::before { background: #10b981; border-color: white; }
+
+    [data-theme="dark"] .timeline-item.pending::before { border-color: #1f2937; }
+    [data-theme="dark"] .timeline-item.available::before { border-color: #1f2937; }
+    [data-theme="dark"] .timeline-item.reserved::before { border-color: #1f2937; }
+    [data-theme="dark"] .timeline-item.collected::before { border-color: #1f2937; }
+
+    .timeline-content {
+        background: #f9fafb;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        margin-top: 0.5rem;
+        border: 1px solid #e5e7eb;
+    }
+
+    [data-theme="dark"] .timeline-content {
+        background: #111827;
+        border-color: #374151;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1.25rem;
+        border-radius: 2rem;
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+
+    .status-badge.pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .status-badge.available {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .status-badge.reserved {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .status-badge.collected {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    [data-theme="dark"] .status-badge.pending {
+        background: rgba(245, 158, 11, 0.2);
+        color: #fbbf24;
+    }
+
+    [data-theme="dark"] .status-badge.available {
+        background: rgba(59, 130, 246, 0.2);
+        color: #60a5fa;
+    }
+
+    [data-theme="dark"] .status-badge.reserved {
+        background: rgba(245, 158, 11, 0.2);
+        color: #fbbf24;
+    }
+
+    [data-theme="dark"] .status-badge.collected {
+        background: rgba(16, 185, 129, 0.2);
+        color: #34d399;
+    }
+
+    .donation-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 1rem;
+        color: #6b7280;
+    }
+
+    [data-theme="dark"] .empty-state {
+        color: #9ca3af;
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+        color: #10b981;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-top: 1rem;
+    }
+
+    .action-buttons .btn {
+        flex: 1;
+        min-width: 120px;
+    }
+</style>
+
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center flex-wrap">
+        <h1>
+            <i class="fas fa-history text-primary"></i>
+            My Donations
+        </h1>
+        <a asp-controller="Donations" asp-action="Create" class="cta-button-large">
+            <i class="fas fa-plus-circle"></i>
+            Donate Food
+        </a>
     </div>
 </div>
 
-<div class="row">
-    @foreach (var donation in Model)
-    {
-        <div class="col-md-6 mb-4">
-            <div class="card">
-                @if (!string.IsNullOrEmpty(donation.ImageUrl))
+@if (Model.Any())
+{
+    <div class="timeline-container">
+        <div class="timeline">
+            @foreach (var donation in Model.OrderByDescending(d => d.CreatedAt))
+            {
+                var statusClass = donation.Status.ToLower();
+                var statusText = donation.Status;
+                var statusIcon = donation.Status switch
                 {
-                    <img src="@donation.ImageUrl" class="card-img-top" alt="@donation.Title" style="height: 200px; object-fit: cover;">
-                }
-                <div class="card-body">
-                    <h5 class="card-title">@donation.Title</h5>
-                    <p class="card-text">@donation.Description</p>
-                    
-                    <div class="row mb-2">
-                        <div class="col-6">
-                            <small class="text-muted">
-                                <strong>Type:</strong> @donation.FoodType
-                            </small>
+                    "Available" => "fa-clock",
+                    "Reserved" => "fa-hand-paper",
+                    "Collected" => "fa-check-circle",
+                    _ => "fa-info-circle"
+                };
+                
+                <div class="timeline-item @statusClass">
+                    <div class="timeline-content">
+                        <div class="row">
+                            @if (!string.IsNullOrEmpty(donation.ImageUrl))
+                            {
+                                <div class="col-md-3 mb-3 mb-md-0">
+                                    <img src="@donation.ImageUrl" alt="@donation.Title" class="donation-image">
+                                </div>
+                            }
+                            <div class="@(string.IsNullOrEmpty(donation.ImageUrl) ? "col-12" : "col-md-9")">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <h4 class="mb-1">@donation.Title</h4>
+                                        @if (!string.IsNullOrEmpty(donation.Description))
+                                        {
+                                            <p class="text-muted mb-2">@donation.Description</p>
+                                        }
+                                    </div>
+                                    <span class="status-badge @statusClass">
+                                        <i class="fas @statusIcon"></i>
+                                        @statusText
+                                    </span>
+                                </div>
+                                
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-4">
+                                        <small class="text-muted d-block mb-1">
+                                            <i class="fas fa-tag me-1"></i>Food Type
+                                        </small>
+                                        <strong>@donation.FoodType</strong>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <small class="text-muted d-block mb-1">
+                                            <i class="fas fa-weight me-1"></i>Quantity
+                                        </small>
+                                        <strong>@donation.Quantity @donation.Unit</strong>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <small class="text-muted d-block mb-1">
+                                            <i class="fas fa-calendar me-1"></i>Expires
+                                        </small>
+                                        <strong>@donation.ExpiryDate.ToString("MMM dd, yyyy")</strong>
+                                    </div>
+                                </div>
+
+                                @if (donation.NGO != null)
+                                {
+                                    <div class="alert alert-info mb-3">
+                                        <i class="fas fa-building me-2"></i>
+                                        <strong>Reserved by:</strong> @donation.NGO.Name
+                                    </div>
+                                }
+
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar-alt me-1"></i>
+                                        Created: @donation.CreatedAt.ToString("MMM dd, yyyy 'at' hh:mm tt")
+                                    </small>
+                                </div>
+
+                                <div class="action-buttons">
+                                    <a asp-controller="Donations" asp-action="Details" asp-route-id="@donation.Id" 
+                                       class="btn btn-outline-primary">
+                                        <i class="fas fa-eye me-1"></i>View Details
+                                    </a>
+                                    <a asp-controller="Donations" asp-action="Edit" asp-route-id="@donation.Id" 
+                                       class="btn btn-outline-secondary">
+                                        <i class="fas fa-edit me-1"></i>Edit
+                                    </a>
+                                    @if (donation.Status == "Reserved")
+                                    {
+                                        <form asp-action="MarkAsCollected" method="post" class="d-inline flex-fill">
+                                            <input type="hidden" name="donationId" value="@donation.Id" />
+                                            <button type="submit" class="btn btn-success w-100" 
+                                                    onclick="return confirm('Mark this donation as collected?')">
+                                                <i class="fas fa-check me-1"></i>Mark Collected
+                                            </button>
+                                        </form>
+                                    }
+                                    <a asp-controller="Donations" asp-action="Delete" asp-route-id="@donation.Id" 
+                                       class="btn btn-outline-danger"
+                                       onclick="return confirm('Are you sure you want to delete this donation?')">
+                                        <i class="fas fa-trash me-1"></i>Delete
+                                    </a>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-6">
-                            <small class="text-muted">
-                                <strong>Quantity:</strong> @donation.Quantity @donation.Unit
-                            </small>
-                        </div>
-                    </div>
-                    
-                    <div class="row mb-2">
-                        <div class="col-6">
-                            <small class="text-muted">
-                                <strong>Status:</strong> 
-                                <span class="badge bg-@(donation.Status == "Available" ? "success" : donation.Status == "Reserved" ? "warning" : donation.Status == "Collected" ? "success" : "secondary")">@donation.Status</span>
-                            </small>
-                        </div>
-                        <div class="col-6">
-                            <small class="text-muted">
-                                <strong>Expires:</strong> @donation.ExpiryDate.ToString("MMM dd, yyyy")
-                            </small>
-                        </div>
-                    </div>
-                    
-                    @if (donation.NGO != null)
-                    {
-                        <p class="card-text">
-                            <small class="text-muted">
-                                <strong>Reserved by:</strong> @donation.NGO.Name
-                            </small>
-                        </p>
-                    }
-                    
-                    <p class="card-text">
-                        <small class="text-muted">
-                            <strong>Created:</strong> @donation.CreatedAt.ToString("MMM dd, yyyy")
-                        </small>
-                    </p>
-                    
-                    <div class="d-flex justify-content-between">
-                        <a asp-controller="Donations" asp-action="Details" asp-route-id="@donation.Id" 
-                           class="btn btn-outline-primary btn-sm">View Details</a>
-                        <a asp-controller="Donations" asp-action="Edit" asp-route-id="@donation.Id" 
-                           class="btn btn-outline-secondary btn-sm">Edit</a>
-                        @if (donation.Status == "Reserved")
-                        {
-                            <form asp-action="MarkAsCollected" method="post" class="d-inline">
-                                <input type="hidden" name="donationId" value="@donation.Id" />
-                                <button type="submit" class="btn btn-success btn-sm" 
-                                        onclick="return confirm('Mark this donation as collected?')">
-                                    Mark as Collected
-                                </button>
-                            </form>
-                        }
-                        <a asp-controller="Donations" asp-action="Delete" asp-route-id="@donation.Id" 
-                           class="btn btn-outline-danger btn-sm">Delete</a>
                     </div>
                 </div>
-            </div>
+            }
         </div>
-    }
-</div>
-
-@if (!Model.Any())
+    </div>
+}
+else
 {
-    <div class="alert alert-info">
-        <h4>No Donations Created</h4>
-        <p>You haven't created any donations yet. Start by creating your first donation!</p>
-        <a asp-controller="Donations" asp-action="Create" class="btn btn-primary">Create First Donation</a>
+    <div class="timeline-container">
+        <div class="empty-state">
+            <i class="fas fa-inbox"></i>
+            <h4>No Donations Yet</h4>
+            <p>You haven't created any donations. Start making a difference today!</p>
+            <a asp-controller="Donations" asp-action="Create" class="cta-button-large mt-3">
+                <i class="fas fa-plus-circle"></i>
+                Create Your First Donation
+            </a>
+        </div>
     </div>
 }

@@ -2,6 +2,18 @@
 
 @{
     ViewData["Title"] = "Donation Details";
+    if (User.IsInRole("Admin"))
+    {
+        Layout = "_AdminLayout";
+    }
+    else if (User.IsInRole("NGO"))
+    {
+        Layout = "_NGOLayout";
+    }
+    else if (User.IsInRole("Donor"))
+    {
+        Layout = "_DonorLayout";
+    }
 }
 
 <h1>Donation Details</h1>

@@ -2,6 +2,14 @@
 
 @{
     ViewData["Title"] = "AI Prediction Dashboard";
+    if (User.IsInRole("Admin"))
+    {
+        Layout = "_AdminLayout";
+    }
+    else if (User.IsInRole("NGO"))
+    {
+        Layout = "_NGOLayout";
+    }
 }
 
 <!-- Page Header -->

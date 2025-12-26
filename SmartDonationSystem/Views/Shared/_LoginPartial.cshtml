@@ -6,12 +6,14 @@
 @if (SignInManager.IsSignedIn(User))
 {
     <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" 
+        <a class="nav-link dropdown-toggle d-flex align-items-center user-profile-link" href="#" id="userDropdown" role="button" 
            data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="fas fa-user-circle me-1"></i>
-            <span>@User.Identity?.Name</span>
+            <div class="user-avatar me-2">
+                <i class="fas fa-user-circle"></i>
+            </div>
+            <span class="user-name">@User.Identity?.Name</span>
         </a>
-        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end" aria-labelledby="userDropdown">
+        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end shadow-lg" aria-labelledby="userDropdown">
             <li>
                 <a class="dropdown-item" href="#" onclick="alert('Account management coming soon'); return false;">
                     <i class="fas fa-user-cog me-2"></i>Manage Account
@@ -33,13 +35,13 @@
 else
 {
     <li class="nav-item">
-        <a class="nav-link" asp-controller="Account" asp-action="Register">
-            <i class="fas fa-user-plus me-1"></i>Register
+        <a class="nav-link btn-nav-link btn-register" asp-controller="Account" asp-action="Register">
+            <i class="fas fa-user-plus me-2"></i><span>Register</span>
         </a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" asp-controller="Account" asp-action="Login">
-            <i class="fas fa-sign-in-alt me-1"></i>Login
+        <a class="nav-link btn-nav-link btn-login" asp-controller="Account" asp-action="Login">
+            <i class="fas fa-sign-in-alt me-2"></i><span>Login</span>
         </a>
     </li>
 }

@@ -1,0 +1,959 @@
+@inject IConfiguration Configuration
+@using Microsoft.AspNetCore.Identity
+@using SmartDonationSystem.Models
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Smart Donation and Food Redistribution System - NGO Operations" />
+    <title>@ViewData["Title"] - Smart Donation System</title>
+    
+    <!-- Bootstrap 5 CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" 
+          integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" 
+          crossorigin="anonymous">
+    
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" 
+          integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" 
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="~/css/site.css" />
+    
+    <!-- Theme Initialization Script -->
+    <script>
+        (function() {
+            const theme = localStorage.getItem('smartDonationTheme') || 'light';
+            if (theme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                document.documentElement.setAttribute('data-bs-theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-bs-theme', 'light');
+            }
+        })();
+    </script>
+    
+    <!-- NGO Layout Styles -->
+    <style>
+        :root {
+            --ngo-sidebar-width: 260px;
+            --ngo-primary: #14b8a6;
+            --ngo-primary-hover: #0d9488;
+            --ngo-bg: #f8fafc;
+        }
+
+        body {
+            background-color: var(--ngo-bg);
+        }
+
+        [data-theme="dark"] body {
+            background-color: #111827;
+        }
+
+        .ngo-layout-wrapper {
+            display: flex;
+            min-height: calc(100vh - 76px);
+            margin-top: 76px;
+        }
+
+        /* Enhanced NGO Navbar Styles - Operational Dashboard Style */
+        .ngo-navbar {
+            background: linear-gradient(135deg, #0f766e 0%, #14b8a6 100%) !important;
+            padding: 0.75rem 0;
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 2px 12px rgba(20, 184, 166, 0.2);
+            border-bottom: none;
+        }
+
+        [data-theme="dark"] .ngo-navbar {
+            background: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%) !important;
+            box-shadow: 0 2px 12px rgba(20, 184, 166, 0.3);
+        }
+
+        .ngo-navbar.scrolled {
+            box-shadow: 0 4px 16px rgba(20, 184, 166, 0.3);
+        }
+
+        /* Smooth transitions for theme-affected navbar elements */
+        .ngo-navbar-brand,
+        .ngo-brand-icon,
+        .ngo-action-nav-link,
+        .ngo-theme-toggle,
+        .ngo-profile-dropdown .nav-link,
+        .ngo-navbar .notification-bell,
+        .ngo-dropdown-menu,
+        .ngo-dropdown-item {
+            transition: background-color 0.3s ease, 
+                        border-color 0.3s ease, 
+                        color 0.3s ease,
+                        box-shadow 0.3s ease;
+        }
+
+        .ngo-navbar-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff !important;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 0;
+        }
+
+        .ngo-navbar-brand:hover {
+            transform: scale(1.02);
+            color: #ffffff !important;
+        }
+
+        .ngo-brand-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .ngo-navbar-brand:hover .ngo-brand-icon {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: rotate(5deg);
+        }
+
+        .ngo-brand-icon i {
+            font-size: 1.5rem;
+            color: #ffffff;
+        }
+
+        .ngo-brand-text {
+            letter-spacing: 0.3px;
+            color: #ffffff;
+        }
+
+        .ngo-action-nav-link {
+            transition: all 0.3s ease;
+            padding: 0.625rem 1.25rem;
+            margin: 0 0.25rem;
+            border-radius: 0.5rem;
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-weight: 600;
+            font-size: 0.9375rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .ngo-action-nav-link:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: #ffffff !important;
+            transform: translateY(-1px);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .ngo-action-nav-link.active {
+            background: rgba(255, 255, 255, 0.25) !important;
+            color: #ffffff !important;
+            border-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 2px 8px rgba(255, 255, 255, 0.2);
+        }
+
+        .ngo-action-nav-link i {
+            font-size: 1rem;
+            width: 18px;
+            text-align: center;
+        }
+
+        .ngo-navbar-toggler {
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 0.4rem 0.6rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .ngo-navbar-toggler:hover {
+            border-color: rgba(255, 255, 255, 0.5);
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .ngo-navbar-toggler:focus {
+            box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25);
+        }
+
+        .ngo-navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.9%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+        }
+
+        .ngo-theme-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.9);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 0.75rem;
+        }
+
+        .ngo-theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: scale(1.1);
+            color: #ffffff;
+        }
+
+        .ngo-theme-toggle:focus {
+            outline: none;
+            box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25);
+        }
+
+        .ngo-theme-toggle i {
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            font-size: 1.1rem;
+        }
+
+        /* Smooth icon transition when theme changes */
+        .ngo-theme-toggle i.fa-moon,
+        .ngo-theme-toggle i.fa-sun {
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .ngo-theme-toggle:hover i {
+            transform: rotate(180deg);
+        }
+
+        .ngo-mobile-sidebar-toggle {
+            display: none;
+        }
+
+        @@media (max-width: 991px) {
+            .ngo-mobile-sidebar-toggle {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 42px;
+                height: 42px;
+                background: rgba(255, 255, 255, 0.15);
+                border: 2px solid rgba(255, 255, 255, 0.3);
+                border-radius: 8px;
+                color: rgba(255, 255, 255, 0.9);
+                cursor: pointer;
+                margin-right: 0.75rem;
+                transition: all 0.3s ease;
+            }
+
+            .ngo-mobile-sidebar-toggle:hover {
+                background: rgba(255, 255, 255, 0.25);
+                border-color: rgba(255, 255, 255, 0.5);
+            }
+
+            .ngo-navbar-nav {
+                padding: 1rem 0;
+            }
+            
+            .ngo-action-nav-link {
+                padding: 0.75rem 1rem;
+                margin: 0.25rem 0;
+            }
+        }
+
+        /* NGO Profile Dropdown with Role Badge */
+        .ngo-navbar .ngo-profile-dropdown .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 1rem;
+            margin: 0 0.25rem;
+            border-radius: 0.5rem;
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .ngo-navbar .ngo-profile-dropdown .nav-link:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: #ffffff !important;
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .ngo-profile-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .ngo-profile-avatar i {
+            font-size: 1.25rem;
+            color: #ffffff;
+        }
+
+        .ngo-profile-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.25rem;
+        }
+
+        .ngo-profile-name {
+            font-size: 0.9375rem;
+            font-weight: 600;
+            color: #ffffff;
+            line-height: 1.2;
+        }
+
+        .ngo-role-badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.125rem 0.5rem;
+            border-radius: 0.75rem;
+            background: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .ngo-navbar .ngo-dropdown-menu {
+            background: #ffffff !important;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.75rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            padding: 0.75rem 0;
+            margin-top: 0.75rem;
+            min-width: 240px;
+        }
+
+        [data-theme="dark"] .ngo-navbar .ngo-dropdown-menu {
+            background: #1f2937 !important;
+            border-color: #374151;
+        }
+
+        .ngo-dropdown-header {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            background: #f9fafb;
+        }
+
+        [data-theme="dark"] .ngo-dropdown-header {
+            background: #111827;
+            border-bottom-color: #374151;
+        }
+
+        .ngo-dropdown-header .ngo-profile-name {
+            color: #1f2937;
+            font-size: 0.9375rem;
+            margin-bottom: 0.25rem;
+        }
+
+        [data-theme="dark"] .ngo-dropdown-header .ngo-profile-name {
+            color: #f9fafb;
+        }
+
+        .ngo-dropdown-header .ngo-role-badge {
+            background: var(--ngo-primary);
+            color: #ffffff;
+            font-size: 0.6875rem;
+        }
+
+        .ngo-navbar .ngo-dropdown-item {
+            color: #1f2937 !important;
+            padding: 0.75rem 1.25rem;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 500;
+        }
+
+        [data-theme="dark"] .ngo-navbar .ngo-dropdown-item {
+            color: #f9fafb !important;
+        }
+
+        .ngo-navbar .ngo-dropdown-item:hover,
+        .ngo-navbar .ngo-dropdown-item:focus {
+            background-color: rgba(20, 184, 166, 0.1) !important;
+            color: var(--ngo-primary) !important;
+            padding-left: 1.5rem;
+        }
+
+        [data-theme="dark"] .ngo-navbar .ngo-dropdown-item:hover,
+        [data-theme="dark"] .ngo-navbar .ngo-dropdown-item:focus {
+            background-color: rgba(20, 184, 166, 0.2) !important;
+            color: #5eead4 !important;
+        }
+
+        .ngo-navbar .ngo-dropdown-item i {
+            width: 20px;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .ngo-navbar .ngo-dropdown-divider {
+            border-color: #e5e7eb;
+            margin: 0.5rem 0;
+        }
+
+        [data-theme="dark"] .ngo-navbar .ngo-dropdown-divider {
+            border-color: #374151;
+        }
+
+        .ngo-navbar .ngo-dropdown-toggle::after {
+            margin-left: 0.5rem;
+            transition: transform 0.3s ease;
+            border-top-color: rgba(255, 255, 255, 0.9);
+        }
+
+        .ngo-navbar .ngo-dropdown-toggle[aria-expanded="true"]::after {
+            transform: rotate(180deg);
+        }
+
+        /* NGO Notification Bell - Prominent for New Donations */
+        .ngo-navbar .notification-container {
+            position: relative;
+            margin-right: 0.75rem;
+        }
+
+        .ngo-navbar .notification-bell {
+            position: relative;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15) !important;
+            border: 2px solid rgba(255, 255, 255, 0.3) !important;
+            transition: all 0.3s ease;
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ngo-navbar .notification-bell:hover {
+            background: rgba(255, 255, 255, 0.25) !important;
+            border-color: rgba(255, 255, 255, 0.5) !important;
+            transform: scale(1.1);
+        }
+
+        .ngo-navbar .notification-bell i {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.9) !important;
+        }
+
+        .ngo-navbar .notification-count {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+            color: white !important;
+            border-radius: 50%;
+            min-width: 22px;
+            height: 22px;
+            font-size: 11px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid #0f766e !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+            padding: 0 6px;
+        }
+
+        .ngo-navbar .notification-dropdown {
+            background: #ffffff !important;
+            border: 1px solid #e5e7eb !important;
+        }
+
+        [data-theme="dark"] .ngo-navbar .notification-dropdown {
+            background: #1f2937 !important;
+            border-color: #374151 !important;
+        }
+
+        /* Sidebar Styles */
+        .ngo-sidebar {
+            width: var(--ngo-sidebar-width);
+            background: white;
+            border-right: 1px solid #e5e7eb;
+            padding: 0;
+            position: fixed;
+            left: 0;
+            top: 76px;
+            height: calc(100vh - 76px);
+            overflow-y: auto;
+            overflow-x: hidden;
+            z-index: 1000;
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+        }
+
+        [data-theme="dark"] .ngo-sidebar {
+            background: #1f2937;
+            border-right-color: #374151;
+        }
+
+        .ngo-sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            background: #f9fafb;
+        }
+
+        [data-theme="dark"] .ngo-sidebar-header {
+            background: #111827;
+            border-bottom-color: #374151;
+        }
+
+        .ngo-sidebar-header h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        [data-theme="dark"] .ngo-sidebar-header h3 {
+            color: #f9fafb;
+        }
+
+        .ngo-sidebar-header h3 i {
+            color: var(--ngo-primary);
+            font-size: 1.25rem;
+        }
+
+        .ngo-sidebar-nav {
+            padding: 1rem 0.75rem;
+        }
+
+        .ngo-nav-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.25rem;
+            color: #4b5563;
+            text-decoration: none;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            font-size: 0.9375rem;
+            gap: 0.75rem;
+        }
+
+        [data-theme="dark"] .ngo-nav-item {
+            color: #d1d5db;
+        }
+
+        .ngo-nav-item i {
+            width: 20px;
+            text-align: center;
+            font-size: 1.125rem;
+            flex-shrink: 0;
+        }
+
+        .ngo-nav-item:hover {
+            background-color: #f3f4f6;
+            color: var(--ngo-primary);
+        }
+
+        [data-theme="dark"] .ngo-nav-item:hover {
+            background-color: #374151;
+            color: #5eead4;
+        }
+
+        .ngo-nav-item.active {
+            background: var(--ngo-primary);
+            color: white;
+        }
+
+        .ngo-nav-item.active i {
+            color: white;
+        }
+
+        .ngo-nav-divider {
+            height: 1px;
+            background-color: #e5e7eb;
+            margin: 1rem 1rem;
+        }
+
+        [data-theme="dark"] .ngo-nav-divider {
+            background-color: #374151;
+        }
+
+        /* Main Content Area */
+        .ngo-main-content {
+            flex: 1;
+            margin-left: var(--ngo-sidebar-width);
+            min-height: calc(100vh - 76px);
+            background-color: var(--ngo-bg);
+        }
+
+        .ngo-content-wrapper {
+            padding: 2rem;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        /* Mobile Responsive */
+        @@media (max-width: 991px) {
+            .ngo-sidebar {
+                transform: translateX(-100%);
+            }
+
+            .ngo-sidebar.show {
+                transform: translateX(0);
+            }
+
+            .ngo-main-content {
+                margin-left: 0;
+            }
+
+            .ngo-content-wrapper {
+                padding: 1rem;
+            }
+
+            .mobile-sidebar-overlay {
+                display: none;
+                position: fixed;
+                top: 76px;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 999;
+                transition: opacity 0.3s ease;
+            }
+
+            .mobile-sidebar-overlay.show {
+                display: block;
+            }
+
+            [data-theme="dark"] .mobile-sidebar-overlay {
+                background-color: rgba(0, 0, 0, 0.7);
+            }
+        }
+    </style>
+    
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg ngo-navbar fixed-top">
+            <div class="container-fluid px-4">
+                <!-- Mobile Sidebar Toggle -->
+                <button class="ngo-mobile-sidebar-toggle" id="mobileSidebarToggle" aria-label="Toggle sidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+
+                <!-- Brand -->
+                <a class="ngo-navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <div class="ngo-brand-icon">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <span class="ngo-brand-text">NGO Operations</span>
+                </a>
+                
+                <!-- Mobile Toggle -->
+                <button class="ngo-navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" 
+                        aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="ngo-navbar-toggler-icon"></span>
+                </button>
+                
+                <!-- Navbar Content -->
+                <div class="collapse navbar-collapse" id="navbarContent">
+                    <!-- Action-Based Navigation -->
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="ngo-action-nav-link" asp-controller="NGO" asp-action="Dashboard">
+                                <i class="fas fa-tachometer-alt"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="ngo-action-nav-link" asp-controller="NGO" asp-action="AvailableDonations">
+                                <i class="fas fa-inbox"></i>
+                                <span>Browse Donations</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="ngo-action-nav-link" asp-controller="NGO" asp-action="MyRequests">
+                                <i class="fas fa-list-check"></i>
+                                <span>My Requests</span>
+                            </a>
+                        </li>
+                    </ul>
+                    
+                    <!-- Right Side: Theme Toggle, Notifications & Profile -->
+                    <ul class="navbar-nav ms-auto align-items-center">
+                        <!-- Theme Toggle -->
+                        <li class="nav-item">
+                            <button type="button" class="ngo-theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                                <i class="fas fa-moon" id="themeIcon"></i>
+                            </button>
+                        </li>
+                        <!-- Notification Bell for New Donations -->
+                        <li class="nav-item ngo-notification-container">
+                            <partial name="_NotificationPartial" />
+                        </li>
+                        <!-- Profile Dropdown with Role Badge -->
+                        @if (SignInManager.IsSignedIn(User))
+                        {
+                            <li class="nav-item dropdown ngo-profile-dropdown">
+                                <a class="nav-link ngo-dropdown-toggle d-flex align-items-center" href="#" id="ngoUserDropdown" role="button" 
+                                   data-bs-toggle="dropdown" aria-expanded="false">
+                                    <div class="ngo-profile-avatar">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <div class="ngo-profile-info">
+                                        <span class="ngo-profile-name">@User.Identity?.Name</span>
+                                        @if (User.IsInRole("NGO"))
+                                        {
+                                            <span class="ngo-role-badge">NGO</span>
+                                        }
+                                    </div>
+                                </a>
+                                <ul class="dropdown-menu ngo-dropdown-menu dropdown-menu-end" aria-labelledby="ngoUserDropdown">
+                                    <li>
+                                        <div class="ngo-dropdown-header">
+                                            <div class="ngo-profile-name">@User.Identity?.Name</div>
+                                            @if (User.IsInRole("NGO"))
+                                            {
+                                                <span class="ngo-role-badge">NGO Organization</span>
+                                            }
+                                        </div>
+                                    </li>
+                                    <li><hr class="ngo-dropdown-divider"></li>
+                                    <li>
+                                        <a class="ngo-dropdown-item" href="#" onclick="alert('Account management coming soon'); return false;">
+                                            <i class="fas fa-user-cog"></i>
+                                            <span>Manage Account</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="ngo-dropdown-item" asp-controller="NGO" asp-action="Dashboard">
+                                            <i class="fas fa-tachometer-alt"></i>
+                                            <span>Dashboard</span>
+                                        </a>
+                                    </li>
+                                    <li><hr class="ngo-dropdown-divider"></li>
+                                    <li>
+                                        <form class="form-inline" asp-controller="Account" asp-action="Logout" method="post"
+                                              asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="ngo-dropdown-item w-100 text-start border-0 bg-transparent">
+                                                <i class="fas fa-sign-out-alt"></i>
+                                                <span>Logout</span>
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Mobile Sidebar Overlay -->
+    <div class="mobile-sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- NGO Layout Wrapper -->
+    <div class="ngo-layout-wrapper">
+        <!-- Sidebar -->
+        <aside class="ngo-sidebar" id="ngoSidebar">
+            <div class="ngo-sidebar-header">
+                <h3>
+                    <i class="fas fa-building"></i>
+                    NGO Portal
+                </h3>
+            </div>
+            
+            <nav class="ngo-sidebar-nav">
+                <a asp-controller="NGO" asp-action="Dashboard" class="ngo-nav-item" id="nav-dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+                
+                <a asp-controller="NGO" asp-action="AvailableDonations" class="ngo-nav-item" id="nav-incoming">
+                    <i class="fas fa-inbox"></i>
+                    <span>Incoming Donations</span>
+                </a>
+                
+                <a asp-controller="NGO" asp-action="MyRequests" class="ngo-nav-item" id="nav-accepted">
+                    <i class="fas fa-check-circle"></i>
+                    <span>My Requests</span>
+                </a>
+                
+                <a asp-controller="Map" asp-action="Index" class="ngo-nav-item" id="nav-map">
+                    <i class="fas fa-map-marked-alt"></i>
+                    <span>Map View</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="ngo-main-content">
+            <div class="ngo-content-wrapper">
+                @RenderBody()
+            </div>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-light border-top mt-auto py-4">
+        <div class="container-fluid px-4">
+            <div class="row align-items-center">
+                <div class="col-md-6 mb-3 mb-md-0">
+                    <p class="mb-0 text-muted small">
+                        <i class="fas fa-copyright me-1"></i>
+                        @DateTime.Now.Year Smart Donation and Food Redistribution System. All rights reserved.
+                    </p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0 text-muted small">
+                        <i class="fas fa-heart text-danger me-1"></i>
+                        Connecting donors with NGOs to reduce food waste
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" 
+            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" 
+            crossorigin="anonymous"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" 
+            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" 
+            crossorigin="anonymous"></script>
+    
+    <script src="https://unpkg.com/@@microsoft/signalr@latest/dist/browser/signalr.min.js"></script>
+    <script src="~/js/site.js"></script>
+    
+    <!-- NGO Sidebar Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('ngoSidebar');
+            const mobileSidebarToggle = document.getElementById('mobileSidebarToggle');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+            // Mobile sidebar toggle
+            if (mobileSidebarToggle) {
+                mobileSidebarToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('show');
+                    sidebarOverlay.classList.toggle('show');
+                    document.body.style.overflow = sidebar.classList.contains('show') ? 'hidden' : '';
+                });
+            }
+
+            // Close sidebar when clicking overlay
+            if (sidebarOverlay) {
+                sidebarOverlay.addEventListener('click', function() {
+                    sidebar.classList.remove('show');
+                    sidebarOverlay.classList.remove('show');
+                    document.body.style.overflow = '';
+                });
+            }
+
+            // Set active nav item based on current URL
+            const currentPath = window.location.pathname.toLowerCase();
+            const navItems = document.querySelectorAll('.ngo-nav-item');
+            
+            navItems.forEach(item => {
+                const href = item.getAttribute('href');
+                if (href && href !== '#' && currentPath.includes(href.toLowerCase())) {
+                    item.classList.add('active');
+                }
+            });
+
+            // Special handling for Dashboard
+            if (currentPath.includes('/ngo/dashboard') || currentPath === '/ngo') {
+                const dashboardNav = document.getElementById('nav-dashboard');
+                if (dashboardNav) dashboardNav.classList.add('active');
+            }
+
+            // Special handling for Available Donations
+            if (currentPath.includes('/ngo/availabledonations')) {
+                const incomingNav = document.getElementById('nav-incoming');
+                if (incomingNav) incomingNav.classList.add('active');
+            }
+
+            // Special handling for My Requests
+            if (currentPath.includes('/ngo/myrequests') || currentPath.includes('/ngo/viewrequests')) {
+                const acceptedNav = document.getElementById('nav-accepted');
+                if (acceptedNav) acceptedNav.classList.add('active');
+            }
+
+            // Special handling for Map
+            if (currentPath.includes('/map')) {
+                const mapNav = document.getElementById('nav-map');
+                if (mapNav) mapNav.classList.add('active');
+            }
+        });
+    </script>
+    
+    <!-- Navbar Scroll Effect -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const navbar = document.querySelector('.ngo-navbar');
+            
+            // Add scroll effect
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 50) {
+                    navbar.classList.add('scrolled');
+                } else {
+                    navbar.classList.remove('scrolled');
+                }
+            });
+            
+            // Add active class to current page nav link
+            const currentPath = window.location.pathname.toLowerCase();
+            const navLinks = document.querySelectorAll('.ngo-action-nav-link');
+            
+            navLinks.forEach(link => {
+                const href = link.getAttribute('href');
+                if (href && (currentPath === href.toLowerCase() || 
+                    currentPath.startsWith(href.toLowerCase()) && href !== '/')) {
+                    link.classList.add('active');
+                }
+            });
+
+            // Special handling for NGO routes
+            if (currentPath.includes('/ngo/dashboard') || currentPath === '/ngo') {
+                const dashboardNav = document.querySelector('a[href*="/ngo/dashboard"]');
+                if (dashboardNav) dashboardNav.classList.add('active');
+            }
+
+            if (currentPath.includes('/ngo/availabledonations')) {
+                const availableNav = document.querySelector('a[href*="/ngo/availabledonations"]');
+                if (availableNav) availableNav.classList.add('active');
+            }
+
+            if (currentPath.includes('/ngo/myrequests') || currentPath.includes('/ngo/viewrequests')) {
+                const requestsNav = document.querySelector('a[href*="/ngo/myrequests"]');
+                if (requestsNav) requestsNav.classList.add('active');
+            }
+        });
+    </script>
+    
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

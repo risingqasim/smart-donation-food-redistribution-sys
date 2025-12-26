@@ -57,14 +57,132 @@ function initializeSignalR() {
     }
 }
 
+// ============================================
+// Theme Management System
+// ============================================
+
+const ThemeManager = {
+    // Theme storage key
+    STORAGE_KEY: 'smartDonationTheme',
+    
+    // Initialize theme on page load
+    init: function() {
+        // Get saved theme or default to light
+        const savedTheme = localStorage.getItem(this.STORAGE_KEY) || 'light';
+        // Set theme immediately (before page render to prevent flash)
+        if (savedTheme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            document.documentElement.setAttribute('data-bs-theme', 'dark');
+        }
+        // Update icon after DOM is ready
+        setTimeout(() => {
+            this.updateToggleIcon(savedTheme);
+        }, 0);
+    },
+    
+    // Set theme
+    setTheme: function(theme) {
+        // Validate theme
+        if (theme !== 'light' && theme !== 'dark') {
+            theme = 'light';
+        }
+        
+        // Apply theme with smooth transition
+        if (theme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        } else {
+            document.documentElement.removeAttribute('data-theme');
+        }
+        
+        // Save to localStorage
+        localStorage.setItem(this.STORAGE_KEY, theme);
+        
+        // Update toggle icon
+        this.updateToggleIcon(theme);
+        
+        // Trigger custom event for any components that need to react to theme change
+        window.dispatchEvent(new CustomEvent('themeChange', { detail: { theme } }));
+        
+        // Update Bootstrap data attribute for compatibility
+        document.documentElement.setAttribute('data-bs-theme', theme);
+    },
+    
+    // Toggle between light and dark
+    toggle: function() {
+        const currentTheme = localStorage.getItem(this.STORAGE_KEY) || 'light';
+        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+        this.setTheme(newTheme);
+        
+        // Prevent page reload
+        return false;
+    },
+    
+    // Get current theme
+    getCurrentTheme: function() {
+        return localStorage.getItem(this.STORAGE_KEY) || 'light';
+    },
+    
+    // Update toggle icon based on theme
+    updateToggleIcon: function(theme) {
+        const themeIcon = document.getElementById('themeIcon');
+        if (themeIcon) {
+            if (theme === 'dark') {
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+                themeIcon.setAttribute('title', 'Switch to Light Mode');
+            } else {
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
+                themeIcon.setAttribute('title', 'Switch to Dark Mode');
+            }
+        }
+    }
+};
+
+// ============================================
+// Theme Toggle Event Handler
+// ============================================
+function setupThemeToggle() {
+    const themeToggle = document.getElementById('themeToggle');
+    
+    if (themeToggle) {
+        // Click handler
+        themeToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            ThemeManager.toggle();
+        });
+        
+        // Keyboard accessibility
+        themeToggle.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                e.stopPropagation();
+                ThemeManager.toggle();
+            }
+        });
+        
+        // Set initial icon state
+        const currentTheme = ThemeManager.getCurrentTheme();
+        ThemeManager.updateToggleIcon(currentTheme);
+    }
+}
+
 // Ensure DOM is loaded before initializing
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Smart Donation System loaded');
+    
+    // Initialize theme system (before other components)
+    ThemeManager.init();
+    setupThemeToggle();
     
     // Initialize SignalR after a short delay to ensure SignalR script is loaded
     // SignalR script is loaded in _Layout.cshtml before site.js
     setTimeout(initializeSignalR, 100);
 });
+
+// Make ThemeManager available globally for any custom scripts
+window.ThemeManager = ThemeManager;
 
 // Export connection for use in other scripts if needed
 window.signalRConnection = function() {

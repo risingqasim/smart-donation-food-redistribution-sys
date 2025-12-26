@@ -73,8 +73,6 @@ namespace SmartDonationSystem.Areas.Identity.Pages.Account
 
         public async Task<IActionResult> OnPostAsync(string? returnUrl = null)
         {
-            returnUrl ??= Url.Content("~/");
-
             if (ModelState.IsValid)
             {
                 var result = await _signInManager.PasswordSignInAsync(
@@ -93,13 +91,32 @@ namespace SmartDonationSystem.Areas.Identity.Pages.Account
                     // Never return Page() after POST to prevent form resubmission
                     // Authentication cookie is already set by SignInManager.PasswordSignInAsync above
                     
-                    // If returnUrl is provided and is a local URL, redirect to it
-                    if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                    // If returnUrl is provided (not default) and is a local URL, redirect to it
+                    // This handles cases where user was redirected to login from a protected page
+                    if (!string.IsNullOrEmpty(returnUrl) && 
+                        returnUrl != "/" && 
+                        returnUrl != Url.Content("~/") && 
+                        Url.IsLocalUrl(returnUrl))
                     {
+                        _logger.LogInformation("Redirecting to returnUrl: {ReturnUrl}", returnUrl);
                         return LocalRedirect(returnUrl);
                     }
 
-                    // Always redirect to Home/Index after successful login
+                    // Get the logged-in user for role-based redirection
+                    var user = await _userManager.FindByEmailAsync(Input.Email);
+                    if (user != null)
+                    {
+                        // Redirect to role-specific dashboard using AuthRedirectService
+                        // Admin → /Admin/Dashboard
+                        // NGO → /NGO/Dashboard
+                        // Donor → /Donor/Dashboard
+                        var dashboardUrl = await _authRedirectService.GetDashboardUrlAsync(user);
+                        _logger.LogInformation("Redirecting to dashboard: {DashboardUrl} for user: {Email}", dashboardUrl, Input.Email);
+                        return LocalRedirect(dashboardUrl);
+                    }
+                    
+                    // Fallback to home page if user not found (shouldn't happen)
+                    _logger.LogWarning("User not found after successful login. Email: {Email}", Input.Email);
                     return LocalRedirect("/");
                 }
                 else

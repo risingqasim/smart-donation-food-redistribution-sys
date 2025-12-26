@@ -137,8 +137,6 @@ namespace SmartDonationSystem.Controllers
         {
             _logger.LogInformation("POST Login action called. Email: {Email}, ReturnUrl: {ReturnUrl}, Request Path: {Path}, Method: {Method}", 
                 model?.Email, returnUrl, HttpContext.Request.Path, HttpContext.Request.Method);
-            
-            returnUrl ??= Url.Content("~/");
 
             if (!ModelState.IsValid)
             {
@@ -178,14 +176,21 @@ namespace SmartDonationSystem.Controllers
                 // Never return View() after POST to prevent form resubmission
                 // Authentication cookie is already set by SignInManager.PasswordSignInAsync above
                 
-                // If returnUrl is provided and is a local URL, redirect to it
-                if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                // If returnUrl is provided (not default) and is a local URL, redirect to it
+                // This handles cases where user was redirected to login from a protected page
+                if (!string.IsNullOrEmpty(returnUrl) && 
+                    returnUrl != "/" && 
+                    returnUrl != Url.Content("~/") && 
+                    Url.IsLocalUrl(returnUrl))
                 {
                     _logger.LogInformation("Redirecting to returnUrl: {ReturnUrl}", returnUrl);
                     return LocalRedirect(returnUrl);
                 }
 
                 // Redirect to role-specific dashboard using AuthRedirectService (consistent with Register)
+                // Admin → /Admin/Dashboard
+                // NGO → /NGO/Dashboard  
+                // Donor → /Donor/Dashboard
                 var dashboardUrl = await _authRedirectService.GetDashboardUrlAsync(user);
                 _logger.LogInformation("Redirecting to dashboard: {DashboardUrl} for user: {Email}", dashboardUrl, model.Email);
                 return LocalRedirect(dashboardUrl);

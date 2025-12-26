@@ -1,0 +1,927 @@
+@inject IConfiguration Configuration
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Smart Donation and Food Redistribution System - Donate food easily" />
+    <title>@ViewData["Title"] - Smart Donation System</title>
+    
+    <!-- Bootstrap 5 CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" 
+          integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" 
+          crossorigin="anonymous">
+    
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" 
+          integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" 
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="~/css/site.css" />
+    
+    <!-- Theme Initialization Script -->
+    <script>
+        (function() {
+            const theme = localStorage.getItem('smartDonationTheme') || 'light';
+            if (theme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                document.documentElement.setAttribute('data-bs-theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-bs-theme', 'light');
+            }
+        })();
+    </script>
+    
+    <!-- Donor Layout Styles -->
+    <style>
+        :root {
+            --donor-primary: #10b981;
+            --donor-primary-hover: #059669;
+            --donor-bg: #f0fdf4;
+            --donor-card-shadow: 0 2px 8px rgba(16, 185, 129, 0.1);
+        }
+
+        body {
+            background-color: var(--donor-bg);
+        }
+
+        [data-theme="dark"] body {
+            background-color: #111827;
+        }
+
+        .donor-layout-wrapper {
+            min-height: calc(100vh - 76px);
+            margin-top: 76px;
+        }
+
+        .donor-main-content {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 90px;
+            right: 20px;
+            z-index: 9999;
+        }
+
+        .toast {
+            min-width: 300px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border-radius: 0.5rem;
+        }
+
+        .toast-success {
+            background-color: #10b981;
+            color: white;
+        }
+
+        .toast-error {
+            background-color: #ef4444;
+            color: white;
+        }
+
+        .toast-info {
+            background-color: #3b82f6;
+            color: white;
+        }
+
+        /* Large CTA Button */
+        .cta-large {
+            padding: 1.25rem 3rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+            border-radius: 0.75rem;
+            border: none;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .cta-large:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .cta-large i {
+            font-size: 1.5rem;
+        }
+
+        /* Simple Sidebar */
+        .donor-sidebar {
+            width: 260px;
+            background: white;
+            border-right: 1px solid #e5e7eb;
+            padding: 0;
+            position: fixed;
+            left: 0;
+            top: 76px;
+            height: calc(100vh - 76px);
+            overflow-y: auto;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+        }
+
+        [data-theme="dark"] .donor-sidebar {
+            background: #1f2937;
+            border-right-color: #374151;
+        }
+
+        .donor-sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            background: #f9fafb;
+        }
+
+        [data-theme="dark"] .donor-sidebar-header {
+            background: #111827;
+            border-bottom-color: #374151;
+        }
+
+        .donor-sidebar-header h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        [data-theme="dark"] .donor-sidebar-header h3 {
+            color: #f9fafb;
+        }
+
+        .donor-sidebar-header h3 i {
+            color: var(--donor-primary);
+            font-size: 1.25rem;
+        }
+
+        .donor-sidebar-nav {
+            padding: 1rem 0.75rem;
+        }
+
+        .donor-nav-item {
+            display: flex;
+            align-items: center;
+            padding: 0.875rem 1rem;
+            margin-bottom: 0.25rem;
+            color: #4b5563;
+            text-decoration: none;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            font-size: 0.9375rem;
+            gap: 0.75rem;
+        }
+
+        [data-theme="dark"] .donor-nav-item {
+            color: #d1d5db;
+        }
+
+        .donor-nav-item i {
+            width: 20px;
+            text-align: center;
+            font-size: 1.125rem;
+            flex-shrink: 0;
+        }
+
+        .donor-nav-item:hover {
+            background-color: #f3f4f6;
+            color: var(--donor-primary);
+        }
+
+        [data-theme="dark"] .donor-nav-item:hover {
+            background-color: #374151;
+            color: #34d399;
+        }
+
+        .donor-nav-item.active {
+            background: linear-gradient(135deg, var(--donor-primary) 0%, var(--donor-primary-hover) 100%);
+            color: white;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+        }
+
+        .donor-nav-item.active i {
+            color: white;
+        }
+
+        .donor-main-content-with-sidebar {
+            margin-left: 260px;
+            transition: margin-left 0.3s ease;
+        }
+
+        /* Mobile Responsive */
+        @@media (max-width: 991px) {
+            .donor-sidebar {
+                transform: translateX(-100%);
+            }
+
+            .donor-sidebar.show {
+                transform: translateX(0);
+            }
+
+            .donor-main-content-with-sidebar {
+                margin-left: 0;
+            }
+
+            .donor-main-content {
+                padding: 1rem;
+            }
+
+            .toast-container {
+                right: 10px;
+                left: 10px;
+            }
+
+            .toast {
+                min-width: auto;
+            }
+        }
+
+        /* Enhanced Donor Navbar Styles */
+        .donor-navbar {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+            padding: 0.75rem 0;
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 2px 10px rgba(16, 185, 129, 0.2);
+            border-bottom: none;
+        }
+
+        [data-theme="dark"] .donor-navbar {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+            box-shadow: 0 2px 10px rgba(5, 150, 105, 0.3);
+        }
+
+        .donor-navbar.scrolled {
+            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.25);
+        }
+
+        /* Smooth transitions for theme-affected navbar elements */
+        .donor-navbar-brand,
+        .donor-brand-icon,
+        .donor-nav-link,
+        .donor-donate-btn,
+        .donor-theme-toggle,
+        .donor-navbar .nav-item.dropdown .nav-link,
+        .donor-navbar .notification-bell,
+        .donor-navbar .dropdown-menu,
+        .donor-navbar .dropdown-item {
+            transition: background-color 0.3s ease, 
+                        border-color 0.3s ease, 
+                        color 0.3s ease,
+                        box-shadow 0.3s ease;
+        }
+
+        .donor-navbar-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff !important;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 0;
+        }
+
+        .donor-navbar-brand:hover {
+            transform: scale(1.02);
+            color: #ffffff !important;
+        }
+
+        .donor-brand-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .donor-navbar-brand:hover .donor-brand-icon {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: rotate(5deg);
+        }
+
+        .donor-brand-icon i {
+            font-size: 1.5rem;
+            color: #ffffff;
+        }
+
+        .donor-brand-text {
+            letter-spacing: 0.3px;
+            color: #ffffff;
+        }
+
+        .donor-nav-link {
+            transition: all 0.3s ease;
+            padding: 0.625rem 1rem;
+            margin: 0 0.25rem;
+            border-radius: 0.5rem;
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-weight: 500;
+            font-size: 0.9375rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .donor-nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: #ffffff !important;
+            transform: translateY(-1px);
+        }
+
+        .donor-nav-link.active {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #ffffff !important;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .donor-nav-link i {
+            font-size: 1rem;
+            width: 18px;
+            text-align: center;
+        }
+
+        .donor-donate-btn {
+            background: #ffffff;
+            color: var(--donor-primary) !important;
+            padding: 0.625rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            font-size: 1rem;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-left: 0.5rem;
+        }
+
+        .donor-donate-btn:hover {
+            background: #f0fdf4;
+            color: var(--donor-primary-hover) !important;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .donor-donate-btn:active {
+            transform: translateY(0);
+        }
+
+        .donor-donate-btn i {
+            font-size: 1.1rem;
+        }
+
+        .donor-navbar-toggler {
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 0.4rem 0.6rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .donor-navbar-toggler:hover {
+            border-color: rgba(255, 255, 255, 0.5);
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .donor-navbar-toggler:focus {
+            box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25);
+        }
+
+        .donor-navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.9%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+        }
+
+        .donor-theme-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.9);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 0.75rem;
+        }
+
+        .donor-theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: scale(1.1);
+            color: #ffffff;
+        }
+
+        .donor-theme-toggle:focus {
+            outline: none;
+            box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25);
+        }
+
+        .donor-theme-toggle i {
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            font-size: 1.1rem;
+        }
+
+        /* Smooth icon transition when theme changes */
+        .donor-theme-toggle i.fa-moon,
+        .donor-theme-toggle i.fa-sun {
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .donor-theme-toggle:hover i {
+            transform: rotate(180deg);
+        }
+
+        .donor-mobile-sidebar-toggle {
+            display: none;
+        }
+
+        @@media (max-width: 991px) {
+            .donor-mobile-sidebar-toggle {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 42px;
+                height: 42px;
+                background: rgba(255, 255, 255, 0.15);
+                border: 2px solid rgba(255, 255, 255, 0.3);
+                border-radius: 8px;
+                color: rgba(255, 255, 255, 0.9);
+                cursor: pointer;
+                margin-right: 0.75rem;
+                transition: all 0.3s ease;
+            }
+
+            .donor-mobile-sidebar-toggle:hover {
+                background: rgba(255, 255, 255, 0.25);
+                border-color: rgba(255, 255, 255, 0.5);
+            }
+
+            .donor-navbar-nav {
+                padding: 1rem 0;
+            }
+            
+            .donor-nav-link {
+                padding: 0.75rem 1rem;
+                margin: 0.25rem 0;
+            }
+
+            .donor-donate-btn {
+                margin: 0.5rem 0.75rem;
+                width: calc(100% - 1.5rem);
+                justify-content: center;
+            }
+        }
+
+        /* Donor Profile Dropdown Styles */
+        .donor-navbar .nav-item.dropdown .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.625rem 1rem;
+            margin: 0 0.25rem;
+            border-radius: 0.5rem;
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .donor-navbar .nav-item.dropdown .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: #ffffff !important;
+        }
+
+        .donor-navbar .nav-item.dropdown .nav-link i {
+            font-size: 1.25rem;
+        }
+
+        .donor-navbar .dropdown-menu {
+            background: #ffffff !important;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.75rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            padding: 0.5rem 0;
+            margin-top: 0.75rem;
+            min-width: 220px;
+        }
+
+        [data-theme="dark"] .donor-navbar .dropdown-menu {
+            background: #1f2937 !important;
+            border-color: #374151;
+        }
+
+        .donor-navbar .dropdown-item {
+            color: #1f2937 !important;
+            padding: 0.75rem 1.25rem;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 500;
+        }
+
+        [data-theme="dark"] .donor-navbar .dropdown-item {
+            color: #f9fafb !important;
+        }
+
+        .donor-navbar .dropdown-item:hover,
+        .donor-navbar .dropdown-item:focus {
+            background-color: rgba(16, 185, 129, 0.1) !important;
+            color: var(--donor-primary) !important;
+            padding-left: 1.5rem;
+        }
+
+        [data-theme="dark"] .donor-navbar .dropdown-item:hover,
+        [data-theme="dark"] .donor-navbar .dropdown-item:focus {
+            background-color: rgba(16, 185, 129, 0.2) !important;
+            color: #34d399 !important;
+        }
+
+        .donor-navbar .dropdown-item i {
+            width: 20px;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .donor-navbar .dropdown-divider {
+            border-color: #e5e7eb;
+            margin: 0.5rem 0;
+        }
+
+        [data-theme="dark"] .donor-navbar .dropdown-divider {
+            border-color: #374151;
+        }
+
+        .donor-navbar .dropdown-toggle::after {
+            margin-left: 0.5rem;
+            transition: transform 0.3s ease;
+            border-top-color: rgba(255, 255, 255, 0.9);
+        }
+
+        .donor-navbar .dropdown-toggle[aria-expanded="true"]::after {
+            transform: rotate(180deg);
+        }
+
+        /* Notification Bell in Donor Navbar */
+        .donor-navbar .notification-container {
+            position: relative;
+            margin-right: 0.75rem;
+        }
+
+        .donor-navbar .notification-bell {
+            position: relative;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .donor-navbar .notification-bell:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: scale(1.1);
+        }
+
+        .donor-navbar .notification-bell i {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .donor-navbar .notification-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            border: 2px solid #10b981;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .mobile-sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 76px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            transition: opacity 0.3s ease;
+        }
+
+        .mobile-sidebar-overlay.show {
+            display: block;
+        }
+
+        [data-theme="dark"] .mobile-sidebar-overlay {
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+    </style>
+    
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg donor-navbar fixed-top">
+            <div class="container-fluid px-4">
+                <!-- Mobile Sidebar Toggle -->
+                <button class="donor-mobile-sidebar-toggle" id="mobileSidebarToggle" aria-label="Toggle sidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+
+                <!-- Brand -->
+                <a class="donor-navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <div class="donor-brand-icon">
+                        <i class="fas fa-hands-helping"></i>
+                    </div>
+                    <span class="donor-brand-text">Smart Donation</span>
+                </a>
+                
+                <!-- Mobile Toggle -->
+                <button class="donor-navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" 
+                        aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="donor-navbar-toggler-icon"></span>
+                </button>
+                
+                <!-- Navbar Content -->
+                <div class="collapse navbar-collapse" id="navbarContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <!-- Dashboard -->
+                        <li class="nav-item">
+                            <a class="donor-nav-link" asp-controller="Donor" asp-action="Dashboard">
+                                <i class="fas fa-home"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+                    </ul>
+                    
+                    <!-- Right Side: Donate Now Button, Theme Toggle, Notifications & Profile -->
+                    <ul class="navbar-nav ms-auto align-items-center">
+                        <!-- Donate Now Button -->
+                        <li class="nav-item">
+                            <a class="donor-donate-btn" asp-controller="Donations" asp-action="Create">
+                                <i class="fas fa-heart"></i>
+                                <span>Donate Now</span>
+                            </a>
+                        </li>
+                        <!-- Theme Toggle -->
+                        <li class="nav-item">
+                            <button type="button" class="donor-theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                                <i class="fas fa-moon" id="themeIcon"></i>
+                            </button>
+                        </li>
+                        <!-- Notification Bell -->
+                        <li class="nav-item">
+                            <partial name="_NotificationPartial" />
+                        </li>
+                        <!-- Profile Dropdown -->
+                        <partial name="_LoginPartial" />
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Mobile Sidebar Overlay -->
+    <div class="mobile-sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Donor Layout Wrapper -->
+    <div class="donor-layout-wrapper">
+        <!-- Sidebar -->
+        <aside class="donor-sidebar" id="donorSidebar">
+            <div class="donor-sidebar-header">
+                <h3>
+                    <i class="fas fa-heart"></i>
+                    Donor Portal
+                </h3>
+            </div>
+            
+            <nav class="donor-sidebar-nav">
+                <a asp-controller="Donor" asp-action="Dashboard" class="donor-nav-item" id="nav-dashboard">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+                
+                <a asp-controller="Donations" asp-action="Create" class="donor-nav-item" id="nav-donate">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Donate Food</span>
+                </a>
+                
+                <a asp-controller="Donor" asp-action="MyDonations" class="donor-nav-item" id="nav-my-donations">
+                    <i class="fas fa-history"></i>
+                    <span>My Donations</span>
+                </a>
+                
+                <a asp-controller="Donor" asp-action="DonationRequests" class="donor-nav-item" id="nav-requests">
+                    <i class="fas fa-inbox"></i>
+                    <span>Requests</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="donor-main-content donor-main-content-with-sidebar">
+            <!-- Toast Container -->
+            <div class="toast-container" id="toastContainer"></div>
+
+            @RenderBody()
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-light border-top mt-auto py-4">
+        <div class="container-fluid px-4">
+            <div class="row align-items-center">
+                <div class="col-md-6 mb-3 mb-md-0">
+                    <p class="mb-0 text-muted small">
+                        <i class="fas fa-copyright me-1"></i>
+                        @DateTime.Now.Year Smart Donation and Food Redistribution System. All rights reserved.
+                    </p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0 text-muted small">
+                        <i class="fas fa-heart text-danger me-1"></i>
+                        Making a difference, one donation at a time
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" 
+            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" 
+            crossorigin="anonymous"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" 
+            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" 
+            crossorigin="anonymous"></script>
+    
+    <script src="https://unpkg.com/@@microsoft/signalr@latest/dist/browser/signalr.min.js"></script>
+    <script src="~/js/site.js"></script>
+    
+    <!-- Toast Notification System -->
+    <script>
+        function showToast(message, type = 'success') {
+            const toastContainer = document.getElementById('toastContainer');
+            const toastId = 'toast-' + Date.now();
+            
+            const toastHtml = `
+                <div id="${toastId}" class="toast toast-${type}" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="5000">
+                    <div class="toast-header bg-transparent border-0 text-white">
+                        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'} me-2"></i>
+                        <strong class="me-auto">${type === 'success' ? 'Success' : type === 'error' ? 'Error' : 'Info'}</strong>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                    <div class="toast-body text-white">
+                        ${message}
+                    </div>
+                </div>
+            `;
+            
+            toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+            const toastElement = document.getElementById(toastId);
+            const toast = new bootstrap.Toast(toastElement);
+            toast.show();
+            
+            toastElement.addEventListener('hidden.bs.toast', function() {
+                toastElement.remove();
+            });
+        }
+
+        // Show toast from TempData if present
+        document.addEventListener('DOMContentLoaded', function() {
+            @if (TempData["Success"] != null)
+            {
+                <text>showToast('@Html.Raw(TempData["Success"])', 'success');</text>
+            }
+            @if (TempData["Error"] != null)
+            {
+                <text>showToast('@Html.Raw(TempData["Error"])', 'error');</text>
+            }
+            @if (TempData["Info"] != null)
+            {
+                <text>showToast('@Html.Raw(TempData["Info"])', 'info');</text>
+            }
+        });
+    </script>
+    
+    <!-- Donor Sidebar Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('donorSidebar');
+            const mobileSidebarToggle = document.getElementById('mobileSidebarToggle');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+            // Mobile sidebar toggle
+            if (mobileSidebarToggle) {
+                mobileSidebarToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('show');
+                    sidebarOverlay.classList.toggle('show');
+                    document.body.style.overflow = sidebar.classList.contains('show') ? 'hidden' : '';
+                });
+            }
+
+            // Close sidebar when clicking overlay
+            if (sidebarOverlay) {
+                sidebarOverlay.addEventListener('click', function() {
+                    sidebar.classList.remove('show');
+                    sidebarOverlay.classList.remove('show');
+                    document.body.style.overflow = '';
+                });
+            }
+
+            // Set active nav item based on current URL
+            const currentPath = window.location.pathname.toLowerCase();
+            const navItems = document.querySelectorAll('.donor-nav-item');
+            
+            navItems.forEach(item => {
+                const href = item.getAttribute('href');
+                if (href && href !== '#' && currentPath.includes(href.toLowerCase())) {
+                    item.classList.add('active');
+                }
+            });
+
+            // Special handling for Dashboard
+            if (currentPath.includes('/donor/dashboard') || currentPath === '/donor') {
+                const dashboardNav = document.getElementById('nav-dashboard');
+                if (dashboardNav) dashboardNav.classList.add('active');
+            }
+
+            // Special handling for Create Donation
+            if (currentPath.includes('/donations/create')) {
+                const donateNav = document.getElementById('nav-donate');
+                if (donateNav) donateNav.classList.add('active');
+            }
+        });
+    </script>
+    
+    <!-- Navbar Scroll Effect -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const navbar = document.querySelector('.donor-navbar');
+            
+            // Add scroll effect
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 50) {
+                    navbar.classList.add('scrolled');
+                } else {
+                    navbar.classList.remove('scrolled');
+                }
+            });
+            
+            // Add active class to current page nav link
+            const currentPath = window.location.pathname.toLowerCase();
+            const navLinks = document.querySelectorAll('.donor-nav-link');
+            
+            navLinks.forEach(link => {
+                const href = link.getAttribute('href');
+                if (href && (currentPath === href.toLowerCase() || 
+                    currentPath.startsWith(href.toLowerCase()) && href !== '/')) {
+                    link.classList.add('active');
+                }
+            });
+
+            // Special handling for Donor Dashboard
+            if (currentPath.includes('/donor/dashboard') || currentPath === '/donor') {
+                const dashboardNav = document.querySelector('a[href*="/donor/dashboard"]');
+                if (dashboardNav) dashboardNav.classList.add('active');
+            }
+        });
+    </script>
+    
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

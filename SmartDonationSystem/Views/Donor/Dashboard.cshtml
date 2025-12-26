@@ -1,503 +1,389 @@
 @model SmartDonationSystem.Controllers.DonorDashboardViewModel
-
 @{
+    Layout = "_DonorLayout";
     ViewData["Title"] = "Donor Dashboard";
-    var activeDonations = Model.AvailableDonations + Model.ReservedDonations;
 }
 
-@section Styles {
-    <style>
-        :root {
-            --primary-green: #4CAF50;
-            --light-green: #81C784;
-            --soft-green: #C8E6C9;
-            --primary-blue: #64B5F6;
-            --light-blue: #90CAF9;
-            --soft-blue: #BBDEFB;
-            --warm-gray: #F5F5F5;
-            --text-gray: #616161;
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        border-radius: 1rem;
+        padding: 3rem 2rem;
+        margin-bottom: 2rem;
+        color: white;
+        text-align: center;
+    }
+
+    .hero-section h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .hero-section p {
+        font-size: 1.125rem;
+        opacity: 0.95;
+        margin-bottom: 2rem;
+    }
+
+    .cta-button-large {
+        background: white;
+        color: #10b981;
+        padding: 1.25rem 3rem;
+        font-size: 1.25rem;
+        font-weight: 700;
+        border-radius: 0.75rem;
+        border: none;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        text-decoration: none;
+    }
+
+    .cta-button-large:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 25px rgba(0, 0, 0, 0.3);
+        color: #059669;
+    }
+
+    .cta-button-large i {
+        font-size: 1.5rem;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e5e7eb;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    [data-theme="dark"] .stat-card {
+        background: #1f2937;
+        border-color: #374151;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    }
+
+    .stat-card .stat-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+        margin: 0 auto 1rem;
+        color: white;
+    }
+
+    .stat-card.total .stat-icon { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+    .stat-card.active .stat-icon { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
+    .stat-card.collected .stat-icon { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+
+    .stat-card .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin: 0.5rem 0;
+    }
+
+    [data-theme="dark"] .stat-card .stat-value {
+        color: #f9fafb;
+    }
+
+    .stat-card .stat-label {
+        color: #6b7280;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    [data-theme="dark"] .stat-card .stat-label {
+        color: #9ca3af;
+    }
+
+    .timeline-card {
+        background: white;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e5e7eb;
+    }
+
+    [data-theme="dark"] .timeline-card {
+        background: #1f2937;
+        border-color: #374151;
+    }
+
+    .timeline-card h3 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    [data-theme="dark"] .timeline-card h3 {
+        color: #f9fafb;
+    }
+
+    .timeline-item {
+        position: relative;
+        padding-left: 2.5rem;
+        padding-bottom: 1.5rem;
+        border-left: 2px solid #e5e7eb;
+    }
+
+    [data-theme="dark"] .timeline-item {
+        border-left-color: #374151;
+    }
+
+    .timeline-item:last-child {
+        border-left: none;
+        padding-bottom: 0;
+    }
+
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -8px;
+        top: 0;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #e5e7eb;
+        border: 3px solid white;
+    }
+
+    [data-theme="dark"] .timeline-item::before {
+        background: #374151;
+        border-color: #1f2937;
+    }
+
+    .timeline-item.pending::before { background: #f59e0b; }
+    .timeline-item.available::before { background: #3b82f6; }
+    .timeline-item.reserved::before { background: #f59e0b; }
+    .timeline-item.collected::before { background: #10b981; }
+
+    .timeline-content {
+        background: #f9fafb;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-top: 0.5rem;
+    }
+
+    [data-theme="dark"] .timeline-content {
+        background: #111827;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 2rem;
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+
+    .status-badge.pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .status-badge.available {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .status-badge.reserved {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .status-badge.collected {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    [data-theme="dark"] .status-badge.pending {
+        background: rgba(245, 158, 11, 0.2);
+        color: #fbbf24;
+    }
+
+    [data-theme="dark"] .status-badge.available {
+        background: rgba(59, 130, 246, 0.2);
+        color: #60a5fa;
+    }
+
+    [data-theme="dark"] .status-badge.reserved {
+        background: rgba(245, 158, 11, 0.2);
+        color: #fbbf24;
+    }
+
+    [data-theme="dark"] .status-badge.collected {
+        background: rgba(16, 185, 129, 0.2);
+        color: #34d399;
+    }
+
+    .empty-timeline {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: #6b7280;
+    }
+
+    [data-theme="dark"] .empty-timeline {
+        color: #9ca3af;
+    }
+
+    .empty-timeline i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    @@media (max-width: 768px) {
+        .hero-section {
+            padding: 2rem 1.5rem;
         }
 
-        .welcome-hero {
-            background: linear-gradient(135deg, var(--soft-green) 0%, var(--soft-blue) 100%);
-            border-radius: 20px;
-            padding: 3rem 2rem;
-            margin-bottom: 2.5rem;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-        }
-
-        .welcome-hero h1 {
-            color: #2E7D32;
-            font-weight: 700;
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .welcome-hero p {
-            color: var(--text-gray);
-            font-size: 1.1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .cta-button {
-            background: linear-gradient(135deg, var(--primary-green) 0%, #66BB6A 100%);
-            border: none;
-            border-radius: 50px;
-            padding: 1rem 2.5rem;
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: white;
-            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .cta-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.5);
-            color: white;
-        }
-
-        .cta-button i {
-            font-size: 1.4rem;
-        }
-
-        .action-card {
-            background: white;
-            border-radius: 20px;
-            padding: 2rem;
-            text-align: center;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-            height: 100%;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-            cursor: pointer;
-            text-decoration: none;
-            color: inherit;
-            display: block;
-        }
-
-        .action-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
-            border-color: var(--primary-green);
-            color: inherit;
-            text-decoration: none;
-        }
-
-        .action-card-icon {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1.5rem;
-            font-size: 2.5rem;
-            color: white;
-        }
-
-        .action-card.donate .action-card-icon {
-            background: linear-gradient(135deg, var(--primary-green) 0%, var(--light-green) 100%);
-        }
-
-        .action-card.donations .action-card-icon {
-            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--light-blue) 100%);
-        }
-
-        .action-card.history .action-card-icon {
-            background: linear-gradient(135deg, #FFB74D 0%, #FFCC80 100%);
-        }
-
-        .action-card.ngos .action-card-icon {
-            background: linear-gradient(135deg, #BA68C8 0%, #CE93D8 100%);
-        }
-
-        .action-card h3 {
-            font-size: 1.3rem;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 0.5rem;
-        }
-
-        .action-card p {
-            color: var(--text-gray);
-            font-size: 0.95rem;
-            margin: 0;
-        }
-
-        .stats-card {
-            background: white;
-            border-radius: 15px;
-            padding: 1.5rem;
-            text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-            border-left: 4px solid;
-        }
-
-        .stats-card.total {
-            border-left-color: var(--primary-green);
-        }
-
-        .stats-card.active {
-            border-left-color: var(--primary-blue);
-        }
-
-        .stats-card.collected {
-            border-left-color: #FFB74D;
-        }
-
-        .stats-card h2 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin: 0.5rem 0;
-            color: #333;
-        }
-
-        .stats-card p {
-            color: var(--text-gray);
-            font-size: 0.9rem;
-            margin: 0;
-        }
-
-        .stats-card i {
+        .hero-section h1 {
             font-size: 2rem;
-            margin-bottom: 0.5rem;
         }
 
-        .stats-card.total i {
-            color: var(--primary-green);
+        .cta-button-large {
+            padding: 1rem 2rem;
+            font-size: 1.125rem;
         }
+    }
+</style>
 
-        .stats-card.active i {
-            color: var(--primary-blue);
-        }
-
-        .stats-card.collected i {
-            color: #FFB74D;
-        }
-
-        .quick-info {
-            background: white;
-            border-radius: 15px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-        }
-
-        .quick-info h4 {
-            color: #333;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .quick-info h4 i {
-            color: var(--primary-green);
-        }
-
-        .map-placeholder {
-            background: linear-gradient(135deg, var(--warm-gray) 0%, #E0E0E0 100%);
-            border-radius: 15px;
-            height: 300px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            color: var(--text-gray);
-        }
-
-        .map-placeholder i {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            color: var(--primary-blue);
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 3rem 1rem;
-            color: var(--text-gray);
-        }
-
-        .empty-state i {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            color: var(--light-green);
-        }
-
-        .step-indicator {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            margin: 2rem 0;
-            flex-wrap: wrap;
-        }
-
-        .step {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1.5rem;
-            background: white;
-            border-radius: 25px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            font-size: 0.9rem;
-            color: var(--text-gray);
-        }
-
-        .step i {
-            color: var(--primary-green);
-        }
-
-        .step-number {
-            background: var(--primary-green);
-            color: white;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-
-        @@media (max-width: 768px) {
-            .welcome-hero {
-                padding: 2rem 1.5rem;
-            }
-
-            .welcome-hero h1 {
-                font-size: 2rem;
-            }
-
-            .cta-button {
-                padding: 0.875rem 2rem;
-                font-size: 1.1rem;
-            }
-
-            .action-card {
-                padding: 1.5rem;
-            }
-
-            .action-card-icon {
-                width: 60px;
-                height: 60px;
-                font-size: 2rem;
-            }
-
-            .step-indicator {
-                flex-direction: column;
-                align-items: center;
-            }
-        }
-    </style>
-}
-
-<!-- Welcome Hero Section -->
-<div class="welcome-hero">
-    <div class="container-fluid px-0">
-        <div class="row align-items-center">
-            <div class="col-lg-8">
-                <h1>Welcome Back! 👋</h1>
-                <p>Your generosity is making a real difference. Ready to help more people in need?</p>
-            </div>
-            <div class="col-lg-4 text-lg-end text-start mt-3 mt-lg-0">
-                <a asp-controller="Donations" asp-action="Create" class="cta-button">
-                    <i class="fas fa-heart"></i>
-                    Donate Now
-                </a>
-            </div>
-        </div>
-    </div>
+<!-- Hero Section with CTA -->
+<div class="hero-section">
+    <h1>Welcome Back! 👋</h1>
+    <p>Your generosity makes a difference. Ready to donate food?</p>
+    <a asp-controller="Donations" asp-action="Create" class="cta-button-large">
+        <i class="fas fa-heart"></i>
+        Donate Food Now
+    </a>
 </div>
 
 <!-- Quick Stats -->
-<div class="row g-3 mb-4">
-    <div class="col-md-4">
-        <div class="stats-card total">
-            <i class="fas fa-gift"></i>
-            <h2>@Model.TotalDonations</h2>
-            <p>Total Donations</p>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="stats-card active">
-            <i class="fas fa-clock"></i>
-            <h2>@activeDonations</h2>
-            <p>Active Donations</p>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="stats-card collected">
-            <i class="fas fa-check-circle"></i>
-            <h2>@Model.CollectedDonations</h2>
-            <p>Successfully Collected</p>
-        </div>
-    </div>
-</div>
-
-<!-- Main Action Cards -->
 <div class="row g-4 mb-4">
-    <div class="col-md-6 col-lg-3">
-        <a asp-controller="Donations" asp-action="Create" class="action-card donate">
-            <div class="action-card-icon">
-                <i class="fas fa-plus-circle"></i>
+    <div class="col-md-4">
+        <div class="stat-card total">
+            <div class="stat-icon">
+                <i class="fas fa-gift"></i>
             </div>
-            <h3>Donate Food</h3>
-            <p>Share your surplus food with those in need</p>
-        </a>
+            <div class="stat-value">@Model.TotalDonations</div>
+            <div class="stat-label">Total Donations</div>
+        </div>
     </div>
-    <div class="col-md-6 col-lg-3">
-        <a asp-action="MyDonations" class="action-card donations">
-            <div class="action-card-icon">
-                <i class="fas fa-box-open"></i>
+    <div class="col-md-4">
+        <div class="stat-card active">
+            <div class="stat-icon">
+                <i class="fas fa-clock"></i>
             </div>
-            <h3>My Donations</h3>
-            <p>View and manage your current donations</p>
-        </a>
+            <div class="stat-value">@(Model.AvailableDonations + Model.ReservedDonations)</div>
+            <div class="stat-label">Active Donations</div>
+        </div>
     </div>
-    <div class="col-md-6 col-lg-3">
-        <a asp-action="MyDonations" class="action-card history">
-            <div class="action-card-icon">
-                <i class="fas fa-history"></i>
+    <div class="col-md-4">
+        <div class="stat-card collected">
+            <div class="stat-icon">
+                <i class="fas fa-check-circle"></i>
             </div>
-            <h3>Donation History</h3>
-            <p>See all your past contributions</p>
-        </a>
-    </div>
-    <div class="col-md-6 col-lg-3">
-        <a asp-controller="Map" asp-action="Index" class="action-card ngos">
-            <div class="action-card-icon">
-                <i class="fas fa-map-marker-alt"></i>
-            </div>
-            <h3>Nearby NGOs</h3>
-            <p>Find organizations near you</p>
-        </a>
+            <div class="stat-value">@Model.CollectedDonations</div>
+            <div class="stat-label">Collected</div>
+        </div>
     </div>
 </div>
 
-<!-- Step-by-Step Guide -->
-@if (Model.TotalDonations == 0)
-{
-    <div class="quick-info">
-        <h4><i class="fas fa-lightbulb"></i> How to Get Started</h4>
-        <div class="step-indicator">
-            <div class="step">
-                <span class="step-number">1</span>
-                <i class="fas fa-utensils"></i>
-                <span>Prepare your food donation</span>
-            </div>
-            <div class="step">
-                <span class="step-number">2</span>
-                <i class="fas fa-plus-circle"></i>
-                <span>Click "Donate Now" above</span>
-            </div>
-            <div class="step">
-                <span class="step-number">3</span>
-                <i class="fas fa-check"></i>
-                <span>Wait for NGO pickup</span>
-            </div>
-        </div>
-    </div>
-}
-
-<!-- Recent Activity & Map -->
-<div class="row g-4">
-    <!-- Recent Donations -->
-    <div class="col-lg-7">
-        <div class="quick-info">
-            <h4><i class="fas fa-clock"></i> Recent Donations</h4>
-            @if (Model.RecentDonations.Any())
+<!-- Donation History Timeline -->
+<div class="timeline-card">
+    <h3>
+        <i class="fas fa-history text-primary"></i>
+        Donation History
+    </h3>
+    @if (Model.RecentDonations.Any())
+    {
+        <div class="timeline">
+            @foreach (var donation in Model.RecentDonations.Take(5))
             {
-                <div class="list-group list-group-flush">
-                    @foreach (var donation in Model.RecentDonations.Take(5))
-                    {
-                        <div class="list-group-item border-0 px-0 py-3">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-1 fw-semibold">@donation.Title</h6>
-                                    <p class="small text-muted mb-1">
-                                        <i class="fas fa-tag me-1"></i>@donation.FoodType • @donation.Quantity @donation.Unit
-                                    </p>
-                                    <small class="text-muted">
-                                        <i class="fas fa-calendar me-1"></i>@donation.CreatedAt.ToString("MMM dd, yyyy")
-                                    </small>
-                                </div>
-                                <div class="ms-3">
-                                    @{
-                                        var statusClass = donation.Status switch
-                                        {
-                                            "Available" => "success",
-                                            "Reserved" => "warning",
-                                            "Collected" => "info",
-                                            _ => "secondary"
-                                        };
-                                    }
-                                    <span class="badge bg-@statusClass">@donation.Status</span>
-                                    <a asp-controller="Donations" asp-action="Details" asp-route-id="@donation.Id" 
-                                       class="btn btn-sm btn-outline-primary mt-2 d-block">
-                                        <i class="fas fa-eye"></i> View
-                                    </a>
-                                </div>
-                            </div>
+                var statusClass = donation.Status.ToLower();
+                var statusText = donation.Status;
+                var statusIcon = donation.Status switch
+                {
+                    "Available" => "fa-clock",
+                    "Reserved" => "fa-hand-paper",
+                    "Collected" => "fa-check-circle",
+                    _ => "fa-info-circle"
+                };
+                
+                <div class="timeline-item @statusClass">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <h5 class="mb-1">@donation.Title</h5>
+                            <small class="text-muted">
+                                <i class="fas fa-tag me-1"></i>@donation.FoodType • @donation.Quantity @donation.Unit
+                            </small>
                         </div>
-                        @if (donation != Model.RecentDonations.Last())
-                        {
-                            <hr class="my-2">
-                        }
-                    }
-                </div>
-                <div class="text-center mt-3">
-                    <a asp-action="MyDonations" class="btn btn-outline-primary">
-                        <i class="fas fa-list me-2"></i>View All Donations
-                    </a>
-                </div>
-            }
-            else
-            {
-                <div class="empty-state">
-                    <i class="fas fa-inbox"></i>
-                    <h5>No donations yet</h5>
-                    <p>Start making a difference today!</p>
-                    <a asp-controller="Donations" asp-action="Create" class="btn btn-primary mt-3">
-                        <i class="fas fa-plus me-2"></i>Create Your First Donation
-                    </a>
+                        <span class="status-badge @statusClass">
+                            <i class="fas @statusIcon"></i>
+                            @statusText
+                        </span>
+                    </div>
+                    <div class="timeline-content">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                <i class="fas fa-calendar me-1"></i>@donation.CreatedAt.ToString("MMM dd, yyyy")
+                            </small>
+                            <a asp-controller="Donations" asp-action="Details" asp-route-id="@donation.Id" 
+                               class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-eye me-1"></i>View
+                            </a>
+                        </div>
+                    </div>
                 </div>
             }
         </div>
-    </div>
-
-    <!-- Nearby NGOs Map -->
-    <div class="col-lg-5">
-        <div class="quick-info">
-            <h4><i class="fas fa-map-marked-alt"></i> Nearby NGOs</h4>
-            <div class="map-placeholder" id="donorMap">
-                <i class="fas fa-map"></i>
-                <h6>Map View</h6>
-                <p class="small mb-0">Find NGOs near your location</p>
-                <a asp-controller="Map" asp-action="Index" class="btn btn-outline-primary mt-3">
-                    <i class="fas fa-external-link-alt me-2"></i>Open Full Map
-                </a>
-            </div>
+        <div class="text-center mt-3">
+            <a asp-action="MyDonations" class="btn btn-outline-primary">
+                <i class="fas fa-list me-2"></i>View All Donations
+            </a>
         </div>
-    </div>
+    }
+    else
+    {
+        <div class="empty-timeline">
+            <i class="fas fa-inbox"></i>
+            <h5>No donations yet</h5>
+            <p>Start making a difference today!</p>
+            <a asp-controller="Donations" asp-action="Create" class="btn btn-primary mt-3">
+                <i class="fas fa-plus me-2"></i>Create Your First Donation
+            </a>
+        </div>
+    }
 </div>
 
 <!-- Pending Requests -->
 @if (Model.PendingRequests.Any())
 {
-    <div class="quick-info mt-4">
-        <h4>
-            <i class="fas fa-bell"></i> 
-            Pending Requests 
+    <div class="timeline-card mt-4">
+        <h3>
+            <i class="fas fa-bell text-warning"></i>
+            Pending Requests
             <span class="badge bg-warning ms-2">@Model.PendingRequests.Count</span>
-        </h4>
+        </h3>
         <div class="list-group list-group-flush">
             @foreach (var request in Model.PendingRequests.Take(3))
             {
@@ -516,28 +402,22 @@
                             }
                         </div>
                         <div class="ms-3">
-                            <div class="btn-group-vertical btn-group-sm">
-                                <form asp-action="ApproveRequest" method="post" class="d-inline mb-2">
-                                    <input type="hidden" name="requestId" value="@request.Id" />
-                                    <button type="submit" class="btn btn-success btn-sm">
-                                        <i class="fas fa-check me-1"></i>Approve
-                                    </button>
-                                </form>
-                                <form asp-action="RejectRequest" method="post" class="d-inline">
-                                    <input type="hidden" name="requestId" value="@request.Id" />
-                                    <button type="submit" class="btn btn-outline-danger btn-sm" 
-                                            onclick="return confirm('Are you sure you want to reject this request?')">
-                                        <i class="fas fa-times me-1"></i>Reject
-                                    </button>
-                                </form>
-                            </div>
+                            <form asp-action="ApproveRequest" method="post" class="d-inline mb-2">
+                                <input type="hidden" name="requestId" value="@request.Id" />
+                                <button type="submit" class="btn btn-success btn-sm w-100">
+                                    <i class="fas fa-check me-1"></i>Approve
+                                </button>
+                            </form>
+                            <form asp-action="RejectRequest" method="post" class="d-inline">
+                                <input type="hidden" name="requestId" value="@request.Id" />
+                                <button type="submit" class="btn btn-outline-danger btn-sm w-100" 
+                                        onclick="return confirm('Are you sure you want to reject this request?')">
+                                    <i class="fas fa-times me-1"></i>Reject
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
-                @if (request != Model.PendingRequests.Last())
-                {
-                    <hr class="my-2">
-                }
             }
         </div>
         @if (Model.PendingRequests.Count > 3)
@@ -549,47 +429,4 @@
             </div>
         }
     </div>
-}
-
-@section Scripts {
-    <script>
-        // Initialize Google Maps when API key is available
-        function initDonorMap() {
-            // Check if Google Maps API is loaded
-            if (typeof google !== 'undefined' && google.maps) {
-                // Default center (you can use user's location or a default location)
-                const defaultCenter = { lat: 40.7128, lng: -74.0060 }; // New York City as default
-                
-                const map = new google.maps.Map(document.getElementById('donorMap'), {
-                    zoom: 10,
-                    center: defaultCenter,
-                    mapTypeControl: true,
-                    streetViewControl: false,
-                    fullscreenControl: true,
-                    styles: [
-                        {
-                            featureType: "poi",
-                            elementType: "labels",
-                            stylers: [{ visibility: "off" }]
-                        }
-                    ]
-                });
-
-                // Add markers for donations with pickup addresses
-                // This would be populated from server-side data
-                // Example marker:
-                // const marker = new google.maps.Marker({
-                //     position: { lat: 40.7128, lng: -74.0060 },
-                //     map: map,
-                //     title: 'Donation Pickup Location'
-                // });
-            }
-        }
-
-        // Initialize map when page loads
-        window.addEventListener('load', function() {
-            // Wait a bit for Google Maps to load
-            setTimeout(initDonorMap, 1000);
-        });
-    </script>
 }

@@ -1,64 +1,379 @@
 @model SmartDonationSystem.Models.Donation
-
 @{
-    ViewData["Title"] = "Create Donation";
+    ViewData["Title"] = "Donate Food";
+    var isDonor = User.IsInRole("Donor");
+    Layout = isDonor ? "_DonorLayout" : "_Layout";
 }
 
-<h1>Create Donation</h1>
+<style>
+    .wizard-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
 
-<div class="row">
-    <div class="col-md-8">
-        <form asp-action="Create" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group mb-3">
-                <label asp-for="Title" class="control-label"></label>
-                <input asp-for="Title" class="form-control" />
+    .wizard-header {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        border-radius: 1rem 1rem 0 0;
+        padding: 2rem;
+        color: white;
+        text-align: center;
+    }
+
+    .wizard-header h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .wizard-header p {
+        font-size: 1.125rem;
+        opacity: 0.95;
+        margin: 0;
+    }
+
+    .wizard-steps {
+        display: flex;
+        justify-content: space-between;
+        padding: 2rem;
+        background: white;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    [data-theme="dark"] .wizard-steps {
+        background: #1f2937;
+        border-bottom-color: #374151;
+    }
+
+    .wizard-step {
+        flex: 1;
+        text-align: center;
+        position: relative;
+    }
+
+    .wizard-step::after {
+        content: '';
+        position: absolute;
+        top: 20px;
+        left: 50%;
+        width: 100%;
+        height: 2px;
+        background: #e5e7eb;
+        z-index: 0;
+    }
+
+    [data-theme="dark"] .wizard-step::after {
+        background: #374151;
+    }
+
+    .wizard-step:last-child::after {
+        display: none;
+    }
+
+    .wizard-step.active .step-number {
+        background: #10b981;
+        color: white;
+        border-color: #10b981;
+    }
+
+    .wizard-step.completed .step-number {
+        background: #10b981;
+        color: white;
+        border-color: #10b981;
+    }
+
+    .wizard-step.completed::after {
+        background: #10b981;
+    }
+
+    .step-number {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: white;
+        border: 2px solid #e5e7eb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        margin: 0 auto 0.5rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    [data-theme="dark"] .step-number {
+        background: #1f2937;
+        border-color: #374151;
+    }
+
+    .step-label {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #6b7280;
+    }
+
+    [data-theme="dark"] .step-label {
+        color: #9ca3af;
+    }
+
+    .wizard-step.active .step-label {
+        color: #10b981;
+        font-weight: 600;
+    }
+
+    .wizard-content {
+        background: white;
+        border-radius: 0 0 1rem 1rem;
+        padding: 2rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e5e7eb;
+    }
+
+    [data-theme="dark"] .wizard-content {
+        background: #1f2937;
+        border-color: #374151;
+    }
+
+    .wizard-panel {
+        display: none;
+    }
+
+    .wizard-panel.active {
+        display: block;
+    }
+
+    .form-group-large {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group-large label {
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 0.75rem;
+        display: block;
+        font-size: 1rem;
+    }
+
+    [data-theme="dark"] .form-group-large label {
+        color: #f9fafb;
+    }
+
+    .form-group-large input,
+    .form-group-large select,
+    .form-group-large textarea {
+        padding: 0.875rem 1rem;
+        font-size: 1rem;
+        border-radius: 0.5rem;
+        border: 2px solid #e5e7eb;
+        width: 100%;
+        transition: all 0.2s;
+    }
+
+    [data-theme="dark"] .form-group-large input,
+    [data-theme="dark"] .form-group-large select,
+    [data-theme="dark"] .form-group-large textarea {
+        background: #111827;
+        border-color: #374151;
+        color: #f9fafb;
+    }
+
+    .form-group-large input:focus,
+    .form-group-large select:focus,
+    .form-group-large textarea:focus {
+        outline: none;
+        border-color: #10b981;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    }
+
+    .map-container {
+        border-radius: 0.5rem;
+        overflow: hidden;
+        border: 2px solid #e5e7eb;
+        margin-top: 1rem;
+    }
+
+    [data-theme="dark"] .map-container {
+        border-color: #374151;
+    }
+
+    #donationMap {
+        height: 400px;
+        width: 100%;
+    }
+
+    .map-controls {
+        background: #f9fafb;
+        padding: 1rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    [data-theme="dark"] .map-controls {
+        background: #111827;
+        border-bottom-color: #374151;
+    }
+
+    .wizard-actions {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid #e5e7eb;
+    }
+
+    [data-theme="dark"] .wizard-actions {
+        border-top-color: #374151;
+    }
+
+    .btn-wizard {
+        padding: 0.875rem 2rem;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: 0.5rem;
+        border: none;
+        transition: all 0.3s;
+    }
+
+    .btn-wizard-primary {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-wizard-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        color: white;
+    }
+
+    .btn-wizard-secondary {
+        background: #f3f4f6;
+        color: #4b5563;
+    }
+
+    [data-theme="dark"] .btn-wizard-secondary {
+        background: #374151;
+        color: #d1d5db;
+    }
+
+    .btn-wizard-secondary:hover {
+        background: #e5e7eb;
+        color: #1f2937;
+    }
+
+    [data-theme="dark"] .btn-wizard-secondary:hover {
+        background: #4b5563;
+        color: #f9fafb;
+    }
+
+    .help-text {
+        font-size: 0.875rem;
+        color: #6b7280;
+        margin-top: 0.5rem;
+    }
+
+    [data-theme="dark"] .help-text {
+        color: #9ca3af;
+    }
+
+    @@media (max-width: 768px) {
+        .wizard-steps {
+            padding: 1.5rem 1rem;
+        }
+
+        .step-label {
+            font-size: 0.75rem;
+        }
+
+        .wizard-content {
+            padding: 1.5rem;
+        }
+    }
+</style>
+
+<div class="wizard-container">
+    <div class="wizard-header">
+        <h1><i class="fas fa-heart me-2"></i>Donate Food</h1>
+        <p>Help reduce food waste and feed those in need</p>
+    </div>
+
+    <div class="wizard-steps">
+        <div class="wizard-step active" data-step="1">
+            <div class="step-number">1</div>
+            <div class="step-label">Food Details</div>
+        </div>
+        <div class="wizard-step" data-step="2">
+            <div class="step-number">2</div>
+            <div class="step-label">Quantity</div>
+        </div>
+        <div class="wizard-step" data-step="3">
+            <div class="step-number">3</div>
+            <div class="step-label">Location</div>
+        </div>
+        <div class="wizard-step" data-step="4">
+            <div class="step-number">4</div>
+            <div class="step-label">Review</div>
+        </div>
+    </div>
+
+    <form asp-action="Create" method="post" id="donationForm" class="wizard-content">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+        <!-- Step 1: Food Details -->
+        <div class="wizard-panel active" data-panel="1">
+            <h3 class="mb-4">What are you donating?</h3>
+            
+            <div class="form-group-large">
+                <label asp-for="Title">Food Item Name *</label>
+                <input asp-for="Title" class="form-control" placeholder="e.g., Fresh Vegetables, Bread, Canned Goods" required />
                 <span asp-validation-for="Title" class="text-danger"></span>
             </div>
-            <div class="form-group mb-3">
-                <label asp-for="Description" class="control-label"></label>
-                <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+
+            <div class="form-group-large">
+                <label asp-for="Description">Description</label>
+                <textarea asp-for="Description" class="form-control" rows="4" placeholder="Tell us about the food you're donating..."></textarea>
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="form-group mb-3">
-                        <label asp-for="FoodType" class="control-label"></label>
-                        <select asp-for="FoodType" class="form-control">
-                            <option value="">Select Food Type</option>
-                            <option value="Vegetables">Vegetables</option>
-                            <option value="Fruits">Fruits</option>
-                            <option value="Grains">Grains</option>
-                            <option value="Dairy">Dairy</option>
-                            <option value="Meat">Meat</option>
-                            <option value="Bakery">Bakery</option>
-                            <option value="Beverages">Beverages</option>
-                            <option value="Other">Other</option>
-                        </select>
-                        <span asp-validation-for="FoodType" class="text-danger"></span>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group mb-3">
-                        <label asp-for="ExpiryDate" class="control-label"></label>
-                        <input asp-for="ExpiryDate" class="form-control" type="date" />
-                        <span asp-validation-for="ExpiryDate" class="text-danger"></span>
-                    </div>
-                </div>
+
+            <div class="form-group-large">
+                <label asp-for="FoodType">Food Type *</label>
+                <select asp-for="FoodType" class="form-control" required>
+                    <option value="">Select food type</option>
+                    <option value="Vegetables">Vegetables</option>
+                    <option value="Fruits">Fruits</option>
+                    <option value="Grains">Grains</option>
+                    <option value="Dairy">Dairy</option>
+                    <option value="Meat">Meat</option>
+                    <option value="Bakery">Bakery</option>
+                    <option value="Beverages">Beverages</option>
+                    <option value="Other">Other</option>
+                </select>
+                <span asp-validation-for="FoodType" class="text-danger"></span>
             </div>
+
+            <div class="form-group-large">
+                <label asp-for="ExpiryDate">Expiry Date *</label>
+                <input asp-for="ExpiryDate" class="form-control" type="date" required />
+                <span asp-validation-for="ExpiryDate" class="text-danger"></span>
+                <div class="help-text">When does this food expire?</div>
+            </div>
+        </div>
+
+        <!-- Step 2: Quantity -->
+        <div class="wizard-panel" data-panel="2">
+            <h3 class="mb-4">How much are you donating?</h3>
+            
             <div class="row">
-                <div class="col-md-4">
-                    <div class="form-group mb-3">
-                        <label asp-for="Quantity" class="control-label"></label>
-                        <input asp-for="Quantity" class="form-control" type="number" min="1" />
+                <div class="col-md-6">
+                    <div class="form-group-large">
+                        <label asp-for="Quantity">Quantity *</label>
+                        <input asp-for="Quantity" class="form-control" type="number" min="1" placeholder="Enter amount" required />
                         <span asp-validation-for="Quantity" class="text-danger"></span>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="form-group mb-3">
-                        <label asp-for="Unit" class="control-label"></label>
-                        <select asp-for="Unit" class="form-control">
-                            <option value="">Select Unit</option>
+                <div class="col-md-6">
+                    <div class="form-group-large">
+                        <label asp-for="Unit">Unit *</label>
+                        <select asp-for="Unit" class="form-control" required>
+                            <option value="">Select unit</option>
                             <option value="pieces">Pieces</option>
                             <option value="kg">Kilograms</option>
                             <option value="liters">Liters</option>
@@ -68,63 +383,238 @@
                         <span asp-validation-for="Unit" class="text-danger"></span>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="form-group mb-3">
-                        <label asp-for="Location" class="control-label"></label>
-                        <input asp-for="Location" class="form-control" />
-                        <span asp-validation-for="Location" class="text-danger"></span>
-                    </div>
-                </div>
             </div>
-            <div class="form-group mb-3">
-                <label asp-for="PickupAddress" class="control-label"></label>
-                <textarea asp-for="PickupAddress" class="form-control" rows="2" id="pickupAddress"></textarea>
-                <span asp-validation-for="PickupAddress" class="text-danger"></span>
-                <button type="button" id="geocodeBtn" class="btn btn-outline-primary btn-sm mt-2">Get Location on Map</button>
+
+            <div class="form-group-large">
+                <label asp-for="ImageUrl">Image URL (Optional)</label>
+                <input asp-for="ImageUrl" class="form-control" type="url" placeholder="https://example.com/image.jpg" />
+                <span asp-validation-for="ImageUrl" class="text-danger"></span>
+                <div class="help-text">Add a link to a photo of your donation</div>
             </div>
+        </div>
+
+        <!-- Step 3: Location -->
+        <div class="wizard-panel" data-panel="3">
+            <h3 class="mb-4">Where can it be picked up?</h3>
             
-            <div class="form-group mb-3">
-                <div id="donationMap" style="height: 300px; width: 100%; border: 1px solid #ccc;"></div>
+            <div class="form-group-large">
+                <label asp-for="Location">City/Area *</label>
+                <input asp-for="Location" class="form-control" placeholder="e.g., New York, Manhattan" required />
+                <span asp-validation-for="Location" class="text-danger"></span>
+            </div>
+
+            <div class="form-group-large">
+                <label asp-for="PickupAddress">Full Pickup Address *</label>
+                <textarea asp-for="PickupAddress" class="form-control" rows="3" id="pickupAddress" placeholder="Enter your full address..." required></textarea>
+                <span asp-validation-for="PickupAddress" class="text-danger"></span>
+                <button type="button" id="geocodeBtn" class="btn btn-outline-primary btn-sm mt-2">
+                    <i class="fas fa-map-marker-alt me-1"></i>Find on Map
+                </button>
+            </div>
+
+            <div class="form-group-large">
+                <label>Select Location on Map</label>
+                <div class="map-container">
+                    <div class="map-controls">
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Click on the map to set pickup location
+                        </small>
+                    </div>
+                    <div id="donationMap"></div>
+                </div>
                 <input type="hidden" id="latitude" name="Latitude" />
                 <input type="hidden" id="longitude" name="Longitude" />
             </div>
+        </div>
+
+        <!-- Step 4: Review -->
+        <div class="wizard-panel" data-panel="4">
+            <h3 class="mb-4">Review Your Donation</h3>
             
-            <div class="form-group mb-3">
-                <h5>AI-Powered NGO Recommendations</h5>
-                <button type="button" id="getRecommendations" class="btn btn-primary">Get Recommended NGOs</button>
-                <div id="ngoRecommendations" class="mt-3" style="display: none;">
-                    <h6>Recommended NGOs (Ranked by AI)</h6>
-                    <div id="recommendationsList"></div>
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Food Details</h5>
+                    <p class="mb-1"><strong>Name:</strong> <span id="review-title">-</span></p>
+                    <p class="mb-1"><strong>Type:</strong> <span id="review-foodtype">-</span></p>
+                    <p class="mb-1"><strong>Description:</strong> <span id="review-description">-</span></p>
+                    <p class="mb-0"><strong>Expires:</strong> <span id="review-expiry">-</span></p>
                 </div>
             </div>
-            <div class="form-group mb-3">
-                <label asp-for="ImageUrl" class="control-label"></label>
-                <input asp-for="ImageUrl" class="form-control" type="url" />
-                <span asp-validation-for="ImageUrl" class="text-danger"></span>
+
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Quantity</h5>
+                    <p class="mb-0"><strong>Amount:</strong> <span id="review-quantity">-</span> <span id="review-unit">-</span></p>
+                </div>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-                <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Pickup Location</h5>
+                    <p class="mb-1"><strong>Area:</strong> <span id="review-location">-</span></p>
+                    <p class="mb-0"><strong>Address:</strong> <span id="review-address">-</span></p>
+                </div>
             </div>
-        </form>
-    </div>
+
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                Once you submit, NGOs will be notified and can request to pick up your donation.
+            </div>
+        </div>
+
+        <div class="wizard-actions">
+            <button type="button" class="btn btn-wizard btn-wizard-secondary" id="prevBtn" style="display: none;">
+                <i class="fas fa-arrow-left me-1"></i>Previous
+            </button>
+            <div class="ms-auto">
+                <button type="button" class="btn btn-wizard btn-wizard-secondary me-2" id="nextBtn">
+                    Next<i class="fas fa-arrow-right ms-1"></i>
+                </button>
+                <button type="submit" class="btn btn-wizard btn-wizard-primary" id="submitBtn" style="display: none;">
+                    <i class="fas fa-check me-1"></i>Submit Donation
+                </button>
+            </div>
+        </div>
+    </form>
 </div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     
     <script>
+        let currentStep = 1;
+        const totalSteps = 4;
         let donationMap;
         let marker;
         let selectedLocation = null;
 
+        // Wizard Navigation
+        function showStep(step) {
+            // Hide all panels
+            document.querySelectorAll('.wizard-panel').forEach(panel => {
+                panel.classList.remove('active');
+            });
+            
+            // Show current panel
+            document.querySelector(`.wizard-panel[data-panel="${step}"]`).classList.add('active');
+            
+            // Update step indicators
+            document.querySelectorAll('.wizard-step').forEach((stepEl, index) => {
+                const stepNum = index + 1;
+                stepEl.classList.remove('active', 'completed');
+                if (stepNum < step) {
+                    stepEl.classList.add('completed');
+                } else if (stepNum === step) {
+                    stepEl.classList.add('active');
+                }
+            });
+            
+            // Update buttons
+            document.getElementById('prevBtn').style.display = step > 1 ? 'block' : 'none';
+            document.getElementById('nextBtn').style.display = step < totalSteps ? 'block' : 'none';
+            document.getElementById('submitBtn').style.display = step === totalSteps ? 'block' : 'none';
+            
+            // Update review panel
+            if (step === 4) {
+                updateReview();
+            }
+        }
+
+        function nextStep() {
+            if (validateStep(currentStep)) {
+                if (currentStep < totalSteps) {
+                    currentStep++;
+                    showStep(currentStep);
+                }
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 1) {
+                currentStep--;
+                showStep(currentStep);
+            }
+        }
+
+        function validateStep(step) {
+            let isValid = true;
+            
+            if (step === 1) {
+                const title = document.getElementById('Title');
+                const foodType = document.getElementById('FoodType');
+                const expiryDate = document.getElementById('ExpiryDate');
+                
+                if (!title.value.trim()) {
+                    title.classList.add('is-invalid');
+                    isValid = false;
+                }
+                if (!foodType.value) {
+                    foodType.classList.add('is-invalid');
+                    isValid = false;
+                }
+                if (!expiryDate.value) {
+                    expiryDate.classList.add('is-invalid');
+                    isValid = false;
+                }
+            } else if (step === 2) {
+                const quantity = document.getElementById('Quantity');
+                const unit = document.getElementById('Unit');
+                
+                if (!quantity.value || quantity.value <= 0) {
+                    quantity.classList.add('is-invalid');
+                    isValid = false;
+                }
+                if (!unit.value) {
+                    unit.classList.add('is-invalid');
+                    isValid = false;
+                }
+            } else if (step === 3) {
+                const location = document.getElementById('Location');
+                const pickupAddress = document.getElementById('pickupAddress');
+                
+                if (!location.value.trim()) {
+                    location.classList.add('is-invalid');
+                    isValid = false;
+                }
+                if (!pickupAddress.value.trim()) {
+                    pickupAddress.classList.add('is-invalid');
+                    isValid = false;
+                }
+            }
+            
+            return isValid;
+        }
+
+        function updateReview() {
+            document.getElementById('review-title').textContent = document.getElementById('Title').value || '-';
+            document.getElementById('review-foodtype').textContent = document.getElementById('FoodType').value || '-';
+            document.getElementById('review-description').textContent = document.getElementById('Description').value || '-';
+            document.getElementById('review-expiry').textContent = document.getElementById('ExpiryDate').value || '-';
+            document.getElementById('review-quantity').textContent = document.getElementById('Quantity').value || '-';
+            document.getElementById('review-unit').textContent = document.getElementById('Unit').value || '-';
+            document.getElementById('review-location').textContent = document.getElementById('Location').value || '-';
+            document.getElementById('review-address').textContent = document.getElementById('pickupAddress').value || '-';
+        }
+
+        // Event Listeners
+        document.getElementById('nextBtn').addEventListener('click', nextStep);
+        document.getElementById('prevBtn').addEventListener('click', prevStep);
+
+        // Remove invalid class on input
+        document.querySelectorAll('input, select, textarea').forEach(input => {
+            input.addEventListener('input', function() {
+                this.classList.remove('is-invalid');
+            });
+        });
+
+        // Google Maps
         function initDonationMap() {
             donationMap = new google.maps.Map(document.getElementById("donationMap"), {
                 center: { lat: 40.7128, lng: -74.0060 },
                 zoom: 12
             });
 
-            // Add click listener to map
             donationMap.addListener("click", function(event) {
                 if (marker) {
                     marker.setMap(null);
@@ -133,7 +623,10 @@
                 marker = new google.maps.Marker({
                     position: event.latLng,
                     map: donationMap,
-                    title: "Donation Location"
+                    title: "Pickup Location",
+                    icon: {
+                        url: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
+                    }
                 });
 
                 selectedLocation = {
@@ -144,7 +637,6 @@
                 document.getElementById("latitude").value = selectedLocation.lat;
                 document.getElementById("longitude").value = selectedLocation.lng;
 
-                // Reverse geocode to get address
                 reverseGeocode(event.latLng);
             });
 
@@ -171,7 +663,11 @@
             if (address) {
                 geocodeAddress(address);
             } else {
-                alert("Please enter a pickup address first");
+                if (typeof showToast === 'function') {
+                    showToast('Please enter an address first', 'error');
+                } else {
+                    alert('Please enter an address first');
+                }
             }
         });
 
@@ -201,19 +697,30 @@
                     marker = new google.maps.Marker({
                         position: location,
                         map: donationMap,
-                        title: "Donation Location"
+                        title: "Pickup Location",
+                        icon: {
+                            url: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
+                        }
                     });
 
                     selectedLocation = location;
                     document.getElementById("latitude").value = location.lat;
                     document.getElementById("longitude").value = location.lng;
                 } else {
-                    alert("Address not found");
+                    if (typeof showToast === 'function') {
+                        showToast('Address not found', 'error');
+                    } else {
+                        alert('Address not found');
+                    }
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert("Error geocoding address");
+                if (typeof showToast === 'function') {
+                    showToast('Error finding address', 'error');
+                } else {
+                    alert('Error finding address');
+                }
             });
         }
 
@@ -226,114 +733,6 @@
             });
         }
 
-        // ML Recommendations functionality
-        document.getElementById("getRecommendations").addEventListener("click", function() {
-            getNGORecommendations();
-        });
-
-        function getNGORecommendations() {
-            const foodType = document.getElementById("FoodType").value;
-            const quantity = document.getElementById("Quantity").value;
-            const unit = document.getElementById("Unit").value;
-            const expiryDate = document.getElementById("ExpiryDate").value;
-            const latitude = document.getElementById("latitude").value;
-            const longitude = document.getElementById("longitude").value;
-            const pickupAddress = document.getElementById("pickupAddress").value;
-
-            if (!foodType || !quantity || !expiryDate) {
-                alert("Please fill in the required donation details first");
-                return;
-            }
-
-            if (!latitude || !longitude) {
-                alert("Please set the pickup location on the map first");
-                return;
-            }
-
-            const requestData = {
-                foodType: foodType,
-                quantity: parseInt(quantity),
-                unit: unit || "kg",
-                expiryDate: expiryDate,
-                donorLatitude: parseFloat(latitude),
-                donorLongitude: parseFloat(longitude),
-                donorLocation: pickupAddress,
-                createdAt: new Date().toISOString()
-            };
-
-            fetch('/api/ML/GetRecommendedNGOs', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(requestData)
-            })
-            .then(response => response.json())
-            .then(data => {
-                displayRecommendations(data);
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert("Error getting recommendations");
-            });
-        }
-
-        function displayRecommendations(recommendations) {
-            const recommendationsDiv = document.getElementById("ngoRecommendations");
-            const recommendationsList = document.getElementById("recommendationsList");
-            
-            recommendationsDiv.style.display = "block";
-            recommendationsList.innerHTML = "";
-
-            if (recommendations.length === 0) {
-                recommendationsList.innerHTML = "<p>No NGOs found within the specified criteria.</p>";
-                return;
-            }
-
-            recommendations.forEach((ngo, index) => {
-                const ngoCard = document.createElement("div");
-                ngoCard.className = "card mb-2";
-                ngoCard.innerHTML = `
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <h6 class="card-title">${index + 1}. ${ngo.ngoName}</h6>
-                                <p class="card-text small mb-1">${ngo.description}</p>
-                                <p class="card-text small mb-1"><strong>Contact:</strong> ${ngo.contact}</p>
-                                <p class="card-text small mb-1"><strong>Location:</strong> ${ngo.location}</p>
-                            </div>
-                            <div class="text-end">
-                                <span class="badge bg-${getDemandBadgeColor(ngo.predictedDemandLevel)}">${ngo.predictedDemandLevel} Demand</span>
-                                <div class="small text-muted mt-1">
-                                    <div>Distance: ${ngo.distanceKm.toFixed(1)} km</div>
-                                    <div>Capacity: ${ngo.capacity}</div>
-                                    <div>Match Score: ${(ngo.matchScore * 100).toFixed(0)}%</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mt-2">
-                            <button class="btn btn-sm btn-outline-primary" onclick="contactNGO(${ngo.ngoId}, '${ngo.ngoName}')">
-                                Contact This NGO
-                            </button>
-                        </div>
-                    </div>
-                `;
-                recommendationsList.appendChild(ngoCard);
-            });
-        }
-
-        function getDemandBadgeColor(demandLevel) {
-            switch (demandLevel) {
-                case "High": return "danger";
-                case "Medium": return "warning";
-                case "Low": return "success";
-                default: return "secondary";
-            }
-        }
-
-        function contactNGO(ngoId, ngoName) {
-            alert(`Contacting ${ngoName} (ID: ${ngoId}). This would open a contact form or initiate communication.`);
-        }
     </script>
     
     <script async defer src="https://maps.googleapis.com/maps/api/js?key=@ViewBag.GoogleMapsApiKey&callback=initDonationMap"></script>

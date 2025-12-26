@@ -20,16 +20,26 @@
     <!-- Custom Styles -->
     <link rel="stylesheet" href="~/css/site.css" />
     
+    <!-- Theme Initialization Script (Run before page render to prevent flash) -->
+    <script>
+        (function() {
+            const theme = localStorage.getItem('smartDonationTheme') || 'light';
+            if (theme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+    </script>
+    
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-lg fixed-top">
-            <div class="container-fluid px-4">
+        <nav class="navbar navbar-expand-lg navbar-dark fixed-top home-navbar" id="homeNavbar">
+            <div class="container-fluid px-4 px-lg-5">
                 <!-- Brand -->
                 <a class="navbar-brand fw-bold d-flex align-items-center" asp-area="" asp-controller="Home" asp-action="Index">
-                    <div class="brand-icon-wrapper me-2">
-                        <i class="fas fa-hands-helping fs-4"></i>
+                    <div class="brand-icon-wrapper me-3">
+                        <i class="fas fa-hands-helping"></i>
                     </div>
                     <span class="brand-text">Smart Donation System</span>
                 </a>
@@ -46,28 +56,28 @@
                         <!-- Home -->
                         <li class="nav-item">
                             <a class="nav-link px-3" asp-area="" asp-controller="Home" asp-action="Index">
-                                <i class="fas fa-home me-2"></i>Home
+                                <i class="fas fa-home me-2"></i><span class="nav-link-text">Home</span>
                             </a>
                         </li>
                         
                         <!-- Donations -->
                         <li class="nav-item">
                             <a class="nav-link px-3" asp-area="" asp-controller="Donations" asp-action="Index">
-                                <i class="fas fa-gift me-2"></i>Donations
+                                <i class="fas fa-gift me-2"></i><span class="nav-link-text">Donations</span>
                             </a>
                         </li>
                         
                         <!-- Map -->
                         <li class="nav-item">
                             <a class="nav-link px-3" asp-area="" asp-controller="Map" asp-action="Index">
-                                <i class="fas fa-map-marked-alt me-2"></i>Map
+                                <i class="fas fa-map-marked-alt me-2"></i><span class="nav-link-text">Map</span>
                             </a>
                         </li>
                         
                         <!-- Notifications -->
                         <li class="nav-item">
                             <a class="nav-link px-3 position-relative" asp-area="" asp-controller="Notifications" asp-action="Index">
-                                <i class="fas fa-bell me-2"></i>Notifications
+                                <i class="fas fa-bell me-2"></i><span class="nav-link-text">Notifications</span>
                             </a>
                         </li>
                         
@@ -77,7 +87,7 @@
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle px-3" href="#" id="adminDropdown" role="button" 
                                    data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-user-shield me-2"></i>Admin
+                                    <i class="fas fa-user-shield me-2"></i><span class="nav-link-text">Admin</span>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-dark shadow-lg" aria-labelledby="adminDropdown">
                                     <li>
@@ -122,7 +132,7 @@
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle px-3" href="#" id="ngoDropdown" role="button" 
                                    data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-building me-2"></i>NGO
+                                    <i class="fas fa-building me-2"></i><span class="nav-link-text">NGO</span>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-dark shadow-lg" aria-labelledby="ngoDropdown">
                                     <li>
@@ -151,7 +161,7 @@
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle px-3" href="#" id="donorDropdown" role="button" 
                                    data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-user me-2"></i>Donor
+                                    <i class="fas fa-user me-2"></i><span class="nav-link-text">Donor</span>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-dark shadow-lg" aria-labelledby="donorDropdown">
                                     <li>
@@ -181,8 +191,14 @@
                         }
                     </ul>
                     
-                    <!-- Right Side: Notifications & Login -->
-                    <ul class="navbar-nav ms-auto">
+                    <!-- Right Side: Theme Toggle, Notifications & Login -->
+                    <ul class="navbar-nav ms-auto align-items-center gap-2">
+                        <!-- Theme Toggle -->
+                        <li class="nav-item">
+                            <button type="button" class="theme-toggle btn-theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                                <i class="fas fa-moon" id="themeIcon"></i>
+                            </button>
+                        </li>
                         <partial name="_NotificationPartial" />
                         <partial name="_LoginPartial" />
                     </ul>
@@ -238,26 +254,45 @@
     <!-- Navbar Scroll Effect -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const navbar = document.querySelector('.navbar');
+            const navbar = document.getElementById('homeNavbar');
             
-            // Add scroll effect
-            window.addEventListener('scroll', function() {
-                if (window.scrollY > 50) {
-                    navbar.classList.add('scrolled');
-                } else {
-                    navbar.classList.remove('scrolled');
+            if (navbar) {
+                // Initial check for scroll position
+                function handleScroll() {
+                    if (window.scrollY > 50) {
+                        navbar.classList.add('scrolled');
+                    } else {
+                        navbar.classList.remove('scrolled');
+                    }
                 }
-            });
+                
+                // Add scroll effect with throttling for performance
+                let ticking = false;
+                window.addEventListener('scroll', function() {
+                    if (!ticking) {
+                        window.requestAnimationFrame(function() {
+                            handleScroll();
+                            ticking = false;
+                        });
+                        ticking = true;
+                    }
+                });
+                
+                // Check initial scroll position
+                handleScroll();
+            }
             
             // Add active class to current page nav link
             const currentPath = window.location.pathname;
             const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
             
             navLinks.forEach(link => {
-                const linkPath = new URL(link.href).pathname;
-                if (linkPath === currentPath || 
-                    (currentPath.startsWith(linkPath) && linkPath !== '/')) {
-                    link.classList.add('active');
+                if (link.href) {
+                    const linkPath = new URL(link.href).pathname;
+                    if (linkPath === currentPath || 
+                        (currentPath.startsWith(linkPath) && linkPath !== '/')) {
+                        link.classList.add('active');
+                    }
                 }
             });
         });

@@ -1,5 +1,17 @@
 @{
     ViewData["Title"] = "AI Predictions";
+    if (User.IsInRole("Admin"))
+    {
+        Layout = "_AdminLayout";
+    }
+    else if (User.IsInRole("NGO"))
+    {
+        Layout = "_NGOLayout";
+    }
+    else if (User.IsInRole("Donor"))
+    {
+        Layout = "_DonorLayout";
+    }
 }
 
 <!-- Page Header -->

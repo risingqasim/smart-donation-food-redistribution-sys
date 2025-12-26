@@ -1,717 +1,472 @@
 @model SmartDonationSystem.Controllers.NGODashboardViewModel
-
 @{
+    Layout = "_NGOLayout";
     ViewData["Title"] = "NGO Dashboard";
     var pendingRequests = Model.MyRequests.Where(r => r.Status == "Pending").OrderByDescending(r => r.CreatedAt).ToList();
     var acceptedRequests = Model.MyRequests.Where(r => r.Status == "Approved").OrderByDescending(r => r.CreatedAt).ToList();
-    var completedDonations = Model.ClaimedDonations.OrderByDescending(d => d.CreatedAt).ToList();
-    var incomingDonations = Model.AvailableDonations.OrderByDescending(d => d.CreatedAt).Take(5).ToList();
+    var incomingDonations = Model.AvailableDonations.OrderByDescending(d => d.CreatedAt).Take(10).ToList();
 }
 
 <style>
-    :root {
-        --teal-primary: #14b8a6;
-        --teal-light: #5eead4;
-        --teal-dark: #0f766e;
-        --blue-primary: #3b82f6;
-        --blue-light: #93c5fd;
-        --blue-dark: #1e40af;
-        --gray-50: #f9fafb;
-        --gray-100: #f3f4f6;
-        --gray-200: #e5e7eb;
-        --gray-300: #d1d5db;
-        --gray-600: #4b5563;
-        --gray-700: #374151;
-        --gray-800: #1f2937;
-        --success: #10b981;
-        --warning: #f59e0b;
-        --danger: #ef4444;
+    .page-header {
+        background: white;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e5e7eb;
+        margin-bottom: 1.5rem;
     }
 
-    body {
-        background-color: var(--gray-50);
+    [data-theme="dark"] .page-header {
+        background: #1f2937;
+        border-color: #374151;
     }
 
-    .dashboard-header {
-        background: linear-gradient(135deg, var(--teal-primary) 0%, var(--blue-primary) 100%);
-        color: white;
-        padding: 2rem 0;
-        margin: -1.5rem -1rem 2rem -1rem;
-        border-radius: 0 0 1rem 1rem;
-    }
-
-    .dashboard-header h1 {
+    .page-header h1 {
         font-size: 1.75rem;
-        font-weight: 600;
+        font-weight: 700;
+        color: #1f2937;
         margin: 0;
     }
 
-    .dashboard-header p {
-        opacity: 0.95;
-        margin: 0.5rem 0 0 0;
-        font-size: 0.95rem;
+    [data-theme="dark"] .page-header h1 {
+        color: #f9fafb;
     }
 
     .stat-card {
         background: white;
-        border-radius: 12px;
-        padding: 1.5rem;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        transition: all 0.3s ease;
+        border-radius: 0.5rem;
+        padding: 1.25rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e5e7eb;
         border-left: 4px solid;
-        height: 100%;
+        text-align: center;
     }
 
-    .stat-card:hover {
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        transform: translateY(-2px);
+    [data-theme="dark"] .stat-card {
+        background: #1f2937;
+        border-color: #374151;
     }
 
-    .stat-card.available { border-left-color: var(--blue-primary); }
-    .stat-card.pending { border-left-color: var(--warning); }
-    .stat-card.accepted { border-left-color: var(--teal-primary); }
-    .stat-card.completed { border-left-color: var(--success); }
-
-    .stat-card .stat-icon {
-        width: 48px;
-        height: 48px;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.25rem;
-        margin-bottom: 1rem;
-    }
-
-    .stat-card.available .stat-icon { background-color: #dbeafe; color: var(--blue-primary); }
-    .stat-card.pending .stat-icon { background-color: #fef3c7; color: var(--warning); }
-    .stat-card.accepted .stat-icon { background-color: #ccfbf1; color: var(--teal-primary); }
-    .stat-card.completed .stat-icon { background-color: #d1fae5; color: var(--success); }
+    .stat-card.available { border-left-color: #3b82f6; }
+    .stat-card.pending { border-left-color: #f59e0b; }
+    .stat-card.accepted { border-left-color: #14b8a6; }
+    .stat-card.completed { border-left-color: #10b981; }
 
     .stat-card .stat-value {
         font-size: 2rem;
         font-weight: 700;
-        color: var(--gray-800);
+        color: #1f2937;
         margin: 0.5rem 0;
     }
 
+    [data-theme="dark"] .stat-card .stat-value {
+        color: #f9fafb;
+    }
+
     .stat-card .stat-label {
-        color: var(--gray-600);
+        color: #6b7280;
         font-size: 0.875rem;
         font-weight: 500;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
+    }
+
+    [data-theme="dark"] .stat-card .stat-label {
+        color: #9ca3af;
     }
 
     .section-card {
         background: white;
-        border-radius: 12px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        border-radius: 0.5rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e5e7eb;
         margin-bottom: 1.5rem;
         overflow: hidden;
     }
 
+    [data-theme="dark"] .section-card {
+        background: #1f2937;
+        border-color: #374151;
+    }
+
     .section-header {
-        background: linear-gradient(135deg, var(--teal-primary) 0%, var(--blue-primary) 100%);
-        color: white;
+        background: #f9fafb;
         padding: 1rem 1.5rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    [data-theme="dark"] .section-header {
+        background: #111827;
+        border-bottom-color: #374151;
     }
 
     .section-header h3 {
         font-size: 1.125rem;
         font-weight: 600;
+        color: #1f2937;
         margin: 0;
         display: flex;
         align-items: center;
         gap: 0.5rem;
     }
 
+    [data-theme="dark"] .section-header h3 {
+        color: #f9fafb;
+    }
+
     .section-body {
         padding: 1.5rem;
     }
 
-    .status-badge {
-        padding: 0.375rem 0.75rem;
-        border-radius: 6px;
-        font-size: 0.75rem;
+    .donation-table {
+        width: 100%;
+        margin: 0;
+    }
+
+    .donation-table thead {
+        background: #f9fafb;
+    }
+
+    [data-theme="dark"] .donation-table thead {
+        background: #111827;
+    }
+
+    .donation-table thead th {
+        padding: 0.75rem 1rem;
         font-weight: 600;
+        font-size: 0.875rem;
         text-transform: uppercase;
         letter-spacing: 0.05em;
+        color: #6b7280;
+        border-bottom: 2px solid #e5e7eb;
+    }
+
+    [data-theme="dark"] .donation-table thead th {
+        color: #9ca3af;
+        border-bottom-color: #374151;
+    }
+
+    .donation-table tbody td {
+        padding: 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    [data-theme="dark"] .donation-table tbody td {
+        border-bottom-color: #374151;
+    }
+
+    .donation-table tbody tr:hover {
+        background: #f9fafb;
+    }
+
+    [data-theme="dark"] .donation-table tbody tr:hover {
+        background: #111827;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.375rem 0.75rem;
+        border-radius: 0.375rem;
+        font-weight: 600;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+    }
+
+    .status-badge.available {
+        background: #dbeafe;
+        color: #1e40af;
     }
 
     .status-badge.pending {
-        background-color: #fef3c7;
+        background: #fef3c7;
         color: #92400e;
     }
 
     .status-badge.accepted {
-        background-color: #ccfbf1;
+        background: #ccfbf1;
         color: #0f766e;
     }
 
-    .status-badge.completed {
-        background-color: #d1fae5;
-        color: #065f46;
+    [data-theme="dark"] .status-badge.available {
+        background: rgba(59, 130, 246, 0.2);
+        color: #60a5fa;
     }
 
-    .status-badge.rejected {
-        background-color: #fee2e2;
-        color: #991b1b;
+    [data-theme="dark"] .status-badge.pending {
+        background: rgba(245, 158, 11, 0.2);
+        color: #fbbf24;
     }
 
-    .donation-card {
-        background: var(--gray-50);
-        border: 1px solid var(--gray-200);
-        border-radius: 8px;
-        padding: 1rem;
-        margin-bottom: 0.75rem;
-        transition: all 0.2s ease;
+    [data-theme="dark"] .status-badge.accepted {
+        background: rgba(20, 184, 166, 0.2);
+        color: #5eead4;
     }
 
-    .donation-card:hover {
-        border-color: var(--teal-primary);
-        box-shadow: 0 2px 8px rgba(20, 184, 166, 0.1);
-    }
-
-    .donation-card:last-child {
-        margin-bottom: 0;
-    }
-
-    .workflow-steps {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1.5rem;
-        position: relative;
-    }
-
-    .workflow-step {
-        flex: 1;
-        text-align: center;
-        position: relative;
-        z-index: 2;
-    }
-
-    .workflow-step::after {
-        content: '';
-        position: absolute;
-        top: 20px;
-        left: 50%;
-        width: 100%;
-        height: 2px;
-        background: var(--gray-200);
-        z-index: 1;
-    }
-
-    .workflow-step:last-child::after {
-        display: none;
-    }
-
-    .workflow-step.active::after {
-        background: var(--teal-primary);
-    }
-
-    .step-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background: var(--gray-200);
-        color: var(--gray-600);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 0.5rem;
-        position: relative;
-        z-index: 3;
-        font-size: 1rem;
-    }
-
-    .workflow-step.active .step-icon {
-        background: var(--teal-primary);
-        color: white;
-    }
-
-    .workflow-step.completed .step-icon {
-        background: var(--success);
-        color: white;
-    }
-
-    .step-label {
-        font-size: 0.75rem;
-        color: var(--gray-600);
-        font-weight: 500;
-        margin-top: 0.25rem;
-    }
-
-    .workflow-step.active .step-label {
-        color: var(--teal-primary);
+    .btn-action {
+        padding: 0.5rem 1rem;
         font-weight: 600;
+        border-radius: 0.375rem;
+        border: none;
+        font-size: 0.875rem;
     }
 
-    .workflow-step.completed .step-label {
-        color: var(--success);
+    .btn-accept {
+        background: #10b981;
+        color: white;
     }
 
-    .map-placeholder {
-        height: 300px;
-        background: var(--gray-100);
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-        color: var(--gray-600);
+    .btn-accept:hover {
+        background: #059669;
+        color: white;
+    }
+
+    .btn-reject {
+        background: #ef4444;
+        color: white;
+    }
+
+    .btn-reject:hover {
+        background: #dc2626;
+        color: white;
+    }
+
+    .map-container {
+        height: 400px;
+        border-radius: 0.5rem;
+        overflow: hidden;
+        border: 1px solid #e5e7eb;
+    }
+
+    [data-theme="dark"] .map-container {
+        border-color: #374151;
+    }
+
+    #ngoMap {
+        width: 100%;
+        height: 100%;
     }
 
     .empty-state {
         text-align: center;
         padding: 3rem 1rem;
-        color: var(--gray-600);
+        color: #6b7280;
+    }
+
+    [data-theme="dark"] .empty-state {
+        color: #9ca3af;
     }
 
     .empty-state i {
         font-size: 3rem;
         margin-bottom: 1rem;
-        opacity: 0.3;
-    }
-
-    .btn-teal {
-        background-color: var(--teal-primary);
-        border-color: var(--teal-primary);
-        color: white;
-    }
-
-    .btn-teal:hover {
-        background-color: var(--teal-dark);
-        border-color: var(--teal-dark);
-        color: white;
-    }
-
-    .btn-outline-teal {
-        border-color: var(--teal-primary);
-        color: var(--teal-primary);
-    }
-
-    .btn-outline-teal:hover {
-        background-color: var(--teal-primary);
-        border-color: var(--teal-primary);
-        color: white;
-    }
-
-    .table-custom {
-        margin: 0;
-    }
-
-    .table-custom thead {
-        background-color: var(--gray-50);
-    }
-
-    .table-custom thead th {
-        border-bottom: 2px solid var(--gray-200);
-        font-weight: 600;
-        color: var(--gray-700);
-        font-size: 0.875rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        padding: 0.75rem 1rem;
-    }
-
-    .table-custom tbody td {
-        padding: 1rem;
-        vertical-align: middle;
-        border-bottom: 1px solid var(--gray-100);
-    }
-
-    .table-custom tbody tr:hover {
-        background-color: var(--gray-50);
+        opacity: 0.5;
     }
 
     @@media (max-width: 768px) {
-        .dashboard-header {
-            margin: -1rem -1rem 1.5rem -1rem;
-            padding: 1.5rem 0;
+        .donation-table {
+            font-size: 0.875rem;
         }
 
-        .workflow-steps {
-            flex-direction: column;
-            gap: 1rem;
+        .donation-table thead th,
+        .donation-table tbody td {
+            padding: 0.75rem 0.5rem;
         }
 
-        .workflow-step::after {
-            display: none;
+        .btn-action {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.8125rem;
         }
     }
 </style>
 
-<div class="dashboard-header">
-    <div class="container-fluid px-4">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <h1><i class="fas fa-building me-2"></i>@Model.NGO.Name</h1>
-                <p>Operational Dashboard - Manage donations and distribution</p>
-            </div>
-            <a asp-action="AvailableDonations" class="btn btn-light">
-                <i class="fas fa-search me-2"></i>Browse Donations
-            </a>
+<div class="page-header">
+    <h1>
+        <i class="fas fa-building text-primary me-2"></i>
+        @Model.NGO.Name - Dashboard
+    </h1>
+</div>
+
+<!-- Statistics -->
+<div class="row g-3 mb-4">
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card available">
+            <div class="stat-value">@Model.AvailableDonations.Count</div>
+            <div class="stat-label">Available Donations</div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card pending">
+            <div class="stat-value">@pendingRequests.Count</div>
+            <div class="stat-label">Pending Requests</div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card accepted">
+            <div class="stat-value">@acceptedRequests.Count</div>
+            <div class="stat-label">Accepted</div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card completed">
+            <div class="stat-value">@Model.ClaimedDonations.Count</div>
+            <div class="stat-label">Completed</div>
         </div>
     </div>
 </div>
 
-<div class="container-fluid px-4">
-    <!-- Statistics Overview -->
-    <div class="row g-4 mb-4">
-        <div class="col-md-6 col-lg-3">
-            <div class="stat-card available">
-                <div class="stat-icon">
-                    <i class="fas fa-gift"></i>
-                </div>
-                <div class="stat-label">Available Donations</div>
-                <div class="stat-value">@Model.AvailableDonations.Count</div>
-                <small class="text-muted">Ready to request</small>
+<div class="row">
+    <!-- Left Column: Incoming Donations -->
+    <div class="col-lg-8">
+        <div class="section-card">
+            <div class="section-header">
+                <h3>
+                    <i class="fas fa-inbox text-primary"></i>
+                    Incoming Donations
+                    <span class="badge bg-primary ms-2">@incomingDonations.Count</span>
+                </h3>
             </div>
-        </div>
-
-        <div class="col-md-6 col-lg-3">
-            <div class="stat-card pending">
-                <div class="stat-icon">
-                    <i class="fas fa-clock"></i>
-                </div>
-                <div class="stat-label">Pending Requests</div>
-                <div class="stat-value">@pendingRequests.Count</div>
-                <small class="text-muted">Awaiting response</small>
-            </div>
-        </div>
-
-        <div class="col-md-6 col-lg-3">
-            <div class="stat-card accepted">
-                <div class="stat-icon">
-                    <i class="fas fa-check-circle"></i>
-                </div>
-                <div class="stat-label">Accepted</div>
-                <div class="stat-value">@acceptedRequests.Count</div>
-                <small class="text-muted">Approved requests</small>
-            </div>
-        </div>
-
-        <div class="col-md-6 col-lg-3">
-            <div class="stat-card completed">
-                <div class="stat-icon">
-                    <i class="fas fa-hand-holding-heart"></i>
-                </div>
-                <div class="stat-label">Completed</div>
-                <div class="stat-value">@completedDonations.Count</div>
-                <small class="text-muted">Distributed</small>
+            <div class="section-body p-0">
+                @if (incomingDonations.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="donation-table">
+                            <thead>
+                                <tr>
+                                    <th>Donation</th>
+                                    <th>Donor</th>
+                                    <th>Food Type</th>
+                                    <th>Quantity</th>
+                                    <th>Location</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var donation in incomingDonations)
+                                {
+                                    <tr>
+                                        <td>
+                                            <strong>@donation.Title</strong>
+                                            @if (!string.IsNullOrEmpty(donation.Description))
+                                            {
+                                                <br><small class="text-muted">@(donation.Description.Length > 40 ? donation.Description.Substring(0, 40) + "..." : donation.Description)</small>
+                                            }
+                                        </td>
+                                        <td>
+                                            <small>@donation.Donor?.FirstName @donation.Donor?.LastName</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-secondary">@donation.FoodType</span>
+                                        </td>
+                                        <td>
+                                            <strong>@donation.Quantity</strong> <small>@donation.Unit</small>
+                                        </td>
+                                        <td>
+                                            <small>@donation.Location</small>
+                                        </td>
+                                        <td>
+                                            <span class="status-badge available">
+                                                <i class="fas fa-check-circle"></i>
+                                                Available
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-2">
+                                                <button type="button" class="btn btn-accept btn-action" 
+                                                        data-bs-toggle="modal" 
+                                                        data-bs-target="#requestModal"
+                                                        data-donation-id="@donation.Id"
+                                                        data-donation-title="@donation.Title">
+                                                    <i class="fas fa-check me-1"></i>Accept
+                                                </button>
+                                                <a asp-action="DonationDetails" asp-route-id="@donation.Id" 
+                                                   class="btn btn-outline-secondary btn-action">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="text-center p-3 border-top">
+                        <a asp-action="AvailableDonations" class="btn btn-outline-primary">
+                            <i class="fas fa-list me-2"></i>View All Donations
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>No incoming donations</p>
+                        <small>Check back later for available donations</small>
+                    </div>
+                }
             </div>
         </div>
     </div>
 
-    <div class="row g-4">
-        <!-- Left Column: Main Operations -->
-        <div class="col-lg-8">
-            <!-- Incoming Donation Requests -->
-            <div class="section-card">
-                <div class="section-header">
-                    <h3>
-                        <i class="fas fa-inbox"></i>
-                        Incoming Donation Requests
-                        @if (pendingRequests.Count > 0)
-                        {
-                            <span class="badge bg-warning ms-2">@pendingRequests.Count</span>
-                        }
-                    </h3>
-                    <a asp-action="MyRequests" class="text-white text-decoration-none">
-                        <small>View All <i class="fas fa-arrow-right ms-1"></i></small>
-                    </a>
-                </div>
-                <div class="section-body">
-                    @if (pendingRequests.Any())
-                    {
-                        <div class="table-responsive">
-                            <table class="table table-custom">
-                                <thead>
-                                    <tr>
-                                        <th>Donation</th>
-                                        <th>Donor</th>
-                                        <th>Food Type</th>
-                                        <th>Quantity</th>
-                                        <th>Requested</th>
-                                        <th>Status</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var request in pendingRequests.Take(5))
-                                    {
-                                        <tr>
-                                            <td>
-                                                <strong>@request.Donation?.Title</strong>
-                                                @if (!string.IsNullOrEmpty(request.Message))
-                                                {
-                                                    <br>
-                                                    <small class="text-muted">@(request.Message.Length > 50 ? request.Message.Substring(0, 50) + "..." : request.Message)</small>
-                                                }
-                                            </td>
-                                            <td>
-                                                <small>@request.Donation?.Donor?.FirstName @request.Donation?.Donor?.LastName</small>
-                                            </td>
-                                            <td>
-                                                <span class="badge bg-secondary">@request.Donation?.FoodType</span>
-                                            </td>
-                                            <td>
-                                                <small>@request.Donation?.Quantity @request.Donation?.Unit</small>
-                                            </td>
-                                            <td>
-                                                <small class="text-muted">@request.CreatedAt.ToString("MMM dd, yyyy")</small>
-                                                <br>
-                                                <small class="text-muted">@request.CreatedAt.ToString("HH:mm")</small>
-                                            </td>
-                                            <td>
-                                                <span class="status-badge pending">Pending</span>
-                                            </td>
-                                            <td>
-                                                <a asp-action="DonationDetails" asp-route-id="@request.DonationId" 
-                                                   class="btn btn-sm btn-outline-teal">
-                                                    <i class="fas fa-eye"></i> View
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="empty-state">
-                            <i class="fas fa-check-circle text-success"></i>
-                            <p class="mb-2">No pending requests</p>
-                            <small>All requests have been processed</small>
-                        </div>
-                    }
-                </div>
+    <!-- Right Column: Map View -->
+    <div class="col-lg-4">
+        <div class="section-card">
+            <div class="section-header">
+                <h3>
+                    <i class="fas fa-map-marked-alt text-primary"></i>
+                    Pickup Locations
+                </h3>
             </div>
-
-            <!-- Accepted Donations -->
-            <div class="section-card">
-                <div class="section-header">
-                    <h3>
-                        <i class="fas fa-check-circle"></i>
-                        Accepted Donations
-                        @if (acceptedRequests.Count > 0)
-                        {
-                            <span class="badge bg-success ms-2">@acceptedRequests.Count</span>
-                        }
-                    </h3>
-                    <a asp-action="MyRequests" class="text-white text-decoration-none">
-                        <small>View All <i class="fas fa-arrow-right ms-1"></i></small>
-                    </a>
-                </div>
-                <div class="section-body">
-                    @if (acceptedRequests.Any())
-                    {
-                        <div class="table-responsive">
-                            <table class="table table-custom">
-                                <thead>
-                                    <tr>
-                                        <th>Donation</th>
-                                        <th>Donor</th>
-                                        <th>Food Type</th>
-                                        <th>Quantity</th>
-                                        <th>Accepted</th>
-                                        <th>Status</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var request in acceptedRequests.Take(5))
-                                    {
-                                        <tr>
-                                            <td>
-                                                <strong>@request.Donation?.Title</strong>
-                                            </td>
-                                            <td>
-                                                <small>@request.Donation?.Donor?.FirstName @request.Donation?.Donor?.LastName</small>
-                                            </td>
-                                            <td>
-                                                <span class="badge bg-secondary">@request.Donation?.FoodType</span>
-                                            </td>
-                                            <td>
-                                                <small>@request.Donation?.Quantity @request.Donation?.Unit</small>
-                                            </td>
-                                            <td>
-                                                <small class="text-muted">@(request.UpdatedAt?.ToString("MMM dd, yyyy") ?? request.CreatedAt.ToString("MMM dd, yyyy"))</small>
-                                            </td>
-                                            <td>
-                                                <span class="status-badge accepted">Accepted</span>
-                                            </td>
-                                            <td>
-                                                <a asp-action="DonationDetails" asp-route-id="@request.DonationId" 
-                                                   class="btn btn-sm btn-outline-teal">
-                                                    <i class="fas fa-eye"></i> View
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="empty-state">
-                            <i class="fas fa-inbox"></i>
-                            <p class="mb-2">No accepted donations yet</p>
-                            <a asp-action="AvailableDonations" class="btn btn-sm btn-teal mt-2">
-                                <i class="fas fa-search me-1"></i>Browse Donations
-                            </a>
-                        </div>
-                    }
-                </div>
-            </div>
-
-            <!-- Distribution Status -->
-            <div class="section-card">
-                <div class="section-header">
-                    <h3>
-                        <i class="fas fa-route"></i>
-                        Distribution Status
-                    </h3>
-                </div>
-                <div class="section-body">
-                    <div class="workflow-steps">
-                        <div class="workflow-step @(pendingRequests.Count > 0 ? "active" : acceptedRequests.Count > 0 || completedDonations.Count > 0 ? "completed" : "")">
-                            <div class="step-icon">
-                                <i class="fas fa-inbox"></i>
-                            </div>
-                            <div class="step-label">Request</div>
-                            <div class="text-muted small mt-1">@pendingRequests.Count pending</div>
-                        </div>
-                        <div class="workflow-step @(acceptedRequests.Count > 0 ? "active" : completedDonations.Count > 0 ? "completed" : "")">
-                            <div class="step-icon">
-                                <i class="fas fa-check-circle"></i>
-                            </div>
-                            <div class="step-label">Accepted</div>
-                            <div class="text-muted small mt-1">@acceptedRequests.Count approved</div>
-                        </div>
-                        <div class="workflow-step @(completedDonations.Count > 0 ? "active completed" : "")">
-                            <div class="step-icon">
-                                <i class="fas fa-truck"></i>
-                            </div>
-                            <div class="step-label">Pickup</div>
-                            <div class="text-muted small mt-1">@completedDonations.Count collected</div>
-                        </div>
-                        <div class="workflow-step @(completedDonations.Count > 0 ? "completed" : "")">
-                            <div class="step-icon">
-                                <i class="fas fa-hand-holding-heart"></i>
-                            </div>
-                            <div class="step-label">Distributed</div>
-                            <div class="text-muted small mt-1">@completedDonations.Count completed</div>
-                        </div>
-                    </div>
+            <div class="section-body p-0">
+                <div class="map-container">
+                    <div id="ngoMap"></div>
                 </div>
             </div>
         </div>
+    </div>
+</div>
 
-        <!-- Right Column: Map & Quick Info -->
-        <div class="col-lg-4">
-            <!-- Nearby Donors Map -->
-            <div class="section-card">
-                <div class="section-header">
-                    <h3>
-                        <i class="fas fa-map-marked-alt"></i>
-                        Nearby Donors
-                    </h3>
-                    <a asp-controller="Map" asp-action="Index" class="text-white text-decoration-none">
-                        <small>Full Map <i class="fas fa-arrow-right ms-1"></i></small>
-                    </a>
-                </div>
-                <div class="section-body p-0">
-                    <div id="ngoMap" class="map-placeholder">
-                        @if (Model.AvailableDonations.Any())
-                        {
-                            <i class="fas fa-map-marked-alt fa-3x mb-3" style="opacity: 0.3;"></i>
-                            <p class="mb-1">Map Integration</p>
-                            <small>Nearby donation locations will appear here</small>
-                        }
-                        else
-                        {
-                            <i class="fas fa-map-marked-alt fa-3x mb-3" style="opacity: 0.3;"></i>
-                            <p class="mb-1">No nearby donations</p>
-                            <small>Check back later for available donations</small>
-                        }
-                    </div>
-                </div>
+<!-- Request Modal -->
+<div class="modal fade" id="requestModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Request Donation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-
-            <!-- Quick Actions -->
-            <div class="section-card">
-                <div class="section-header">
-                    <h3>
-                        <i class="fas fa-bolt"></i>
-                        Quick Actions
-                    </h3>
-                </div>
-                <div class="section-body">
-                    <div class="d-grid gap-2">
-                        <a asp-action="AvailableDonations" class="btn btn-teal">
-                            <i class="fas fa-search me-2"></i>Browse Donations
-                        </a>
-                        <a asp-action="MyRequests" class="btn btn-outline-teal">
-                            <i class="fas fa-inbox me-2"></i>My Requests
-                        </a>
-                        <a asp-controller="Map" asp-action="Index" class="btn btn-outline-teal">
-                            <i class="fas fa-map me-2"></i>View Map
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Organization Info -->
-            <div class="section-card">
-                <div class="section-header">
-                    <h3>
-                        <i class="fas fa-building"></i>
-                        Organization Info
-                    </h3>
-                </div>
-                <div class="section-body">
+            <form asp-action="RequestDonation" method="post">
+                <div class="modal-body">
+                    <input type="hidden" id="donationId" name="donationId" />
                     <div class="mb-3">
-                        <small class="text-muted d-block mb-1">Location</small>
-                        <strong>@Model.NGO.Location</strong>
+                        <label for="message" class="form-label">Message to Donor</label>
+                        <textarea class="form-control" id="message" name="message" rows="3" 
+                                  placeholder="Explain why your organization needs this donation..." required></textarea>
                     </div>
-                    <div class="mb-3">
-                        <small class="text-muted d-block mb-1">Contact</small>
-                        <strong>@Model.NGO.Contact</strong>
-                    </div>
-                    <div class="mb-3">
-                        <small class="text-muted d-block mb-1">Capacity</small>
-                        <strong>@Model.NGO.Capacity people</strong>
-                    </div>
-                    @if (!string.IsNullOrEmpty(Model.NGO.RegistrationNumber))
-                    {
-                        <div class="mb-3">
-                            <small class="text-muted d-block mb-1">Registration</small>
-                            <strong>@Model.NGO.RegistrationNumber</strong>
-                        </div>
-                    }
-                    @if (!string.IsNullOrEmpty(Model.NGO.Website))
-                    {
-                        <a href="@Model.NGO.Website" target="_blank" class="btn btn-sm btn-outline-teal w-100">
-                            <i class="fas fa-external-link-alt me-1"></i>Visit Website
-                        </a>
-                    }
                 </div>
-            </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-accept">Submit Request</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
 @section Scripts {
     <script>
-        // Initialize Google Maps when API key is available
+        // Request Modal Handler
+        document.getElementById('requestModal').addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            var donationId = button.getAttribute('data-donation-id');
+            var donationTitle = button.getAttribute('data-donation-title');
+            
+            document.getElementById('donationId').value = donationId;
+            document.querySelector('#requestModal .modal-title').textContent = 'Request: ' + donationTitle;
+        });
+
+        // Initialize Google Maps
         function initNGOMap() {
             if (typeof google !== 'undefined' && google.maps) {
                 const defaultCenter = { lat: 40.7128, lng: -74.0060 };
@@ -728,14 +483,7 @@
                     center: defaultCenter,
                     mapTypeControl: true,
                     streetViewControl: false,
-                    fullscreenControl: true,
-                    styles: [
-                        {
-                            featureType: "poi",
-                            elementType: "labels",
-                            stylers: [{ visibility: "off" }]
-                        }
-                    ]
+                    fullscreenControl: true
                 });
 
                 @if (Model.NGO.Latitude.HasValue && Model.NGO.Longitude.HasValue)
@@ -752,7 +500,7 @@
                     </text>
                 }
 
-                @foreach (var donation in Model.AvailableDonations.Take(20))
+                @foreach (var donation in incomingDonations)
                 {
                     if (donation.Donor?.Latitude.HasValue == true && donation.Donor?.Longitude.HasValue == true)
                     {
@@ -782,5 +530,26 @@
         window.addEventListener('load', function() {
             setTimeout(initNGOMap, 1000);
         });
+    </script>
+    
+    <script>
+        // Load Google Maps if API key is available
+        @if (ViewBag.GoogleMapsApiKey != null)
+        {
+            <text>
+            const script = document.createElement('script');
+            script.src = 'https://maps.googleapis.com/maps/api/js?key=@ViewBag.GoogleMapsApiKey&callback=initNGOMap';
+            script.async = true;
+            script.defer = true;
+            document.head.appendChild(script);
+            </text>
+        }
+        else
+        {
+            <text>
+            // Google Maps API key not available - map will not load
+            console.log('Google Maps API key not configured');
+            </text>
+        }
     </script>
 }

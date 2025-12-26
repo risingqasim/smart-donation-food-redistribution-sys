@@ -1,61 +1,393 @@
 @model IEnumerable<SmartDonationSystem.Models.NGO>
-
 @{
+    Layout = "_AdminLayout";
     ViewData["Title"] = "NGO Management";
+    ViewData["Breadcrumbs"] = new List<(string, string?)> { ("Approve NGOs", null) };
 }
 
-<h1>NGO Management</h1>
+<style>
+    .admin-table-card {
+        background: white;
+        border-radius: 0.75rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+        border: 1px solid #e5e7eb;
+        overflow: hidden;
+    }
 
-<div class="row mb-3">
-    <div class="col-12">
-        <a asp-action="Dashboard" class="btn btn-secondary">Back to Dashboard</a>
+    [data-theme="dark"] .admin-table-card {
+        background: #1f2937;
+        border-color: #374151;
+    }
+
+    .admin-table-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #e5e7eb;
+        background: #f9fafb;
+    }
+
+    [data-theme="dark"] .admin-table-header {
+        background: #111827;
+        border-bottom-color: #374151;
+    }
+
+    .admin-table-header h5 {
+        margin: 0;
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #1f2937;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    [data-theme="dark"] .admin-table-header h5 {
+        color: #f9fafb;
+    }
+
+    .admin-table {
+        margin: 0;
+    }
+
+    .admin-table thead {
+        background: #f9fafb;
+    }
+
+    [data-theme="dark"] .admin-table thead {
+        background: #111827;
+    }
+
+    .admin-table thead th {
+        border-bottom: 2px solid #e5e7eb;
+        padding: 1rem 1.5rem;
+        font-weight: 600;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #6b7280;
+    }
+
+    [data-theme="dark"] .admin-table thead th {
+        border-bottom-color: #374151;
+        color: #9ca3af;
+    }
+
+    .admin-table tbody td {
+        padding: 1rem 1.5rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    [data-theme="dark"] .admin-table tbody td {
+        border-bottom-color: #374151;
+    }
+
+    .admin-table tbody tr:hover {
+        background-color: #f9fafb;
+    }
+
+    [data-theme="dark"] .admin-table tbody tr:hover {
+        background-color: #111827;
+    }
+
+    .search-filter-card {
+        background: white;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+        border: 1px solid #e5e7eb;
+        margin-bottom: 1.5rem;
+    }
+
+    [data-theme="dark"] .search-filter-card {
+        background: #1f2937;
+        border-color: #374151;
+    }
+
+    .pagination-wrapper {
+        padding: 1rem 1.5rem;
+        border-top: 1px solid #e5e7eb;
+        background: #f9fafb;
+    }
+
+    [data-theme="dark"] .pagination-wrapper {
+        background: #111827;
+        border-top-color: #374151;
+    }
+
+    .ngo-stats {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .ngo-stat-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        color: #6b7280;
+    }
+
+    [data-theme="dark"] .ngo-stat-item {
+        color: #9ca3af;
+    }
+
+    .ngo-stat-item i {
+        color: #4f46e5;
+    }
+</style>
+
+<div class="admin-page-header">
+    <h1>
+        <i class="fas fa-building text-primary"></i>
+        NGO Management
+    </h1>
+    <p>View and manage all registered NGOs in the system</p>
+</div>
+
+<!-- Search and Filter -->
+<div class="search-filter-card">
+    <div class="row g-3">
+        <div class="col-md-8">
+            <label for="searchInput" class="form-label">
+                <i class="fas fa-search me-1"></i>Search NGOs
+            </label>
+            <input type="text" id="searchInput" class="form-control" placeholder="Search by name, contact, or location...">
+        </div>
+        <div class="col-md-4 d-flex align-items-end">
+            <button type="button" id="clearFilters" class="btn btn-outline-secondary w-100">
+                <i class="fas fa-times me-1"></i>Clear Filters
+            </button>
+        </div>
     </div>
 </div>
 
-<div class="row">
-    @foreach (var ngo in Model)
-    {
-        <div class="col-md-6 mb-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">@ngo.Name</h5>
-                    <p class="card-text">
-                        <strong>Contact:</strong> @ngo.Contact<br>
-                        <strong>Location:</strong> @ngo.Location<br>
-                        <strong>Capacity:</strong> @ngo.Capacity<br>
-                        <strong>User:</strong> @ngo.User?.FirstName @ngo.User?.LastName (@ngo.User?.Email)
-                    </p>
-                    @if (!string.IsNullOrEmpty(ngo.Description))
+<!-- NGOs Table -->
+<div class="admin-table-card">
+    <div class="admin-table-header">
+        <h5>
+            <i class="fas fa-list text-primary"></i>
+            All NGOs
+            <span class="badge bg-primary ms-2" id="ngoCount">@Model.Count()</span>
+        </h5>
+    </div>
+    <div class="table-responsive">
+        <table class="table admin-table mb-0" id="ngosTable">
+            <thead>
+                <tr>
+                    <th>NGO Name</th>
+                    <th>Contact</th>
+                    <th>Location</th>
+                    <th>Capacity</th>
+                    <th>User</th>
+                    <th>Statistics</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Any())
+                {
+                    @foreach (var ngo in Model)
                     {
-                        <p class="card-text">@ngo.Description</p>
-                    }
-                    <div class="row">
-                        <div class="col-6">
-                            <small class="text-muted">
-                                <strong>Donations:</strong> @ngo.Donations.Count<br>
-                                <strong>Requests:</strong> @ngo.DonationRequests.Count
-                            </small>
+                        <tr>
+                            <td>
+                                <div>
+                                    <strong>@ngo.Name</strong>
+                                    @if (!string.IsNullOrEmpty(ngo.Description))
+                                    {
+                                        <br><small class="text-muted">@(ngo.Description.Length > 60 ? ngo.Description.Substring(0, 60) + "..." : ngo.Description)</small>
+                                    }
+                                </div>
+                            </td>
+                            <td>
+                                <div>
+                                    <i class="fas fa-phone me-1 text-muted"></i>@ngo.Contact
+                                </div>
+                            </td>
+                            <td>
+                                <div>
+                                    <i class="fas fa-map-marker-alt me-1 text-muted"></i>@ngo.Location
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-info">@ngo.Capacity</span>
+                            </td>
+                            <td>
+                                <div>
+                                    <i class="fas fa-user me-1 text-muted"></i>
+                                    @ngo.User?.FirstName @ngo.User?.LastName
+                                    <br><small class="text-muted">@ngo.User?.Email</small>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="ngo-stats">
+                                    <div class="ngo-stat-item">
+                                        <i class="fas fa-gift"></i>
+                                        <span>@ngo.Donations.Count donations</span>
+                                    </div>
+                                    <div class="ngo-stat-item">
+                                        <i class="fas fa-hand-paper"></i>
+                                        <span>@ngo.DonationRequests.Count requests</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    @if (!string.IsNullOrEmpty(ngo.Website))
+                                    {
+                                        <a href="@ngo.Website" target="_blank" class="btn btn-sm btn-outline-primary" title="Visit Website">
+                                            <i class="fas fa-external-link-alt"></i>
+                                        </a>
+                                    }
+                                    <button type="button" class="btn btn-sm btn-outline-info" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#ngoModal@(ngo.Id)"
+                                            title="View Details">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- NGO Details Modal -->
+                        <div class="modal fade" id="ngoModal@(ngo.Id)" tabindex="-1" aria-labelledby="ngoModalLabel@(ngo.Id)" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="ngoModalLabel@(ngo.Id)">
+                                            <i class="fas fa-building me-2"></i>@ngo.Name
+                                        </h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <strong><i class="fas fa-phone me-2"></i>Contact:</strong>
+                                                <p>@ngo.Contact</p>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <strong><i class="fas fa-map-marker-alt me-2"></i>Location:</strong>
+                                                <p>@ngo.Location</p>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <strong><i class="fas fa-box me-2"></i>Capacity:</strong>
+                                                <p><span class="badge bg-info">@ngo.Capacity</span></p>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <strong><i class="fas fa-user me-2"></i>Registered User:</strong>
+                                                <p>@ngo.User?.FirstName @ngo.User?.LastName (@ngo.User?.Email)</p>
+                                            </div>
+                                        </div>
+                                        @if (!string.IsNullOrEmpty(ngo.Description))
+                                        {
+                                            <div class="mb-3">
+                                                <strong><i class="fas fa-align-left me-2"></i>Description:</strong>
+                                                <p>@ngo.Description</p>
+                                            </div>
+                                        }
+                                        @if (!string.IsNullOrEmpty(ngo.Website))
+                                        {
+                                            <div class="mb-3">
+                                                <strong><i class="fas fa-globe me-2"></i>Website:</strong>
+                                                <p><a href="@ngo.Website" target="_blank">@ngo.Website</a></p>
+                                            </div>
+                                        }
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <strong><i class="fas fa-gift me-2"></i>Total Donations:</strong>
+                                                <p><span class="badge bg-success">@ngo.Donations.Count</span></p>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <strong><i class="fas fa-hand-paper me-2"></i>Total Requests:</strong>
+                                                <p><span class="badge bg-warning">@ngo.DonationRequests.Count</span></p>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <strong><i class="fas fa-calendar me-2"></i>Created:</strong>
+                                            <p>@ngo.CreatedAt.ToString("MMMM dd, yyyy")</p>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        @if (!string.IsNullOrEmpty(ngo.Website))
+                                        {
+                                            <a href="@ngo.Website" target="_blank" class="btn btn-primary">
+                                                <i class="fas fa-external-link-alt me-2"></i>Visit Website
+                                            </a>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-6">
-                            <small class="text-muted">
-                                <strong>Created:</strong> @ngo.CreatedAt.ToString("MMM dd, yyyy")
-                            </small>
-                        </div>
-                    </div>
-                    @if (!string.IsNullOrEmpty(ngo.Website))
-                    {
-                        <a href="@ngo.Website" target="_blank" class="btn btn-sm btn-outline-primary">Visit Website</a>
                     }
-                </div>
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="7" class="text-center py-5">
+                            <div class="empty-state">
+                                <i class="fas fa-building"></i>
+                                <h5>No NGOs Found</h5>
+                                <p class="text-muted">There are currently no registered NGOs in the system.</p>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="pagination-wrapper">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <small class="text-muted">Showing <span id="visibleCount">@Model.Count()</span> of @Model.Count() NGOs</small>
             </div>
         </div>
-    }
+    </div>
 </div>
 
-@if (!Model.Any())
-{
-    <div class="alert alert-info">
-        <h4>No NGOs Found</h4>
-        <p>There are currently no registered NGOs in the system.</p>
-    </div>
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const clearFilters = document.getElementById('clearFilters');
+            const table = document.getElementById('ngosTable');
+            const rows = table.querySelectorAll('tbody tr');
+            const ngoCount = document.getElementById('ngoCount');
+            const visibleCount = document.getElementById('visibleCount');
+
+            function filterTable() {
+                const searchValue = searchInput.value.toLowerCase();
+                let visibleRows = 0;
+
+                rows.forEach(row => {
+                    // Skip modal rows
+                    if (row.querySelector('.modal')) {
+                        return;
+                    }
+
+                    const text = row.textContent.toLowerCase();
+                    const searchMatch = !searchValue || text.includes(searchValue);
+                    
+                    if (searchMatch) {
+                        row.style.display = '';
+                        visibleRows++;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+
+                ngoCount.textContent = visibleRows;
+                visibleCount.textContent = visibleRows;
+            }
+
+            searchInput.addEventListener('input', filterTable);
+            
+            clearFilters.addEventListener('click', function() {
+                searchInput.value = '';
+                filterTable();
+            });
+        });
+    </script>
 }

@@ -2,6 +2,14 @@
 
 @{
     ViewData["Title"] = "Edit Donation";
+    if (User.IsInRole("Admin"))
+    {
+        Layout = "_AdminLayout";
+    }
+    else if (User.IsInRole("Donor"))
+    {
+        Layout = "_DonorLayout";
+    }
 }
 
 <h1>Edit Donation</h1>
