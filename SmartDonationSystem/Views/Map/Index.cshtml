@@ -76,8 +76,8 @@
 <div class="row g-4">
     <!-- Map Container -->
     <div class="col-lg-8">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white border-bottom py-3">
+        <div class="card border-0 shadow-sm map-card-dark">
+            <div class="card-header border-bottom py-3 map-card-header">
                 <div class="d-flex justify-content-between align-items-center">
                     <h5 class="mb-0 fw-semibold">
                         <i class="fas fa-map me-2 text-primary"></i>Map View
@@ -97,9 +97,9 @@
             </div>
             <div class="card-body p-0">
                 <!-- Map Container -->
-                <div id="map" style="height: 600px; width: 100%; min-height: 400px;">
+                <div id="map" class="map-container-dark" style="height: 600px; width: 100%; min-height: 400px;">
                     <!-- Google Maps will be initialized here -->
-                    <div class="d-flex align-items-center justify-content-center h-100 bg-light">
+                    <div class="d-flex align-items-center justify-content-center h-100 map-loading-placeholder">
                         <div class="text-center">
                             <i class="fas fa-map-marked-alt fa-4x text-muted mb-3"></i>
                             <h6 class="fw-semibold mb-2">Map Loading...</h6>
@@ -116,8 +116,8 @@
     <!-- Controls & Nearby Donations Sidebar -->
     <div class="col-lg-4">
         <!-- Search Controls -->
-        <div class="card border-0 shadow-sm mb-4">
-            <div class="card-header bg-white border-bottom py-3">
+        <div class="card border-0 shadow-sm mb-4 map-card-dark">
+            <div class="card-header border-bottom py-3 map-card-header">
                 <h5 class="mb-0 fw-semibold">
                     <i class="fas fa-search me-2 text-primary"></i>Search & Controls
                 </h5>
@@ -163,8 +163,8 @@
         </div>
 
         <!-- Nearby Donations List -->
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white border-bottom py-3">
+        <div class="card border-0 shadow-sm map-card-dark">
+            <div class="card-header border-bottom py-3 map-card-header">
                 <div class="d-flex justify-content-between align-items-center">
                     <h5 class="mb-0 fw-semibold">
                         <i class="fas fa-gift me-2 text-success"></i>Nearby Donations
@@ -276,13 +276,116 @@
                     return;
                 }
 
-                // Initialize map
+                // Get current theme
+                const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
+                
+                // Dark theme styles for Google Maps
+                const darkMapStyles = [
+                    { elementType: 'geometry', stylers: [{ color: '#242f3e' }] },
+                    { elementType: 'labels.text.stroke', stylers: [{ color: '#242f3e' }] },
+                    { elementType: 'labels.text.fill', stylers: [{ color: '#746855' }] },
+                    {
+                        featureType: 'administrative.locality',
+                        elementType: 'labels.text.fill',
+                        stylers: [{ color: '#d59563' }]
+                    },
+                    {
+                        featureType: 'poi',
+                        elementType: 'labels.text.fill',
+                        stylers: [{ color: '#d59563' }]
+                    },
+                    {
+                        featureType: 'poi.park',
+                        elementType: 'geometry',
+                        stylers: [{ color: '#263c3f' }]
+                    },
+                    {
+                        featureType: 'poi.park',
+                        elementType: 'labels.text.fill',
+                        stylers: [{ color: '#6b9a76' }]
+                    },
+                    {
+                        featureType: 'road',
+                        elementType: 'geometry',
+                        stylers: [{ color: '#38414e' }]
+                    },
+                    {
+                        featureType: 'road',
+                        elementType: 'geometry.stroke',
+                        stylers: [{ color: '#212a37' }]
+                    },
+                    {
+                        featureType: 'road',
+                        elementType: 'labels.text.fill',
+                        stylers: [{ color: '#9ca5b3' }]
+                    },
+                    {
+                        featureType: 'road.highway',
+                        elementType: 'geometry',
+                        stylers: [{ color: '#746855' }]
+                    },
+                    {
+                        featureType: 'road.highway',
+                        elementType: 'geometry.stroke',
+                        stylers: [{ color: '#1f2835' }]
+                    },
+                    {
+                        featureType: 'road.highway',
+                        elementType: 'labels.text.fill',
+                        stylers: [{ color: '#f3d19c' }]
+                    },
+                    {
+                        featureType: 'transit',
+                        elementType: 'geometry',
+                        stylers: [{ color: '#2f3948' }]
+                    },
+                    {
+                        featureType: 'transit.station',
+                        elementType: 'labels.text.fill',
+                        stylers: [{ color: '#d59563' }]
+                    },
+                    {
+                        featureType: 'water',
+                        elementType: 'geometry',
+                        stylers: [{ color: '#17263c' }]
+                    },
+                    {
+                        featureType: 'water',
+                        elementType: 'labels.text.fill',
+                        stylers: [{ color: '#515c6d' }]
+                    },
+                    {
+                        featureType: 'water',
+                        elementType: 'labels.text.stroke',
+                        stylers: [{ color: '#17263c' }]
+                    }
+                ];
+                
+                // Initialize map with theme
                 map = new google.maps.Map(mapContainer, {
                     center: defaultCenter,
                     zoom: defaultZoom,
                     mapTypeId: google.maps.MapTypeId.ROADMAP,
                     streetViewControl: false,
-                    fullscreenControl: true
+                    fullscreenControl: true,
+                    styles: isDarkMode ? darkMapStyles : []
+                });
+                
+                // Function to update map theme
+                window.updateMapTheme = function(isDark) {
+                    if (map) {
+                        map.setOptions({
+                            styles: isDark ? darkMapStyles : []
+                        });
+                    }
+                };
+                
+                // Listen for theme changes
+                window.addEventListener('themeChange', function(e) {
+                    const newIsDark = e.detail.theme === 'dark';
+                    if (window.updateMapTheme) {
+                        window.updateMapTheme(newIsDark);
+                    }
                 });
 
                 // Initialize geocoder
@@ -564,9 +667,33 @@
             border-radius: 0 0 0.5rem 0.5rem;
         }
 
+        .map-card-dark {
+            background-color: var(--card-bg);
+            border-color: var(--card-border);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .map-card-header {
+            background-color: var(--card-bg) !important;
+            border-bottom-color: var(--border-light) !important;
+            color: var(--text-primary);
+            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+        }
+
+        .map-container-dark {
+            background-color: var(--bg-secondary);
+            transition: background-color 0.3s ease;
+        }
+
+        .map-loading-placeholder {
+            background-color: var(--bg-secondary);
+            color: var(--text-secondary);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
         #donationList {
             scrollbar-width: thin;
-            scrollbar-color: #dee2e6 transparent;
+            scrollbar-color: var(--border-color) transparent;
         }
 
         #donationList::-webkit-scrollbar {
@@ -578,12 +705,12 @@
         }
 
         #donationList::-webkit-scrollbar-thumb {
-            background-color: #dee2e6;
+            background-color: var(--border-color);
             border-radius: 3px;
         }
 
         #donationList::-webkit-scrollbar-thumb:hover {
-            background-color: #adb5bd;
+            background-color: var(--text-muted);
         }
 
         @@media (max-width: 992px) {

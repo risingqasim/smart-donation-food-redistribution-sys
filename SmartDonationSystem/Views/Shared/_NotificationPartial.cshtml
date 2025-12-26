@@ -99,12 +99,20 @@
     .notification-bell i {
         font-size: 1rem;
         color: var(--home-navbar-text);
-        transition: transform 0.3s ease;
+        transition: all 0.3s ease;
     }
 
     .notification-bell:hover i {
         transform: translateY(-1px);
         color: var(--home-navbar-text-hover);
+    }
+
+    .home-navbar:not(.scrolled) .notification-bell i {
+        filter: none;
+    }
+
+    .home-navbar.scrolled .notification-bell i {
+        filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
     }
 
     .notification-count {

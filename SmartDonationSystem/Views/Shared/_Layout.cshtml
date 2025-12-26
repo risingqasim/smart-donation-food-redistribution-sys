@@ -257,12 +257,25 @@
             const navbar = document.getElementById('homeNavbar');
             
             if (navbar) {
+                // Check if dark mode is active
+                const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
+                
                 // Initial check for scroll position
                 function handleScroll() {
                     if (window.scrollY > 50) {
                         navbar.classList.add('scrolled');
+                        // In light mode, switch to dark navbar when scrolled
+                        if (!isDarkMode) {
+                            navbar.classList.remove('navbar-light');
+                            navbar.classList.add('navbar-dark');
+                        }
                     } else {
                         navbar.classList.remove('scrolled');
+                        // In light mode, switch to light navbar when not scrolled
+                        if (!isDarkMode) {
+                            navbar.classList.remove('navbar-dark');
+                            navbar.classList.add('navbar-light');
+                        }
                     }
                 }
                 
@@ -280,6 +293,17 @@
                 
                 // Check initial scroll position
                 handleScroll();
+                
+                // Listen for theme changes
+                window.addEventListener('themeChange', function(e) {
+                    const newIsDarkMode = e.detail.theme === 'dark';
+                    if (newIsDarkMode) {
+                        navbar.classList.remove('navbar-light');
+                        navbar.classList.add('navbar-dark');
+                    } else {
+                        handleScroll(); // Re-evaluate based on scroll position
+                    }
+                });
             }
             
             // Add active class to current page nav link
