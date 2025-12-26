@@ -2,611 +2,456 @@
 
 @{
     ViewData["Title"] = "Admin Dashboard";
-    var pendingDonations = Model.RecentDonations.Where(d => d.Status == "Available").ToList();
-    var successRate = Model.TotalDonationRequests > 0 ? (Model.ApprovedRequests * 100.0 / Model.TotalDonationRequests) : 0;
+    var monthlyTrends = ViewBag.MonthlyTrends as List<SmartDonationSystem.Models.MonthlyTrend> ?? new List<SmartDonationSystem.Models.MonthlyTrend>();
+    var foodTypeData = ViewBag.FoodTypeData as List<SmartDonationSystem.Models.FoodTypeDistribution> ?? new List<SmartDonationSystem.Models.FoodTypeDistribution>();
 }
 
-<!-- Page Header -->
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h2 class="fw-bold mb-1">
-            <i class="fas fa-shield-alt me-2 text-primary"></i>Admin Dashboard
-        </h2>
-        <p class="text-muted mb-0">System overview and management</p>
-    </div>
-    <div>
-        <a asp-controller="Analytics" asp-action="Dashboard" class="btn btn-primary">
-            <i class="fas fa-chart-bar me-2"></i>View Analytics
-        </a>
-    </div>
-</div>
+<style>
+    :root {
+        --primary-blue: #4f46e5;
+        --indigo: #6366f1;
+        --dark-gray: #1f2937;
+        --medium-gray: #6b7280;
+        --light-gray: #f3f4f6;
+        --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        --card-shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
 
-<!-- Statistics Cards -->
-<div class="row g-4 mb-4">
-    <!-- Total Users -->
-    <div class="col-md-6 col-lg-3">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div>
-                        <h6 class="text-muted text-uppercase small fw-semibold mb-2">Total Users</h6>
-                        <h2 class="fw-bold mb-0 text-primary">@Model.TotalUsers</h2>
-                    </div>
-                    <div class="bg-primary bg-opacity-10 rounded-circle p-3">
-                        <i class="fas fa-users fa-2x text-primary"></i>
-                    </div>
-                </div>
-                <p class="text-muted small mb-0">
-                    <i class="fas fa-user-plus me-1"></i>@Model.RecentUsers.Count new this month
-                </p>
-            </div>
-        </div>
-    </div>
+    body {
+        background-color: #f9fafb;
+    }
 
-    <!-- Total Donations -->
-    <div class="col-md-6 col-lg-3">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div>
-                        <h6 class="text-muted text-uppercase small fw-semibold mb-2">Total Donations</h6>
-                        <h2 class="fw-bold mb-0 text-success">@Model.TotalDonations</h2>
-                    </div>
-                    <div class="bg-success bg-opacity-10 rounded-circle p-3">
-                        <i class="fas fa-gift fa-2x text-success"></i>
-                    </div>
-                </div>
-                <p class="text-muted small mb-0">
-                    <i class="fas fa-check-circle me-1"></i>@Model.CollectedDonations collected
-                </p>
-            </div>
-        </div>
-    </div>
+    .dashboard-header-wrapper {
+        margin: -1.5rem -1rem 2rem -1rem;
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--indigo) 100%);
+    }
 
-    <!-- Total NGOs -->
-    <div class="col-md-6 col-lg-3">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div>
-                        <h6 class="text-muted text-uppercase small fw-semibold mb-2">Total NGOs</h6>
-                        <h2 class="fw-bold mb-0 text-info">@Model.TotalNGOs</h2>
-                    </div>
-                    <div class="bg-info bg-opacity-10 rounded-circle p-3">
-                        <i class="fas fa-building fa-2x text-info"></i>
-                    </div>
-                </div>
-                <p class="text-muted small mb-0">
-                    <i class="fas fa-handshake me-1"></i>Active organizations
-                </p>
-            </div>
-        </div>
-    </div>
+    .dashboard-header {
+        color: white;
+        padding: 2rem 0;
+    }
 
-    <!-- Pending Requests -->
-    <div class="col-md-6 col-lg-3">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div>
-                        <h6 class="text-muted text-uppercase small fw-semibold mb-2">Pending Requests</h6>
-                        <h2 class="fw-bold mb-0 text-warning">@Model.PendingRequests</h2>
-                    </div>
-                    <div class="bg-warning bg-opacity-10 rounded-circle p-3">
-                        <i class="fas fa-clock fa-2x text-warning"></i>
-                    </div>
-                </div>
-                <p class="text-muted small mb-0">
-                    <i class="fas fa-percent me-1"></i>@successRate.ToString("F1")% approval rate
-                </p>
-            </div>
-        </div>
-    </div>
-</div>
+    @@media (max-width: 768px) {
+        .dashboard-header-wrapper {
+            margin: -1rem -1rem 1.5rem -1rem;
+        }
+        
+        .dashboard-header {
+            padding: 1.5rem 0;
+        }
+        
+        .dashboard-header h1 {
+            font-size: 1.5rem;
+        }
+        
+        .stat-card .stat-value {
+            font-size: 1.5rem;
+        }
+    }
 
-<div class="row g-4">
-    <!-- User Management Table -->
-    <div class="col-lg-7">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white border-bottom py-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-semibold">
-                        <i class="fas fa-users me-2 text-primary"></i>User Management
-                    </h5>
-                    <a asp-action="Users" class="btn btn-sm btn-outline-primary">View All</a>
-                </div>
-            </div>
-            <div class="card-body">
-                @if (Model.RecentUsers.Any())
-                {
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead>
-                                <tr>
-                                    <th>User</th>
-                                    <th>Email</th>
-                                    <th>Role</th>
-                                    <th>Joined</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var userWithRoles in Model.RecentUsersWithRoles.Take(8))
-                                {
-                                    var user = userWithRoles.User;
-                                    <tr>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <div class="bg-primary bg-opacity-10 rounded-circle p-2 me-2">
-                                                    <i class="fas fa-user text-primary"></i>
-                                                </div>
-                                                <div>
-                                                    <strong>@user.FirstName @user.LastName</strong>
-                                                    @if (!string.IsNullOrEmpty(user.City))
-                                                    {
-                                                        <br>
-                                                        <small class="text-muted">@user.City, @user.Country</small>
-                                                    }
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <small>@user.Email</small>
-                                        </td>
-                                        <td>
-                                            @if (userWithRoles.Roles.Any())
-                                            {
-                                                @foreach (var role in userWithRoles.Roles)
-                                                {
-                                                    var roleColor = role switch
-                                                    {
-                                                        "Admin" => "danger",
-                                                        "NGO" => "info",
-                                                        "Donor" => "success",
-                                                        _ => "secondary"
-                                                    };
-                                                    <span class="badge bg-@roleColor">@role</span>
-                                                }
-                                            }
-                                            else
-                                            {
-                                                <span class="badge bg-secondary">User</span>
-                                            }
-                                        </td>
-                                        <td>
-                                            <small class="text-muted">@user.CreatedAt.ToString("MMM dd, yyyy")</small>
-                                        </td>
-                                        <td>
-                                            <div class="btn-group btn-group-sm">
-                                                <a asp-action="Users" class="btn btn-outline-primary" title="Manage">
-                                                    <i class="fas fa-cog"></i>
-                                                </a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                }
-                else
-                {
-                    <div class="text-center py-4">
-                        <i class="fas fa-users fa-3x text-muted mb-3"></i>
-                        <p class="text-muted mb-0">No users found</p>
-                    </div>
-                }
-            </div>
-        </div>
-    </div>
+    .dashboard-header h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0;
+    }
 
-    <!-- Donation Approval System -->
-    <div class="col-lg-5">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white border-bottom py-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-semibold">
-                        <i class="fas fa-check-circle me-2 text-success"></i>Donation Approval
-                        @if (pendingDonations.Any())
-                        {
-                            <span class="badge bg-warning ms-2">@pendingDonations.Count</span>
-                        }
-                    </h5>
-                    <a asp-action="Donations" class="btn btn-sm btn-outline-primary">View All</a>
-                </div>
-            </div>
-            <div class="card-body">
-                @if (pendingDonations.Any())
-                {
-                    <div class="list-group list-group-flush">
-                        @foreach (var donation in pendingDonations.Take(5))
-                        {
-                            <div class="list-group-item border-0 px-0 mb-2">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <div class="flex-grow-1">
-                                        <h6 class="mb-1 fw-semibold">@donation.Title</h6>
-                                        <p class="small text-muted mb-1">
-                                            <i class="fas fa-user me-1"></i>@donation.Donor?.FirstName @donation.Donor?.LastName
-                                        </p>
-                                        <p class="small mb-0">
-                                            <span class="badge bg-secondary">@donation.FoodType</span>
-                                            <span class="badge bg-info">@donation.Quantity @donation.Unit</span>
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <small class="text-muted">
-                                        <i class="fas fa-calendar me-1"></i>@donation.CreatedAt.ToString("MMM dd, yyyy")
-                                    </small>
-                                    <div class="btn-group btn-group-sm">
-                                        <a asp-action="Donations" class="btn btn-sm btn-outline-success" title="Approve">
-                                            <i class="fas fa-check"></i>
-                                        </a>
-                                        <a asp-action="Donations" class="btn btn-sm btn-outline-danger" title="Reject">
-                                            <i class="fas fa-times"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                            @if (donation != pendingDonations.Take(5).Last())
-                            {
-                                <hr class="my-2">
-                            }
-                        }
-                    </div>
-                }
-                else
-                {
-                    <div class="text-center py-4">
-                        <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
-                        <p class="text-muted mb-0">No pending donations</p>
-                        <small class="text-muted">All donations are processed</small>
-                    </div>
-                }
-            </div>
+    .dashboard-header p {
+        opacity: 0.9;
+        margin: 0.5rem 0 0 0;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: var(--card-shadow);
+        transition: all 0.3s ease;
+        border-left: 4px solid;
+        height: 100%;
+    }
+
+    .stat-card:hover {
+        box-shadow: var(--card-shadow-hover);
+        transform: translateY(-2px);
+    }
+
+    .stat-card.donation { border-left-color: #10b981; }
+    .stat-card.ngo { border-left-color: #3b82f6; }
+    .stat-card.donor { border-left-color: #8b5cf6; }
+    .stat-card.pending { border-left-color: #f59e0b; }
+
+    .stat-card .stat-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .stat-card.donation .stat-icon { background-color: #d1fae5; color: #10b981; }
+    .stat-card.ngo .stat-icon { background-color: #dbeafe; color: #3b82f6; }
+    .stat-card.donor .stat-icon { background-color: #ede9fe; color: #8b5cf6; }
+    .stat-card.pending .stat-icon { background-color: #fef3c7; color: #f59e0b; }
+
+    .stat-card .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--dark-gray);
+        margin: 0.5rem 0;
+    }
+
+    .stat-card .stat-label {
+        color: var(--medium-gray);
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .chart-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: var(--card-shadow);
+        margin-bottom: 1.5rem;
+    }
+
+    .chart-card h3 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--dark-gray);
+        margin-bottom: 1.5rem;
+    }
+
+    .sidebar-nav {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: var(--card-shadow);
+        margin-bottom: 1.5rem;
+    }
+
+    .sidebar-nav h3 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--dark-gray);
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid var(--light-gray);
+    }
+
+    .nav-item-admin {
+        display: block;
+        padding: 0.75rem 1rem;
+        margin-bottom: 0.5rem;
+        color: var(--medium-gray);
+        text-decoration: none;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+        font-weight: 500;
+    }
+
+    .nav-item-admin:hover {
+        background-color: var(--light-gray);
+        color: var(--primary-blue);
+    }
+
+    .nav-item-admin.active {
+        background-color: #eef2ff;
+        color: var(--primary-blue);
+    }
+
+    .nav-item-admin i {
+        width: 20px;
+        margin-right: 0.75rem;
+    }
+
+    .quick-actions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .quick-action-btn {
+        background: white;
+        border: 2px solid var(--light-gray);
+        border-radius: 8px;
+        padding: 1rem;
+        text-align: center;
+        text-decoration: none;
+        color: var(--dark-gray);
+        transition: all 0.2s ease;
+        display: block;
+    }
+
+    .quick-action-btn:hover {
+        border-color: var(--primary-blue);
+        color: var(--primary-blue);
+        transform: translateY(-2px);
+        box-shadow: var(--card-shadow);
+    }
+
+    .quick-action-btn i {
+        display: block;
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        color: var(--primary-blue);
+    }
+
+    .recent-item {
+        padding: 1rem;
+        border-bottom: 1px solid var(--light-gray);
+    }
+
+    .recent-item:last-child {
+        border-bottom: none;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: var(--medium-gray);
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+</style>
+
+<div class="dashboard-header-wrapper">
+    <div class="dashboard-header">
+        <div class="container-fluid px-4">
+            <h1><i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard</h1>
+            <p>Welcome back! Here's what's happening with your donation system.</p>
         </div>
     </div>
 </div>
 
-<!-- AI Analytics Summary & Reports -->
-<div class="row g-4 mt-2">
-    <!-- AI Analytics Summary -->
-    <div class="col-lg-6">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white border-bottom py-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-semibold">
-                        <i class="fas fa-brain me-2 text-primary"></i>AI Analytics Summary
-                    </h5>
-                    <a asp-controller="ML" asp-action="Analytics" class="btn btn-sm btn-outline-primary">View Details</a>
-                </div>
+<div class="container-fluid px-4">
+    <div class="row">
+        <!-- Sidebar Navigation -->
+        <div class="col-lg-3 mb-4">
+            <div class="sidebar-nav">
+                <h3><i class="fas fa-bars me-2"></i>Quick Navigation</h3>
+                <a asp-action="Dashboard" class="nav-item-admin active">
+                    <i class="fas fa-tachometer-alt"></i>Dashboard
+                </a>
+                <a asp-action="Users" class="nav-item-admin">
+                    <i class="fas fa-users"></i>Manage Users
+                </a>
+                <a asp-action="Donations" class="nav-item-admin">
+                    <i class="fas fa-gift"></i>Manage Donations
+                </a>
+                <a asp-action="NGOManagement" class="nav-item-admin">
+                    <i class="fas fa-building"></i>Manage NGOs
+                </a>
+                <a asp-controller="Analytics" asp-action="Dashboard" class="nav-item-admin">
+                    <i class="fas fa-chart-bar"></i>Analytics
+                </a>
             </div>
-            <div class="card-body">
-                <div class="mb-4">
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="bg-primary bg-opacity-10 rounded-circle p-3 me-3">
-                            <i class="fas fa-chart-line fa-2x text-primary"></i>
-                        </div>
-                        <div>
-                            <h6 class="fw-semibold mb-1">System Performance</h6>
-                            <p class="text-muted small mb-0">ML Model Predictions</p>
-                        </div>
-                    </div>
 
-                    <!-- Prediction Metrics -->
-                    <div class="row g-3 mb-3">
-                        <div class="col-6">
-                            <div class="text-center p-3 bg-light rounded">
-                                <h4 class="fw-bold text-success mb-1">@Model.ApprovedRequests</h4>
-                                <small class="text-muted">Match Accuracy</small>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="text-center p-3 bg-light rounded">
-                                <h4 class="fw-bold text-info mb-1">@successRate.ToString("F0")%</h4>
-                                <small class="text-muted">Success Rate</small>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- AI Insights -->
-                    <div class="mb-3">
-                        <h6 class="fw-semibold mb-2">
-                            <i class="fas fa-lightbulb me-2 text-warning"></i>Key Insights
-                        </h6>
-                        <ul class="list-unstyled small mb-0">
-                            <li class="mb-2">
-                                <i class="fas fa-check-circle text-success me-2"></i>
-                                High demand for vegetables and fruits
-                            </li>
-                            <li class="mb-2">
-                                <i class="fas fa-check-circle text-success me-2"></i>
-                                Peak donation hours: 10 AM - 2 PM
-                            </li>
-                            <li class="mb-2">
-                                <i class="fas fa-info-circle text-info me-2"></i>
-                                @Model.AvailableDonations donations available for distribution
-                            </li>
-                            <li class="mb-0">
-                                <i class="fas fa-chart-bar text-primary me-2"></i>
-                                @Model.TotalNGOs NGOs actively participating
-                            </li>
-                        </ul>
-                    </div>
-
-                    <hr class="my-3">
-
-                    <!-- Model Status -->
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="fw-semibold mb-1">ML Model Status</h6>
-                            <small class="text-muted">Last trained: @DateTime.Now.AddDays(-7).ToString("MMM dd, yyyy")</small>
-                        </div>
-                        <span class="badge bg-success">
-                            <i class="fas fa-check-circle me-1"></i>Active
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Reports Section -->
-    <div class="col-lg-6">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white border-bottom py-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-semibold">
-                        <i class="fas fa-file-alt me-2 text-primary"></i>Reports
-                    </h5>
-                    <a asp-controller="Analytics" asp-action="Dashboard" class="btn btn-sm btn-outline-primary">Generate Report</a>
-                </div>
-            </div>
-            <div class="card-body">
-                <!-- Report Cards -->
-                <div class="mb-3">
-                    <div class="card bg-light border-0 mb-2">
-                        <div class="card-body p-3">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h6 class="fw-semibold mb-1">
-                                        <i class="fas fa-chart-bar me-2 text-primary"></i>Monthly Analytics Report
-                                    </h6>
-                                    <small class="text-muted">Generated: @DateTime.Now.AddDays(-1).ToString("MMM dd, yyyy")</small>
-                                </div>
-                                <div class="btn-group btn-group-sm">
-                                    <button class="btn btn-outline-primary" title="View">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                    <button class="btn btn-outline-success" title="Download">
-                                        <i class="fas fa-download"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card bg-light border-0 mb-2">
-                        <div class="card-body p-3">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h6 class="fw-semibold mb-1">
-                                        <i class="fas fa-users me-2 text-info"></i>User Activity Report
-                                    </h6>
-                                    <small class="text-muted">Generated: @DateTime.Now.AddDays(-3).ToString("MMM dd, yyyy")</small>
-                                </div>
-                                <div class="btn-group btn-group-sm">
-                                    <button class="btn btn-outline-primary" title="View">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                    <button class="btn btn-outline-success" title="Download">
-                                        <i class="fas fa-download"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card bg-light border-0 mb-2">
-                        <div class="card-body p-3">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h6 class="fw-semibold mb-1">
-                                        <i class="fas fa-gift me-2 text-success"></i>Donation Distribution Report
-                                    </h6>
-                                    <small class="text-muted">Generated: @DateTime.Now.AddDays(-5).ToString("MMM dd, yyyy")</small>
-                                </div>
-                                <div class="btn-group btn-group-sm">
-                                    <button class="btn btn-outline-primary" title="View">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                    <button class="btn btn-outline-success" title="Download">
-                                        <i class="fas fa-download"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card bg-light border-0">
-                        <div class="card-body p-3">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h6 class="fw-semibold mb-1">
-                                        <i class="fas fa-building me-2 text-warning"></i>NGO Performance Report
-                                    </h6>
-                                    <small class="text-muted">Generated: @DateTime.Now.AddDays(-7).ToString("MMM dd, yyyy")</small>
-                                </div>
-                                <div class="btn-group btn-group-sm">
-                                    <button class="btn btn-outline-primary" title="View">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                    <button class="btn btn-outline-success" title="Download">
-                                        <i class="fas fa-download"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <hr class="my-3">
-
-                <!-- Quick Report Actions -->
-                <div class="d-grid gap-2">
-                    <a asp-controller="Analytics" asp-action="Dashboard" class="btn btn-primary">
-                        <i class="fas fa-file-alt me-2"></i>Generate New Report
+            <!-- Quick Actions -->
+            <div class="chart-card">
+                <h3><i class="fas fa-bolt me-2"></i>Quick Actions</h3>
+                <div class="quick-actions">
+                    <a asp-action="Users" class="quick-action-btn">
+                        <i class="fas fa-users"></i>
+                        <span>Users</span>
                     </a>
-                    <button class="btn btn-outline-secondary">
-                        <i class="fas fa-download me-2"></i>Export All Reports
-                    </button>
+                    <a asp-action="Donations" class="quick-action-btn">
+                        <i class="fas fa-gift"></i>
+                        <span>Donations</span>
+                    </a>
+                    <a asp-action="NGOManagement" class="quick-action-btn">
+                        <i class="fas fa-building"></i>
+                        <span>NGOs</span>
+                    </a>
+                    <a asp-controller="Analytics" asp-action="Dashboard" class="quick-action-btn">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Analytics</span>
+                    </a>
                 </div>
             </div>
         </div>
-    </div>
-</div>
 
-<!-- Recent Activity -->
-<div class="row g-4 mt-2">
-    <div class="col-lg-6">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white border-bottom py-3">
-                <h5 class="mb-0 fw-semibold">
-                    <i class="fas fa-history me-2 text-primary"></i>Recent Donations
-                </h5>
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <!-- Statistics Cards -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-6 col-lg-3">
+                    <div class="stat-card donation">
+                        <div class="stat-icon">
+                            <i class="fas fa-gift"></i>
+                        </div>
+                        <div class="stat-label">Total Donations</div>
+                        <div class="stat-value">@Model.TotalDonations</div>
+                        <small class="text-muted">
+                            <i class="fas fa-check-circle me-1"></i>@Model.CollectedDonations collected
+                        </small>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <div class="stat-card ngo">
+                        <div class="stat-icon">
+                            <i class="fas fa-building"></i>
+                        </div>
+                        <div class="stat-label">Total NGOs</div>
+                        <div class="stat-value">@Model.TotalNGOs</div>
+                        <small class="text-muted">
+                            <i class="fas fa-handshake me-1"></i>Active organizations
+                        </small>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <div class="stat-card donor">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-label">Total Donors</div>
+                        <div class="stat-value">@Model.TotalUsers</div>
+                        <small class="text-muted">
+                            <i class="fas fa-user-plus me-1"></i>@Model.RecentUsers.Count new this month
+                        </small>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <div class="stat-card pending">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-label">Pending Requests</div>
+                        <div class="stat-value">@Model.PendingRequests</div>
+                        <small class="text-muted">
+                            <i class="fas fa-exclamation-circle me-1"></i>Requires attention
+                        </small>
+                    </div>
+                </div>
             </div>
-            <div class="card-body">
-                @if (Model.RecentDonations.Any())
-                {
-                    <div class="table-responsive">
-                        <table class="table table-sm mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Donation</th>
-                                    <th>Donor</th>
-                                    <th>Status</th>
-                                    <th>Date</th>
-                                </tr>
-                            </thead>
-                            <tbody>
+
+            <!-- Charts Row -->
+            <div class="row">
+                <!-- Donations per Month Chart -->
+                <div class="col-lg-6">
+                    <div class="chart-card">
+                        <h3><i class="fas fa-chart-line me-2 text-primary"></i>Donations Per Month</h3>
+                        <canvas id="monthlyDonationsChart" height="250"></canvas>
+                    </div>
+                </div>
+
+                <!-- Food Redistribution Stats Chart -->
+                <div class="col-lg-6">
+                    <div class="chart-card">
+                        <h3><i class="fas fa-chart-pie me-2 text-primary"></i>Food Type Distribution</h3>
+                        <canvas id="foodTypeChart" height="250"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity Row -->
+            <div class="row">
+                <!-- Recent Donations -->
+                <div class="col-lg-6">
+                    <div class="chart-card">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h3 class="mb-0"><i class="fas fa-gift me-2 text-primary"></i>Recent Donations</h3>
+                            <a asp-action="Donations" class="btn btn-sm btn-outline-primary">View All</a>
+                        </div>
+                        @if (Model.RecentDonations.Any())
+                        {
+                            <div class="list-group list-group-flush">
                                 @foreach (var donation in Model.RecentDonations.Take(5))
                                 {
-                                                var statusClass = donation.Status switch
-                                                {
-                                                    "Available" => "success",
-                                                    "Reserved" => "warning", /* Yellow for Pending/Reserved */
-                                                    "Collected" => "success", /* Green for Delivered/Collected */
-                                                    _ => "secondary"
-                                                };
-                                    <tr>
-                                        <td>
-                                            <strong>@donation.Title</strong>
-                                            <br>
-                                            <small class="text-muted">@donation.FoodType</small>
-                                        </td>
-                                        <td>
-                                            <small>@donation.Donor?.FirstName @donation.Donor?.LastName</small>
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-@statusClass">@donation.Status</span>
-                                        </td>
-                                        <td>
-                                            <small class="text-muted">@donation.CreatedAt.ToString("MMM dd, yyyy")</small>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="text-center mt-3">
-                        <a asp-action="Donations" class="btn btn-sm btn-outline-primary">View All Donations</a>
-                    </div>
-                }
-                else
-                {
-                    <div class="text-center py-4">
-                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
-                        <p class="text-muted mb-0">No recent donations</p>
-                    </div>
-                }
-            </div>
-        </div>
-    </div>
-
-    <div class="col-lg-6">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white border-bottom py-3">
-                <h5 class="mb-0 fw-semibold">
-                    <i class="fas fa-user-plus me-2 text-primary"></i>Recent Users
-                </h5>
-            </div>
-            <div class="card-body">
-                @if (Model.RecentUsers.Any())
-                {
-                    <div class="list-group list-group-flush">
-                        @foreach (var user in Model.RecentUsers.Take(5))
-                        {
-                            <div class="list-group-item border-0 px-0">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <h6 class="mb-1 fw-semibold">@user.FirstName @user.LastName</h6>
-                                        <small class="text-muted">@user.Email</small>
+                                    var statusClass = donation.Status switch
+                                    {
+                                        "Available" => "success",
+                                        "Reserved" => "warning",
+                                        "Collected" => "info",
+                                        _ => "secondary"
+                                    };
+                                    <div class="recent-item">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div class="flex-grow-1">
+                                                <h6 class="mb-1 fw-semibold">@donation.Title</h6>
+                                                <small class="text-muted d-block">
+                                                    <i class="fas fa-user me-1"></i>@donation.Donor?.FirstName @donation.Donor?.LastName
+                                                </small>
+                                                <div class="mt-2">
+                                                    <span class="badge bg-@statusClass">@donation.Status</span>
+                                                    <span class="badge bg-secondary ms-1">@donation.FoodType</span>
+                                                </div>
+                                            </div>
+                                            <small class="text-muted">@donation.CreatedAt.ToString("MMM dd")</small>
+                                        </div>
                                     </div>
-                                    <small class="text-muted">@user.CreatedAt.ToString("MMM dd, yyyy")</small>
-                                </div>
+                                }
                             </div>
-                            @if (user != Model.RecentUsers.Take(5).Last())
-                            {
-                                <hr class="my-2">
-                            }
+                        }
+                        else
+                        {
+                            <div class="empty-state">
+                                <i class="fas fa-inbox"></i>
+                                <p>No recent donations</p>
+                            </div>
                         }
                     </div>
-                    <div class="text-center mt-3">
-                        <a asp-action="Users" class="btn btn-sm btn-outline-primary">View All Users</a>
-                    </div>
-                }
-                else
-                {
-                    <div class="text-center py-4">
-                        <i class="fas fa-users fa-3x text-muted mb-3"></i>
-                        <p class="text-muted mb-0">No recent users</p>
-                    </div>
-                }
-            </div>
-        </div>
-    </div>
-</div>
+                </div>
 
-<!-- Quick Actions -->
-<div class="row g-4 mt-2">
-    <div class="col-12">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white border-bottom py-3">
-                <h5 class="mb-0 fw-semibold">
-                    <i class="fas fa-bolt me-2 text-primary"></i>Quick Actions
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="row g-3">
-                    <div class="col-md-3 col-sm-6">
-                        <a asp-action="Users" class="btn btn-primary w-100">
-                            <i class="fas fa-users me-2"></i>Manage Users
-                        </a>
-                    </div>
-                    <div class="col-md-3 col-sm-6">
-                        <a asp-action="Donations" class="btn btn-primary w-100">
-                            <i class="fas fa-gift me-2"></i>Manage Donations
-                        </a>
-                    </div>
-                    <div class="col-md-3 col-sm-6">
-                        <a asp-action="NGOManagement" class="btn btn-info w-100">
-                            <i class="fas fa-building me-2"></i>Manage NGOs
-                        </a>
-                    </div>
-                    <div class="col-md-3 col-sm-6">
-                        <a asp-controller="Analytics" asp-action="Dashboard" class="btn btn-secondary w-100">
-                            <i class="fas fa-chart-bar me-2"></i>View Analytics
-                        </a>
+                <!-- Pending Requests -->
+                <div class="col-lg-6">
+                    <div class="chart-card">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h3 class="mb-0">
+                                <i class="fas fa-clock me-2 text-warning"></i>Pending Requests
+                                @if (Model.PendingRequests > 0)
+                                {
+                                    <span class="badge bg-warning ms-2">@Model.PendingRequests</span>
+                                }
+                            </h3>
+                            <a asp-action="Donations" class="btn btn-sm btn-outline-primary">Manage</a>
+                        </div>
+                        @{
+                            var pendingDonations = Model.RecentDonations.Where(d => d.Status == "Available").Take(5).ToList();
+                        }
+                        @if (pendingDonations.Any())
+                        {
+                            <div class="list-group list-group-flush">
+                                @foreach (var donation in pendingDonations)
+                                {
+                                    <div class="recent-item">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div class="flex-grow-1">
+                                                <h6 class="mb-1 fw-semibold">@donation.Title</h6>
+                                                <small class="text-muted d-block">
+                                                    <i class="fas fa-user me-1"></i>@donation.Donor?.FirstName @donation.Donor?.LastName
+                                                </small>
+                                                <div class="mt-2">
+                                                    <span class="badge bg-info">@donation.FoodType</span>
+                                                    <span class="badge bg-secondary ms-1">@donation.Quantity @donation.Unit</span>
+                                                </div>
+                                            </div>
+                                            <small class="text-muted">@donation.CreatedAt.ToString("MMM dd")</small>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="empty-state">
+                                <i class="fas fa-check-circle text-success"></i>
+                                <p>No pending requests</p>
+                                <small>All donations are processed</small>
+                            </div>
+                        }
                     </div>
                 </div>
             </div>
@@ -614,3 +459,92 @@
     </div>
 </div>
 
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script>
+        // Monthly Donations Chart
+        const monthlyData = @Html.Raw(Json.Serialize(monthlyTrends));
+        const monthlyCtx = document.getElementById('monthlyDonationsChart').getContext('2d');
+        
+        new Chart(monthlyCtx, {
+            type: 'line',
+            data: {
+                labels: monthlyData.map(item => item.month),
+                datasets: [{
+                    label: 'Donations',
+                    data: monthlyData.map(item => item.donationCount),
+                    borderColor: '#4f46e5',
+                    backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    pointBackgroundColor: '#4f46e5',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // Food Type Distribution Chart
+        const foodData = @Html.Raw(Json.Serialize(foodTypeData));
+        const foodCtx = document.getElementById('foodTypeChart').getContext('2d');
+        
+        const colorPalette = [
+            '#4f46e5', '#10b981', '#f59e0b', '#ef4444', 
+            '#8b5cf6', '#06b6d4', '#ec4899', '#6366f1'
+        ];
+
+        new Chart(foodCtx, {
+            type: 'doughnut',
+            data: {
+                labels: foodData.map(item => item.foodType),
+                datasets: [{
+                    data: foodData.map(item => item.count),
+                    backgroundColor: colorPalette.slice(0, foodData.length),
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            usePointStyle: true
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+}

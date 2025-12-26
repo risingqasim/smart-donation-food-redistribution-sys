@@ -80,6 +80,13 @@ namespace SmartDonationSystem.Controllers
                 });
             }
 
+            // Chart data for dashboard
+            var monthlyTrends = await _analyticsService.GetMonthlyTrendsAsync(6); // Last 6 months
+            var foodTypeData = await _analyticsService.GetFoodTypeDistributionAsync();
+            
+            ViewBag.MonthlyTrends = monthlyTrends;
+            ViewBag.FoodTypeData = foodTypeData;
+
             return View(analytics);
         }
 

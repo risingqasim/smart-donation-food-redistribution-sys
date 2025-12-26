@@ -44,7 +44,8 @@ namespace SmartDonationSystem.Controllers
 
             if (ngo == null)
             {
-                return NotFound("NGO profile not found.");
+                TempData["Info"] = "Please complete your NGO profile setup to continue.";
+                return RedirectToAction(nameof(SetupProfile));
             }
 
             var dashboard = new NGODashboardViewModel
@@ -254,6 +255,81 @@ namespace SmartDonationSystem.Controllers
             }
 
             return View(donation);
+        }
+
+        // GET: NGO/SetupProfile
+        [HttpGet]
+        public async Task<IActionResult> SetupProfile()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await _userManager.FindByIdAsync(userId ?? "");
+            
+            // Check if profile already exists
+            var existingNGO = await _context.NGOs
+                .FirstOrDefaultAsync(n => n.UserId == userId);
+            
+            if (existingNGO != null)
+            {
+                return RedirectToAction(nameof(Dashboard));
+            }
+
+            // Pre-fill with user information if available
+            var model = new NGO
+            {
+                Contact = user?.Email ?? "",
+                Location = !string.IsNullOrEmpty(user?.Address) 
+                    ? $"{user.Address}, {user.City}, {user.State} {user.PostalCode}" 
+                    : ""
+            };
+
+            return View(model);
+        }
+
+        // POST: NGO/SetupProfile
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SetupProfile(NGO model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            
+            // Check if profile already exists
+            var existingNGO = await _context.NGOs
+                .FirstOrDefaultAsync(n => n.UserId == userId);
+            
+            if (existingNGO != null)
+            {
+                TempData["Info"] = "Your profile already exists.";
+                return RedirectToAction(nameof(Dashboard));
+            }
+
+            // Create new NGO profile
+            var ngo = new NGO
+            {
+                Name = model.Name,
+                Location = model.Location,
+                Contact = model.Contact,
+                Capacity = model.Capacity,
+                Description = model.Description,
+                Website = model.Website,
+                RegistrationNumber = model.RegistrationNumber,
+                Latitude = model.Latitude,
+                Longitude = model.Longitude,
+                UserId = userId,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.NGOs.Add(ngo);
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation("NGO profile created for user {UserId}", userId);
+            TempData["Success"] = "NGO profile created successfully!";
+            
+            return RedirectToAction(nameof(Dashboard));
         }
     }
 
