@@ -202,6 +202,14 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* Global App Wrapper for Dark Mode */
+.app-wrapper {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
 /* Smooth transitions for theme-affected elements (selective for performance) */
 .card,
 .table,
@@ -215,6 +223,7 @@ body {
 .badge,
 .alert,
 .navbar,
+.app-wrapper,
 .sidebar,
 .page-header,
 .section-card,
@@ -1335,6 +1344,62 @@ h1 {
 /* Bootstrap Dark Mode Compatibility */
 [data-theme="dark"] .bg-light {
   background-color: var(--bg-secondary) !important;
+}
+
+[data-theme="dark"] .bg-white {
+  background-color: var(--card-bg) !important;
+}
+
+[data-theme="dark"] body {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary);
+}
+
+/* Ensure all layouts use theme variables */
+[data-theme="dark"] .admin-layout-wrapper,
+[data-theme="dark"] .ngo-layout-wrapper,
+[data-theme="dark"] .donor-layout-wrapper {
+  background-color: var(--bg-primary);
+}
+
+/* Override any remaining hardcoded white backgrounds in layouts */
+[data-theme="dark"] .admin-sidebar,
+[data-theme="dark"] .ngo-sidebar,
+[data-theme="dark"] .donor-sidebar {
+  background: var(--card-bg) !important;
+}
+
+[data-theme="dark"] .admin-card,
+[data-theme="dark"] .admin-page-header,
+[data-theme="dark"] .admin-breadcrumb {
+  background: var(--card-bg) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Global layout wrapper dark mode support */
+.admin-layout-wrapper,
+.ngo-layout-wrapper,
+.donor-layout-wrapper {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Ensure all layout main content areas use theme variables */
+.admin-main-content,
+.ngo-main-content,
+.donor-main-content {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* Ensure all content wrappers use theme variables */
+.admin-content-wrapper,
+.ngo-content-wrapper,
+.donor-main-content {
+  background-color: transparent;
+  color: var(--text-primary);
 }
 
 [data-theme="dark"] .bg-white {

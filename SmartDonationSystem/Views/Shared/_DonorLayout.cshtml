@@ -43,11 +43,9 @@
         }
 
         body {
-            background-color: var(--donor-bg);
-        }
-
-        [data-theme="dark"] body {
-            background-color: #111827;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         .donor-layout-wrapper {
@@ -113,108 +111,190 @@
             font-size: 1.5rem;
         }
 
-        /* Simple Sidebar */
+        /* Simple, Friendly Sidebar - UI Guidelines Applied */
         .donor-sidebar {
-            width: 260px;
-            background: white;
-            border-right: 1px solid #e5e7eb;
+            width: 280px;
+            background: linear-gradient(180deg, var(--card-bg) 0%, var(--bg-secondary) 100%);
+            border-right: 1px solid var(--border-color);
             padding: 0;
             position: fixed;
             left: 0;
             top: 76px;
             height: calc(100vh - 76px);
             overflow-y: auto;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 1000;
-            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+            border-radius: 0;
         }
 
         [data-theme="dark"] .donor-sidebar {
-            background: #1f2937;
-            border-right-color: #374151;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 1px 3px rgba(0, 0, 0, 0.15);
         }
 
         .donor-sidebar-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid #e5e7eb;
-            background: #f9fafb;
+            padding: 1.5rem 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.03) 0%, rgba(5, 150, 105, 0.03) 100%);
+            color: var(--text-primary);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
         }
 
         [data-theme="dark"] .donor-sidebar-header {
-            background: #111827;
-            border-bottom-color: #374151;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(5, 150, 105, 0.08) 100%);
         }
 
         .donor-sidebar-header h3 {
-            font-size: 1rem;
-            font-weight: 700;
-            color: #1f2937;
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-primary);
             margin: 0;
             display: flex;
             align-items: center;
             gap: 0.75rem;
-        }
-
-        [data-theme="dark"] .donor-sidebar-header h3 {
-            color: #f9fafb;
+            letter-spacing: -0.02em;
+            line-height: 1.4;
         }
 
         .donor-sidebar-header h3 i {
             color: var(--donor-primary);
-            font-size: 1.25rem;
+            font-size: 1.5rem;
         }
 
         .donor-sidebar-nav {
-            padding: 1rem 0.75rem;
+            padding: 1.25rem 1rem;
         }
 
         .donor-nav-item {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            padding: 0.875rem 1rem;
-            margin-bottom: 0.25rem;
-            color: #4b5563;
+            justify-content: center;
+            padding: 1.25rem 1rem;
+            margin-bottom: 0.625rem;
+            color: var(--text-secondary);
             text-decoration: none;
-            border-radius: 0.5rem;
-            transition: all 0.2s ease;
+            border-radius: 0.75rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             font-weight: 500;
-            font-size: 0.9375rem;
-            gap: 0.75rem;
-        }
-
-        [data-theme="dark"] .donor-nav-item {
-            color: #d1d5db;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            gap: 0.625rem;
+            position: relative;
+            background: transparent;
+            border: 2px solid transparent;
+            text-align: center;
         }
 
         .donor-nav-item i {
-            width: 20px;
-            text-align: center;
-            font-size: 1.125rem;
-            flex-shrink: 0;
+            font-size: 2rem;
+            transition: all 0.3s ease;
+            color: var(--text-secondary);
+        }
+
+        .donor-nav-item span {
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
         }
 
         .donor-nav-item:hover {
-            background-color: #f3f4f6;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%);
             color: var(--donor-primary);
+            border-color: rgba(16, 185, 129, 0.2);
+            transform: translateY(-2px);
         }
 
         [data-theme="dark"] .donor-nav-item:hover {
-            background-color: #374151;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.15) 100%);
+            color: #34d399;
+        }
+
+        .donor-nav-item:hover i {
+            transform: scale(1.15);
+            color: var(--donor-primary);
+        }
+
+        [data-theme="dark"] .donor-nav-item:hover i {
             color: #34d399;
         }
 
         .donor-nav-item.active {
             background: linear-gradient(135deg, var(--donor-primary) 0%, var(--donor-primary-hover) 100%);
             color: white;
-            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25), 0 1px 3px rgba(16, 185, 129, 0.15);
+            border-color: rgba(16, 185, 129, 0.4);
+            transform: translateY(0);
         }
 
         .donor-nav-item.active i {
             color: white;
+            transform: scale(1.1);
+        }
+
+        .donor-nav-item.active span {
+            color: white;
+            font-weight: 600;
+        }
+
+        .donor-nav-item.active:hover {
+            background: linear-gradient(135deg, var(--donor-primary-hover) 0%, var(--donor-primary) 100%);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3), 0 2px 4px rgba(16, 185, 129, 0.2);
+        }
+
+        /* Primary Action - Donate Food */
+        .donor-nav-item.primary-action {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.15) 100%);
+            border: 2px solid var(--donor-primary);
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2), 0 1px 3px rgba(16, 185, 129, 0.15);
+        }
+
+        [data-theme="dark"] .donor-nav-item.primary-action {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(5, 150, 105, 0.2) 100%);
+        }
+
+        .donor-nav-item.primary-action i {
+            color: var(--donor-primary);
+            font-size: 2.25rem;
+        }
+
+        [data-theme="dark"] .donor-nav-item.primary-action i {
+            color: #34d399;
+        }
+
+        .donor-nav-item.primary-action span {
+            color: var(--donor-primary);
+            font-weight: 600;
+            font-size: 0.9375rem;
+        }
+
+        [data-theme="dark"] .donor-nav-item.primary-action span {
+            color: #34d399;
+        }
+
+        .donor-nav-item.primary-action:hover {
+            background: linear-gradient(135deg, var(--donor-primary) 0%, var(--donor-primary-hover) 100%);
+            border-color: var(--donor-primary-hover);
+            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.35), 0 4px 12px rgba(16, 185, 129, 0.25);
+            transform: translateY(-3px);
+        }
+
+        .donor-nav-item.primary-action:hover i,
+        .donor-nav-item.primary-action:hover span {
+            color: white;
+        }
+
+        .donor-nav-item.primary-action.active {
+            background: linear-gradient(135deg, var(--donor-primary) 0%, var(--donor-primary-hover) 100%);
+            border-color: var(--donor-primary-hover);
         }
 
         .donor-main-content-with-sidebar {
-            margin-left: 260px;
+            margin-left: 280px;
             transition: margin-left 0.3s ease;
         }
 
@@ -222,6 +302,7 @@
         @@media (max-width: 991px) {
             .donor-sidebar {
                 transform: translateX(-100%);
+                width: 280px;
             }
 
             .donor-sidebar.show {
@@ -234,6 +315,23 @@
 
             .donor-main-content {
                 padding: 1rem;
+            }
+
+            .donor-sidebar-nav {
+                padding: 1rem 0.75rem;
+            }
+
+            .donor-nav-item {
+                padding: 1.25rem 0.875rem;
+                margin-bottom: 0.5rem;
+            }
+
+            .donor-nav-item i {
+                font-size: 1.75rem;
+            }
+
+            .donor-nav-item.primary-action i {
+                font-size: 2rem;
             }
 
             .toast-container {
@@ -648,6 +746,25 @@
         [data-theme="dark"] .mobile-sidebar-overlay {
             background-color: rgba(0, 0, 0, 0.7);
         }
+
+        /* Smooth Scrollbar */
+        .donor-sidebar::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .donor-sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .donor-sidebar::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+            transition: background 0.3s ease;
+        }
+
+        .donor-sidebar::-webkit-scrollbar-thumb:hover {
+            background: var(--donor-primary);
+        }
     </style>
     
     @await RenderSectionAsync("Styles", required: false)
@@ -734,19 +851,19 @@
                     <span>Dashboard</span>
                 </a>
                 
-                <a asp-controller="Donations" asp-action="Create" class="donor-nav-item" id="nav-donate">
-                    <i class="fas fa-plus-circle"></i>
+                <a asp-controller="Donations" asp-action="Create" class="donor-nav-item primary-action" id="nav-donate">
+                    <i class="fas fa-heart"></i>
                     <span>Donate Food</span>
                 </a>
                 
                 <a asp-controller="Donor" asp-action="MyDonations" class="donor-nav-item" id="nav-my-donations">
-                    <i class="fas fa-history"></i>
+                    <i class="fas fa-box"></i>
                     <span>My Donations</span>
                 </a>
                 
-                <a asp-controller="Donor" asp-action="DonationRequests" class="donor-nav-item" id="nav-requests">
-                    <i class="fas fa-inbox"></i>
-                    <span>Requests</span>
+                <a asp-controller="Map" asp-action="Index" class="donor-nav-item" id="nav-map">
+                    <i class="fas fa-map-marked-alt"></i>
+                    <span>Map View</span>
                 </a>
             </nav>
         </aside>
@@ -884,6 +1001,12 @@
             if (currentPath.includes('/donations/create')) {
                 const donateNav = document.getElementById('nav-donate');
                 if (donateNav) donateNav.classList.add('active');
+            }
+
+            // Special handling for Map View
+            if (currentPath.includes('/map')) {
+                const mapNav = document.getElementById('nav-map');
+                if (mapNav) mapNav.classList.add('active');
             }
         });
     </script>

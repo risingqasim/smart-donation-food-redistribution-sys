@@ -40,18 +40,17 @@
     <!-- NGO Layout Styles -->
     <style>
         :root {
-            --ngo-sidebar-width: 260px;
+            --ngo-sidebar-width: 280px;
+            --ngo-sidebar-collapsed-width: 70px;
             --ngo-primary: #14b8a6;
             --ngo-primary-hover: #0d9488;
             --ngo-bg: #f8fafc;
         }
 
         body {
-            background-color: var(--ngo-bg);
-        }
-
-        [data-theme="dark"] body {
-            background-color: #111827;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         .ngo-layout-wrapper {
@@ -488,11 +487,11 @@
             border-color: #374151 !important;
         }
 
-        /* Sidebar Styles */
+        /* Operational Dashboard Sidebar Styles - UI Guidelines Applied */
         .ngo-sidebar {
             width: var(--ngo-sidebar-width);
-            background: white;
-            border-right: 1px solid #e5e7eb;
+            background: linear-gradient(180deg, var(--card-bg) 0%, var(--bg-secondary) 100%);
+            border-right: 1px solid var(--border-color);
             padding: 0;
             position: fixed;
             left: 0;
@@ -501,42 +500,91 @@
             overflow-y: auto;
             overflow-x: hidden;
             z-index: 1000;
-            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 0;
         }
 
         [data-theme="dark"] .ngo-sidebar {
-            background: #1f2937;
-            border-right-color: #374151;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 1px 3px rgba(0, 0, 0, 0.15);
+        }
+
+        .ngo-sidebar.collapsed {
+            width: var(--ngo-sidebar-collapsed-width);
         }
 
         .ngo-sidebar-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid #e5e7eb;
-            background: #f9fafb;
+            padding: 1.5rem 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+            background: linear-gradient(135deg, rgba(20, 184, 166, 0.08) 0%, rgba(13, 148, 136, 0.08) 100%);
+            color: var(--text-primary);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
         }
 
         [data-theme="dark"] .ngo-sidebar-header {
-            background: #111827;
-            border-bottom-color: #374151;
+            background: linear-gradient(135deg, rgba(20, 184, 166, 0.15) 0%, rgba(13, 148, 136, 0.15) 100%);
         }
 
         .ngo-sidebar-header h3 {
             font-size: 1rem;
-            font-weight: 700;
-            color: #1f2937;
+            font-weight: 600;
+            color: var(--text-primary);
             margin: 0;
             display: flex;
             align-items: center;
             gap: 0.75rem;
-        }
-
-        [data-theme="dark"] .ngo-sidebar-header h3 {
-            color: #f9fafb;
+            letter-spacing: -0.01em;
+            line-height: 1.4;
         }
 
         .ngo-sidebar-header h3 i {
             color: var(--ngo-primary);
             font-size: 1.25rem;
+        }
+
+        .ngo-sidebar-header h3 span {
+            transition: opacity 0.2s ease;
+        }
+
+        .ngo-sidebar.collapsed .ngo-sidebar-header h3 span {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
+        }
+
+        .ngo-sidebar-toggle {
+            position: absolute;
+            top: 1.125rem;
+            right: 0.875rem;
+            background: linear-gradient(135deg, rgba(20, 184, 166, 0.1) 0%, rgba(13, 148, 136, 0.1) 100%);
+            border: 1px solid rgba(20, 184, 166, 0.2);
+            border-radius: 0.5rem;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: var(--ngo-primary);
+            z-index: 10;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .ngo-sidebar-toggle:hover {
+            background: linear-gradient(135deg, var(--ngo-primary) 0%, var(--ngo-primary-hover) 100%);
+            color: white;
+            border-color: var(--ngo-primary);
+            transform: scale(1.05);
+            box-shadow: 0 2px 6px rgba(20, 184, 166, 0.25);
+        }
+
+        .ngo-sidebar.collapsed .ngo-sidebar-toggle i {
+            transform: rotate(180deg);
         }
 
         .ngo-sidebar-nav {
@@ -547,53 +595,161 @@
             display: flex;
             align-items: center;
             padding: 0.75rem 1rem;
-            margin-bottom: 0.25rem;
-            color: #4b5563;
+            margin-bottom: 0.375rem;
+            color: var(--text-secondary);
             text-decoration: none;
-            border-radius: 0.5rem;
+            border-radius: 0.625rem;
             font-weight: 500;
-            font-size: 0.9375rem;
+            font-size: 0.875rem;
+            line-height: 1.5;
             gap: 0.75rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            background: transparent;
+            border: 1px solid transparent;
         }
 
-        [data-theme="dark"] .ngo-nav-item {
-            color: #d1d5db;
+        .ngo-nav-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 0;
+            background: linear-gradient(180deg, var(--ngo-primary) 0%, var(--ngo-primary-hover) 100%);
+            border-radius: 0 4px 4px 0;
+            transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .ngo-nav-item i {
-            width: 20px;
+            width: 24px;
             text-align: center;
-            font-size: 1.125rem;
+            font-size: 1.25rem;
             flex-shrink: 0;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        .ngo-nav-item .nav-item-content {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex: 1;
+            position: relative;
+            z-index: 1;
+        }
+
+        .ngo-nav-item span {
+            transition: opacity 0.2s ease;
+        }
+
+        .ngo-sidebar.collapsed .ngo-nav-item span {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
+        }
+
+        .ngo-sidebar.collapsed .ngo-nav-item .nav-badge {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
         }
 
         .ngo-nav-item:hover {
-            background-color: #f3f4f6;
+            background: linear-gradient(135deg, rgba(20, 184, 166, 0.1) 0%, rgba(13, 148, 136, 0.1) 100%);
+            color: var(--ngo-primary);
+            transform: translateX(4px);
+            border-color: rgba(20, 184, 166, 0.2);
+        }
+
+        .ngo-nav-item:hover::before {
+            height: 60%;
+        }
+
+        .ngo-nav-item:hover i {
+            transform: scale(1.1);
             color: var(--ngo-primary);
         }
 
-        [data-theme="dark"] .ngo-nav-item:hover {
-            background-color: #374151;
-            color: #5eead4;
+        .ngo-nav-item.active {
+            background: linear-gradient(135deg, var(--ngo-primary) 0%, var(--ngo-primary-hover) 100%);
+            color: white;
+            box-shadow: 0 2px 8px rgba(20, 184, 166, 0.25), 0 1px 3px rgba(20, 184, 166, 0.15);
+            border-color: rgba(20, 184, 166, 0.3);
+            transform: translateX(0);
         }
 
-        .ngo-nav-item.active {
-            background: var(--ngo-primary);
-            color: white;
+        .ngo-nav-item.active::before {
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
         }
 
         .ngo-nav-item.active i {
             color: white;
+            transform: scale(1.1);
+        }
+
+        .ngo-nav-item.active:hover {
+            background: linear-gradient(135deg, var(--ngo-primary-hover) 0%, var(--ngo-primary) 100%);
+            box-shadow: 0 6px 16px rgba(20, 184, 166, 0.35), 0 2px 6px rgba(20, 184, 166, 0.25);
+        }
+
+        /* Status Badges */
+        .ngo-nav-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 18px;
+            height: 18px;
+            padding: 0 5px;
+            font-size: 0.625rem;
+            font-weight: 600;
+            border-radius: 9px;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            box-shadow: 0 1px 3px rgba(239, 68, 68, 0.25);
+            margin-left: auto;
+            transition: all 0.3s ease;
+            line-height: 1.2;
+        }
+
+        .ngo-nav-badge.pending {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);
+        }
+
+        .ngo-nav-item.active .ngo-nav-badge {
+            background: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 2px 4px rgba(255, 255, 255, 0.2);
         }
 
         .ngo-nav-divider {
             height: 1px;
-            background-color: #e5e7eb;
-            margin: 1rem 1rem;
+            background: linear-gradient(90deg, transparent 0%, var(--border-color) 20%, var(--border-color) 80%, transparent 100%);
+            margin: 1.5rem 1rem;
+            position: relative;
+        }
+
+        .ngo-nav-divider::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 4px;
+            height: 4px;
+            background: var(--border-color);
+            border-radius: 50%;
         }
 
         [data-theme="dark"] .ngo-nav-divider {
-            background-color: #374151;
+            background: linear-gradient(90deg, transparent 0%, #374151 20%, #374151 80%, transparent 100%);
+        }
+
+        [data-theme="dark"] .ngo-nav-divider::before {
+            background: #374151;
         }
 
         /* Main Content Area */
@@ -601,7 +757,13 @@
             flex: 1;
             margin-left: var(--ngo-sidebar-width);
             min-height: calc(100vh - 76px);
-            background-color: var(--ngo-bg);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .ngo-sidebar.collapsed ~ .ngo-main-content {
+            margin-left: var(--ngo-sidebar-collapsed-width);
         }
 
         .ngo-content-wrapper {
@@ -620,12 +782,20 @@
                 transform: translateX(0);
             }
 
+            .ngo-sidebar.collapsed {
+                width: var(--ngo-sidebar-width);
+            }
+
             .ngo-main-content {
                 margin-left: 0;
             }
 
             .ngo-content-wrapper {
                 padding: 1rem;
+            }
+
+            .ngo-sidebar-toggle {
+                display: none;
             }
 
             .mobile-sidebar-overlay {
@@ -647,6 +817,25 @@
             [data-theme="dark"] .mobile-sidebar-overlay {
                 background-color: rgba(0, 0, 0, 0.7);
             }
+        }
+
+        /* Smooth Scrollbar */
+        .ngo-sidebar::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .ngo-sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .ngo-sidebar::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+            transition: background 0.3s ease;
+        }
+
+        .ngo-sidebar::-webkit-scrollbar-thumb:hover {
+            background: var(--ngo-primary);
         }
     </style>
     
@@ -778,32 +967,46 @@
     <div class="ngo-layout-wrapper">
         <!-- Sidebar -->
         <aside class="ngo-sidebar" id="ngoSidebar">
+            <button class="ngo-sidebar-toggle" id="ngoSidebarToggle" aria-label="Toggle sidebar">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            
             <div class="ngo-sidebar-header">
                 <h3>
                     <i class="fas fa-building"></i>
-                    NGO Portal
+                    <span>Operations</span>
                 </h3>
             </div>
             
             <nav class="ngo-sidebar-nav">
                 <a asp-controller="NGO" asp-action="Dashboard" class="ngo-nav-item" id="nav-dashboard">
                     <i class="fas fa-tachometer-alt"></i>
-                    <span>Dashboard</span>
+                    <div class="nav-item-content">
+                        <span>Dashboard</span>
+                    </div>
                 </a>
                 
                 <a asp-controller="NGO" asp-action="AvailableDonations" class="ngo-nav-item" id="nav-incoming">
                     <i class="fas fa-inbox"></i>
-                    <span>Incoming Donations</span>
+                    <div class="nav-item-content">
+                        <span>Incoming Donations</span>
+                        <span class="ngo-nav-badge" id="badge-new">New</span>
+                    </div>
                 </a>
                 
                 <a asp-controller="NGO" asp-action="MyRequests" class="ngo-nav-item" id="nav-accepted">
                     <i class="fas fa-check-circle"></i>
-                    <span>My Requests</span>
+                    <div class="nav-item-content">
+                        <span>Accepted Donations</span>
+                        <span class="ngo-nav-badge pending" id="badge-pending">Pending</span>
+                    </div>
                 </a>
                 
                 <a asp-controller="Map" asp-action="Index" class="ngo-nav-item" id="nav-map">
                     <i class="fas fa-map-marked-alt"></i>
-                    <span>Map View</span>
+                    <div class="nav-item-content">
+                        <span>Map View</span>
+                    </div>
                 </a>
             </nav>
         </aside>
@@ -852,8 +1055,21 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const sidebar = document.getElementById('ngoSidebar');
+            const sidebarToggle = document.getElementById('ngoSidebarToggle');
             const mobileSidebarToggle = document.getElementById('mobileSidebarToggle');
             const sidebarOverlay = document.getElementById('sidebarOverlay');
+            const isMobile = window.innerWidth <= 991;
+
+            // Desktop sidebar toggle
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', function() {
+                    if (!isMobile) {
+                        sidebar.classList.toggle('collapsed');
+                        // Save preference to localStorage
+                        localStorage.setItem('ngoSidebarCollapsed', sidebar.classList.contains('collapsed'));
+                    }
+                });
+            }
 
             // Mobile sidebar toggle
             if (mobileSidebarToggle) {
@@ -872,6 +1088,21 @@
                     document.body.style.overflow = '';
                 });
             }
+
+            // Restore sidebar state on desktop
+            if (!isMobile && localStorage.getItem('ngoSidebarCollapsed') === 'true') {
+                sidebar.classList.add('collapsed');
+            }
+
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                const isNowMobile = window.innerWidth <= 991;
+                if (isNowMobile) {
+                    sidebar.classList.remove('collapsed', 'show');
+                    sidebarOverlay.classList.remove('show');
+                    document.body.style.overflow = '';
+                }
+            });
 
             // Set active nav item based on current URL
             const currentPath = window.location.pathname.toLowerCase();
@@ -896,7 +1127,7 @@
                 if (incomingNav) incomingNav.classList.add('active');
             }
 
-            // Special handling for My Requests
+            // Special handling for My Requests (Accepted Donations)
             if (currentPath.includes('/ngo/myrequests') || currentPath.includes('/ngo/viewrequests')) {
                 const acceptedNav = document.getElementById('nav-accepted');
                 if (acceptedNav) acceptedNav.classList.add('active');
@@ -907,6 +1138,14 @@
                 const mapNav = document.getElementById('nav-map');
                 if (mapNav) mapNav.classList.add('active');
             }
+
+            // Update badge counts (can be enhanced with real-time data)
+            // Example: Update badge counts from API or SignalR
+            function updateBadgeCounts() {
+                // This can be replaced with actual API calls
+                // For now, badges are static but styled to be dynamic
+            }
+            updateBadgeCounts();
         });
     </script>
     
