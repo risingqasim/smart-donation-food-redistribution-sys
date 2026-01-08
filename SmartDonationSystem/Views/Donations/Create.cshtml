@@ -6,29 +6,77 @@
 }
 
 <style>
+    .page-header {
+        background: white;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e5e7eb;
+        margin-bottom: 1.5rem;
+    }
+
+    [data-theme="dark"] .page-header {
+        background: #1f2937;
+        border-color: #374151;
+    }
+
+    .page-header h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin: 0;
+    }
+
+    [data-theme="dark"] .page-header h1 {
+        color: #f9fafb;
+    }
+
+    .section-card {
+        background: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e5e7eb;
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+    }
+
+    [data-theme="dark"] .section-card {
+        background: #1f2937;
+        border-color: #374151;
+    }
+
+    .section-header {
+        background: #f9fafb;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    [data-theme="dark"] .section-header {
+        background: #111827;
+        border-bottom-color: #374151;
+    }
+
+    .section-header h3 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #1f2937;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    [data-theme="dark"] .section-header h3 {
+        color: #f9fafb;
+    }
+
+    .section-body {
+        padding: 1.5rem;
+    }
+
     .wizard-container {
         max-width: 800px;
         margin: 0 auto;
-    }
-
-    .wizard-header {
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        border-radius: 1rem 1rem 0 0;
-        padding: 2rem;
-        color: white;
-        text-align: center;
-    }
-
-    .wizard-header h1 {
-        font-size: 2rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-    }
-
-    .wizard-header p {
-        font-size: 1.125rem;
-        opacity: 0.95;
-        margin: 0;
     }
 
     .wizard-steps {
@@ -289,13 +337,23 @@
     }
 </style>
 
-<div class="wizard-container">
-    <div class="wizard-header">
-        <h1><i class="fas fa-heart me-2"></i>Donate Food</h1>
-        <p>Help reduce food waste and feed those in need</p>
-    </div>
+<div class="page-header">
+    <h1>
+        <i class="fas fa-heart text-primary me-2"></i>
+        Donate Food
+    </h1>
+</div>
 
-    <div class="wizard-steps">
+<div class="section-card">
+    <div class="section-header">
+        <h3>
+            <i class="fas fa-list-ol text-primary"></i>
+            Donation Form
+        </h3>
+    </div>
+    <div class="section-body">
+        <div class="wizard-container">
+            <div class="wizard-steps">
         <div class="wizard-step active" data-step="1">
             <div class="step-number">1</div>
             <div class="step-label">Food Details</div>
@@ -314,7 +372,7 @@
         </div>
     </div>
 
-    <form asp-action="Create" method="post" id="donationForm" class="wizard-content">
+            <form asp-action="Create" method="post" id="donationForm" class="wizard-content">
         <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
         <!-- Step 1: Food Details -->
@@ -475,8 +533,10 @@
                     <i class="fas fa-check me-1"></i>Submit Donation
                 </button>
             </div>
+            </div>
+            </form>
         </div>
-    </form>
+    </div>
 </div>
 
 @section Scripts {

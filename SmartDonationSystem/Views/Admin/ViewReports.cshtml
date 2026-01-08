@@ -1,0 +1,653 @@
+@model SmartDonationSystem.Controllers.AdminReportsViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "System Reports";
+    ViewData["Breadcrumbs"] = new List<(string, string?)> { ("Dashboard", "Dashboard"), ("Reports", null) };
+    var reportTypes = ViewBag.ReportTypes as dynamic[] ?? Array.Empty<dynamic>();
+}
+
+<style>
+    .report-container {
+        background: white;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+        border: 1px solid #e5e7eb;
+        margin-bottom: 1.5rem;
+    }
+
+    [data-theme="dark"] .report-container {
+        background: #1f2937;
+        border-color: #374151;
+    }
+
+    .report-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #e5e7eb;
+    }
+
+    [data-theme="dark"] .report-header {
+        border-bottom-color: #374151;
+    }
+
+    .stat-card {
+        background: #f9fafb;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        text-align: center;
+        border: 1px solid #e5e7eb;
+    }
+
+    [data-theme="dark"] .stat-card {
+        background: #111827;
+        border-color: #374151;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin: 0.5rem 0;
+    }
+
+    [data-theme="dark"] .stat-value {
+        color: #f9fafb;
+    }
+
+    .stat-label {
+        font-size: 0.875rem;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    [data-theme="dark"] .stat-label {
+        color: #9ca3af;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: #6b7280;
+    }
+
+    [data-theme="dark"] .empty-state {
+        color: #9ca3af;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .data-table thead {
+        background: #f9fafb;
+        border-bottom: 2px solid #e5e7eb;
+    }
+
+    [data-theme="dark"] .data-table thead {
+        background: #111827;
+        border-bottom-color: #374151;
+    }
+
+    .data-table th {
+        padding: 0.75rem 1rem;
+        text-align: left;
+        font-weight: 600;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #6b7280;
+    }
+
+    [data-theme="dark"] .data-table th {
+        color: #9ca3af;
+    }
+
+    .data-table td {
+        padding: 1rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    [data-theme="dark"] .data-table td {
+        border-bottom-color: #374151;
+    }
+
+    .data-table tbody tr:hover {
+        background: #f9fafb;
+    }
+
+    [data-theme="dark"] .data-table tbody tr:hover {
+        background: #111827;
+    }
+</style>
+
+<div class="admin-page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1>
+                <i class="fas fa-chart-line text-primary"></i>
+                System Reports
+            </h1>
+            <p>Comprehensive analytics and reporting for your donation system</p>
+        </div>
+        <a asp-action="Dashboard" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+        </a>
+    </div>
+</div>
+
+<!-- Report Type Filter -->
+<div class="report-container">
+    <div class="report-header">
+        <h3 class="mb-0">Report Type</h3>
+        <div class="d-flex gap-2">
+            @foreach (var type in reportTypes)
+            {
+                var isActive = (Model?.ReportType?.ToLower() ?? "overview") == (type?.Value?.ToString()?.ToLower() ?? "");
+                <a asp-action="ViewReports" 
+                   asp-route-reportType="@type?.Value" 
+                   asp-route-startDate="@Model?.StartDate.ToString("yyyy-MM-dd")" 
+                   asp-route-endDate="@Model?.EndDate.ToString("yyyy-MM-dd")"
+                   class="btn @(isActive ? "btn-primary" : "btn-outline-primary") btn-sm">
+                    @type?.Text
+                </a>
+            }
+        </div>
+    </div>
+
+    <!-- Date Range Filter -->
+    <form method="get" class="row g-3">
+        <input type="hidden" name="reportType" value="@Model?.ReportType" />
+        <div class="col-md-4">
+            <label for="startDate" class="form-label">Start Date</label>
+            <input type="date" class="form-control" id="startDate" name="startDate" 
+                   value="@(Model?.StartDate.ToString("yyyy-MM-dd") ?? DateTime.UtcNow.AddMonths(-1).ToString("yyyy-MM-dd"))" />
+        </div>
+        <div class="col-md-4">
+            <label for="endDate" class="form-label">End Date</label>
+            <input type="date" class="form-control" id="endDate" name="endDate" 
+                   value="@(Model?.EndDate.ToString("yyyy-MM-dd") ?? DateTime.UtcNow.ToString("yyyy-MM-dd"))" />
+        </div>
+        <div class="col-md-4 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-filter me-1"></i>Apply Filter
+            </button>
+        </div>
+    </form>
+</div>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- Overview Report -->
+@if (Model?.ReportType?.ToLower() == "overview" || string.IsNullOrEmpty(Model?.ReportType))
+{
+    <!-- Analytics Summary -->
+    @if (Model?.AnalyticsReport != null)
+    {
+        <div class="report-container">
+            <h3 class="mb-3">
+                <i class="fas fa-chart-bar text-primary me-2"></i>Analytics Summary
+            </h3>
+            @if (Model.AnalyticsReport.Metrics != null)
+            {
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="stat-label">Total Donations</div>
+                            <div class="stat-value">@Model.AnalyticsReport.Metrics.TotalDonations</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="stat-label">Food Saved (kg)</div>
+                            <div class="stat-value">@Model.AnalyticsReport.Metrics.TotalFoodSavedKg.ToString("N0")</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="stat-label">Active Donors</div>
+                            <div class="stat-value">@Model.AnalyticsReport.Metrics.ActiveDonors</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="stat-label">Active NGOs</div>
+                            <div class="stat-value">@Model.AnalyticsReport.Metrics.ActiveNGOs</div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    <!-- Donation Report Summary -->
+    @if (Model?.DonationReport != null)
+    {
+        <div class="report-container">
+            <h3 class="mb-3">
+                <i class="fas fa-gift text-primary me-2"></i>Donation Report
+                <small class="text-muted">(@Model.DonationReport.StartDate.ToString("MMM dd, yyyy") - @Model.DonationReport.EndDate.ToString("MMM dd, yyyy"))</small>
+            </h3>
+            <div class="row g-3 mb-4">
+                <div class="col-md-2">
+                    <div class="stat-card">
+                        <div class="stat-label">Total</div>
+                        <div class="stat-value">@Model.DonationReport.TotalDonations</div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="stat-card">
+                        <div class="stat-label">Available</div>
+                        <div class="stat-value">@Model.DonationReport.AvailableDonations</div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="stat-card">
+                        <div class="stat-label">Collected</div>
+                        <div class="stat-value">@Model.DonationReport.CollectedDonations</div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="stat-card">
+                        <div class="stat-label">Reserved</div>
+                        <div class="stat-value">@Model.DonationReport.ReservedDonations</div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="stat-card">
+                        <div class="stat-label">Expired</div>
+                        <div class="stat-value">@Model.DonationReport.ExpiredDonations</div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Quantity</div>
+                        <div class="stat-value">@Model.DonationReport.TotalQuantity</div>
+                    </div>
+                </div>
+            </div>
+
+            @if (Model.DonationReport.RecentDonations != null && Model.DonationReport.RecentDonations.Any())
+            {
+                <h4 class="mb-3">Recent Donations</h4>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Donor</th>
+                                <th>Food Type</th>
+                                <th>Quantity</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var donation in Model.DonationReport.RecentDonations.Take(10))
+                            {
+                                <tr>
+                                    <td>@(donation?.Title ?? "Unknown")</td>
+                                    <td>@(donation?.Donor != null ? $"{donation.Donor.FirstName} {donation.Donor.LastName}" : "Unknown")</td>
+                                    <td>@(donation?.FoodType ?? "Unknown")</td>
+                                    <td>@(donation?.Quantity ?? 0) @(donation?.Unit ?? "")</td>
+                                    <td><span class="badge bg-info">@(donation?.Status ?? "Unknown")</span></td>
+                                    <td>@(donation != null ? donation.CreatedAt.ToString("MMM dd, yyyy") : "Unknown")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    }
+
+    <!-- User Report Summary -->
+    @if (Model?.UserReport != null)
+    {
+        <div class="report-container">
+            <h3 class="mb-3">
+                <i class="fas fa-users text-primary me-2"></i>User Report
+                <small class="text-muted">(@Model.UserReport.StartDate.ToString("MMM dd, yyyy") - @Model.UserReport.EndDate.ToString("MMM dd, yyyy"))</small>
+            </h3>
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Users</div>
+                        <div class="stat-value">@Model.UserReport.TotalUsers</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="stat-card">
+                        <div class="stat-label">New Users</div>
+                        <div class="stat-value">@Model.UserReport.NewUsers</div>
+                    </div>
+                </div>
+            </div>
+
+            @if (Model.UserReport.UsersByRole != null && Model.UserReport.UsersByRole.Any())
+            {
+                <h4 class="mb-3">Users by Role</h4>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Role</th>
+                                <th>Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var role in Model.UserReport.UsersByRole)
+                            {
+                                <tr>
+                                    <td>@(role.Key ?? "Unknown")</td>
+                                    <td>@role.Value</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    }
+}
+
+<!-- Donations Report -->
+@if (Model?.ReportType?.ToLower() == "donations" && Model?.DonationReport != null)
+{
+    <div class="report-container">
+        <h3 class="mb-3">
+            <i class="fas fa-gift text-primary me-2"></i>Donation Report
+            <small class="text-muted">(@Model.DonationReport.StartDate.ToString("MMM dd, yyyy") - @Model.DonationReport.EndDate.ToString("MMM dd, yyyy"))</small>
+        </h3>
+        
+        <div class="row g-3 mb-4">
+            <div class="col-md-2">
+                <div class="stat-card">
+                    <div class="stat-label">Total</div>
+                    <div class="stat-value">@Model.DonationReport.TotalDonations</div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="stat-card">
+                    <div class="stat-label">Available</div>
+                    <div class="stat-value">@Model.DonationReport.AvailableDonations</div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="stat-card">
+                    <div class="stat-label">Collected</div>
+                    <div class="stat-value">@Model.DonationReport.CollectedDonations</div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="stat-card">
+                    <div class="stat-label">Reserved</div>
+                    <div class="stat-value">@Model.DonationReport.ReservedDonations</div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="stat-card">
+                    <div class="stat-label">Expired</div>
+                    <div class="stat-value">@Model.DonationReport.ExpiredDonations</div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="stat-card">
+                    <div class="stat-label">Total Quantity</div>
+                    <div class="stat-value">@Model.DonationReport.TotalQuantity</div>
+                </div>
+            </div>
+        </div>
+
+        @if (Model.DonationReport.RecentDonations != null && Model.DonationReport.RecentDonations.Any())
+        {
+            <h4 class="mb-3">All Donations</h4>
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Donor</th>
+                            <th>Food Type</th>
+                            <th>Quantity</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var donation in Model.DonationReport.RecentDonations)
+                        {
+                            <tr>
+                                <td>@(donation?.Title ?? "Unknown")</td>
+                                <td>@(donation?.Donor != null ? $"{donation.Donor.FirstName} {donation.Donor.LastName}" : "Unknown")</td>
+                                <td>@(donation?.FoodType ?? "Unknown")</td>
+                                <td>@(donation?.Quantity ?? 0) @(donation?.Unit ?? "")</td>
+                                <td><span class="badge bg-info">@(donation?.Status ?? "Unknown")</span></td>
+                                <td>@(donation != null ? donation.CreatedAt.ToString("MMM dd, yyyy") : "Unknown")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <p>No donations found for the selected date range</p>
+            </div>
+        }
+    </div>
+}
+
+<!-- Users Report -->
+@if (Model?.ReportType?.ToLower() == "users" && Model?.UserReport != null)
+{
+    <div class="report-container">
+        <h3 class="mb-3">
+            <i class="fas fa-users text-primary me-2"></i>User Report
+            <small class="text-muted">(@Model.UserReport.StartDate.ToString("MMM dd, yyyy") - @Model.UserReport.EndDate.ToString("MMM dd, yyyy"))</small>
+        </h3>
+        
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <div class="stat-card">
+                    <div class="stat-label">Total Users</div>
+                    <div class="stat-value">@Model.UserReport.TotalUsers</div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="stat-card">
+                    <div class="stat-label">New Users</div>
+                    <div class="stat-value">@Model.UserReport.NewUsers</div>
+                </div>
+            </div>
+        </div>
+
+        @if (Model.UserReport.UsersByRole != null && Model.UserReport.UsersByRole.Any())
+        {
+            <h4 class="mb-3">Users by Role</h4>
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Role</th>
+                            <th>Count</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var role in Model.UserReport.UsersByRole)
+                        {
+                            <tr>
+                                <td>@(role.Key ?? "Unknown")</td>
+                                <td>@role.Value</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="fas fa-users"></i>
+                <p>No user data available for the selected date range</p>
+            </div>
+        }
+    </div>
+}
+
+<!-- NGOs Report -->
+@if (Model?.ReportType?.ToLower() == "ngos" && Model?.NGOReport != null)
+{
+    <div class="report-container">
+        <h3 class="mb-3">
+            <i class="fas fa-building text-primary me-2"></i>NGO Report
+            <small class="text-muted">(@Model.NGOReport.StartDate.ToString("MMM dd, yyyy") - @Model.NGOReport.EndDate.ToString("MMM dd, yyyy"))</small>
+        </h3>
+        
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-label">Total NGOs</div>
+                    <div class="stat-value">@Model.NGOReport.TotalNGOs</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-label">Active NGOs</div>
+                    <div class="stat-value">@Model.NGOReport.ActiveNGOs</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-label">Donations Received</div>
+                    <div class="stat-value">@Model.NGOReport.TotalDonationsReceived</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-label">Requests Made</div>
+                    <div class="stat-value">@Model.NGOReport.TotalRequestsMade</div>
+                </div>
+            </div>
+        </div>
+
+        @if (Model.NGOReport.NGODetails != null && Model.NGOReport.NGODetails.Any())
+        {
+            <h4 class="mb-3">NGO Details</h4>
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Location</th>
+                            <th>Capacity</th>
+                            <th>Donations Received</th>
+                            <th>Requests Made</th>
+                            <th>Created</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var ngo in Model.NGOReport.NGODetails)
+                        {
+                            <tr>
+                                <td>@(ngo?.Name ?? "Unknown")</td>
+                                <td>@(ngo?.Location ?? "Unknown")</td>
+                                <td>@(ngo?.Capacity ?? 0)</td>
+                                <td>@(ngo?.DonationsReceived ?? 0)</td>
+                                <td>@(ngo?.RequestsMade ?? 0)</td>
+                                <td>@(ngo?.CreatedAt.ToString("MMM dd, yyyy") ?? "Unknown")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="fas fa-building"></i>
+                <p>No NGO data available for the selected date range</p>
+            </div>
+        }
+    </div>
+}
+
+<!-- Analytics Report -->
+@if (Model?.ReportType?.ToLower() == "analytics" && Model?.AnalyticsReport != null)
+{
+    <div class="report-container">
+        <h3 class="mb-3">
+            <i class="fas fa-chart-bar text-primary me-2"></i>Analytics Report
+        </h3>
+        
+        @if (Model.AnalyticsReport.Metrics != null)
+        {
+            <div class="row g-3 mb-4">
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Donations</div>
+                        <div class="stat-value">@Model.AnalyticsReport.Metrics.TotalDonations</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-label">Food Saved (kg)</div>
+                        <div class="stat-value">@Model.AnalyticsReport.Metrics.TotalFoodSavedKg.ToString("N0")</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-label">Active Donors</div>
+                        <div class="stat-value">@Model.AnalyticsReport.Metrics.ActiveDonors</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-label">Active NGOs</div>
+                        <div class="stat-value">@Model.AnalyticsReport.Metrics.ActiveNGOs</div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+<!-- Empty State -->
+@if (Model == null || 
+     (Model.ReportType?.ToLower() == "overview" && Model.DonationReport == null && Model.UserReport == null && Model.AnalyticsReport == null) ||
+     (Model.ReportType?.ToLower() == "donations" && Model.DonationReport == null) ||
+     (Model.ReportType?.ToLower() == "users" && Model.UserReport == null) ||
+     (Model.ReportType?.ToLower() == "ngos" && Model.NGOReport == null) ||
+     (Model.ReportType?.ToLower() == "analytics" && Model.AnalyticsReport == null))
+{
+    <div class="report-container">
+        <div class="empty-state">
+            <i class="fas fa-chart-line"></i>
+            <h4>No Data Available</h4>
+            <p>No report data is available for the selected criteria. Please try adjusting your date range or report type.</p>
+            <a asp-action="ViewReports" asp-route-reportType="overview" class="btn btn-primary mt-3">
+                <i class="fas fa-refresh me-1"></i>Refresh Report
+            </a>
+        </div>
+    </div>
+}
+

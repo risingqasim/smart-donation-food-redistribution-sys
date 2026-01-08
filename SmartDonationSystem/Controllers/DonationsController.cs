@@ -34,6 +34,7 @@ namespace SmartDonationSystem.Controllers
         /// View all donations - accessible to all authenticated users
         /// </summary>
         [Authorize(Roles = "Donor,NGO,Admin")]
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         public async Task<IActionResult> Index()
         {
             var donations = await _context.Donations
@@ -49,6 +50,7 @@ namespace SmartDonationSystem.Controllers
         /// View donation details - accessible to all authenticated users
         /// </summary>
         [Authorize(Roles = "Donor,NGO,Admin")]
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -71,6 +73,7 @@ namespace SmartDonationSystem.Controllers
 
         // GET: Donations/Create
         [Authorize(Roles = "Donor,Admin")]
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         public IActionResult Create()
         {
             ViewBag.GoogleMapsApiKey = _configuration["GoogleMaps:ApiKey"];
@@ -102,6 +105,7 @@ namespace SmartDonationSystem.Controllers
 
         // GET: Donations/Edit/5
         [Authorize(Roles = "Donor,Admin")]
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -167,6 +171,7 @@ namespace SmartDonationSystem.Controllers
 
         // GET: Donations/Delete/5
         [Authorize(Roles = "Donor,Admin")]
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)

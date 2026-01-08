@@ -14,21 +14,100 @@
     }
 }
 
+<style>
+    .page-header {
+        background: white;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e5e7eb;
+        margin-bottom: 1.5rem;
+    }
+
+    [data-theme="dark"] .page-header {
+        background: #1f2937;
+        border-color: #374151;
+    }
+
+    .page-header h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin: 0;
+    }
+
+    [data-theme="dark"] .page-header h1 {
+        color: #f9fafb;
+    }
+
+    .section-card {
+        background: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e5e7eb;
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+    }
+
+    [data-theme="dark"] .section-card {
+        background: #1f2937;
+        border-color: #374151;
+    }
+
+    .section-header {
+        background: #f9fafb;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    [data-theme="dark"] .section-header {
+        background: #111827;
+        border-bottom-color: #374151;
+    }
+
+    .section-header h3 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #1f2937;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    [data-theme="dark"] .section-header h3 {
+        color: #f9fafb;
+    }
+
+    .section-body {
+        padding: 1.5rem;
+    }
+
+    .map-container {
+        height: 400px;
+        border-radius: 0.5rem;
+        overflow: hidden;
+        border: 1px solid #e5e7eb;
+    }
+
+    [data-theme="dark"] .map-container {
+        border-color: #374151;
+    }
+</style>
+
 <!-- Page Header -->
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h2 class="fw-bold mb-1">
-            <i class="fas fa-map-marked-alt me-2 text-primary"></i>Interactive Map
-        </h2>
-        <p class="text-muted mb-0">Locate donations and NGOs on an interactive map</p>
-    </div>
+<div class="page-header">
+    <h1>
+        <i class="fas fa-map-marked-alt text-primary me-2"></i>
+        Interactive Map
+    </h1>
 </div>
 
 <!-- Map Legend Cards -->
 <div class="row g-3 mb-4">
     <div class="col-md-4">
-        <div class="card border-0 shadow-sm">
-            <div class="card-body">
+        <div class="section-card">
+            <div class="section-body">
                 <div class="d-flex align-items-center">
                     <div class="bg-primary bg-opacity-10 rounded-circle p-3 me-3">
                         <i class="fas fa-map-marker-alt fa-2x text-primary"></i>
@@ -42,8 +121,8 @@
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card border-0 shadow-sm">
-            <div class="card-body">
+        <div class="section-card">
+            <div class="section-body">
                 <div class="d-flex align-items-center">
                     <div class="bg-success bg-opacity-10 rounded-circle p-3 me-3">
                         <i class="fas fa-gift fa-2x text-success"></i>
@@ -57,8 +136,8 @@
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card border-0 shadow-sm">
-            <div class="card-body">
+        <div class="section-card">
+            <div class="section-body">
                 <div class="d-flex align-items-center">
                     <div class="bg-info bg-opacity-10 rounded-circle p-3 me-3">
                         <i class="fas fa-building fa-2x text-info"></i>
@@ -163,16 +242,17 @@
         </div>
 
         <!-- Nearby Donations List -->
-        <div class="card border-0 shadow-sm map-card-dark">
-            <div class="card-header border-bottom py-3 map-card-header">
+        <div class="section-card">
+            <div class="section-header">
                 <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-semibold">
-                        <i class="fas fa-gift me-2 text-success"></i>Nearby Donations
-                    </h5>
+                    <h3>
+                        <i class="fas fa-gift text-success"></i>
+                        Nearby Donations
+                    </h3>
                     <span class="badge bg-success" id="donationCount">0</span>
                 </div>
             </div>
-            <div class="card-body p-0">
+            <div class="section-body p-0">
                 <div id="donationList" style="max-height: 500px; overflow-y: auto;">
                     <!-- Placeholder for donation markers -->
                     <div class="p-4 text-center text-muted">

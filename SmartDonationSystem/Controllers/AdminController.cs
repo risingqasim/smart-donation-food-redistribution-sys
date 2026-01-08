@@ -80,7 +80,7 @@ namespace SmartDonationSystem.Controllers
                 });
             }
 
-            // Chart data for dashboard
+            // Chart data for dashboard - limit to 6 months for summary
             var monthlyTrends = await _analyticsService.GetMonthlyTrendsAsync(6); // Last 6 months
             var foodTypeData = await _analyticsService.GetFoodTypeDistributionAsync();
             
@@ -88,6 +88,51 @@ namespace SmartDonationSystem.Controllers
             ViewBag.FoodTypeData = foodTypeData;
 
             return View(analytics);
+        }
+
+        // GET: Admin/MonthlyReports
+        [HttpGet]
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+        public async Task<IActionResult> MonthlyReports(int? months = null)
+        {
+            try
+            {
+                var monthsToShow = months ?? 12; // Default to 12 months for detailed view
+                var monthlyTrends = await _analyticsService.GetMonthlyTrendsAsync(monthsToShow);
+                
+                // Get detailed donations grouped by month
+                var startDate = DateTime.UtcNow.AddMonths(-monthsToShow);
+                var donations = await _context.Donations
+                    .Include(d => d.Donor)
+                    .Include(d => d.NGO)
+                    .Where(d => d.CreatedAt >= startDate)
+                    .AsNoTracking()
+                    .OrderByDescending(d => d.CreatedAt)
+                    .ToListAsync();
+
+                var monthlyDonations = new Dictionary<string, List<Donation>>();
+                foreach (var donation in donations)
+                {
+                    var monthKey = donation.CreatedAt.ToString("MMM yyyy");
+                    if (!monthlyDonations.ContainsKey(monthKey))
+                    {
+                        monthlyDonations[monthKey] = new List<Donation>();
+                    }
+                    monthlyDonations[monthKey].Add(donation);
+                }
+
+                ViewBag.MonthlyTrends = monthlyTrends;
+                ViewBag.MonthlyDonations = monthlyDonations;
+                ViewBag.MonthsToShow = monthsToShow;
+
+                return View();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading monthly reports");
+                TempData["Error"] = $"An error occurred while loading monthly reports: {ex.Message}";
+                return View();
+            }
         }
 
         // GET: Admin/Users
@@ -417,7 +462,7 @@ namespace SmartDonationSystem.Controllers
                     ReportType = reportType ?? "overview"
                 };
 
-                // Set date range defaults
+                // Set date range defaults with validation
                 if (!startDate.HasValue)
                 {
                     startDate = DateTime.UtcNow.AddMonths(-1);
@@ -427,29 +472,113 @@ namespace SmartDonationSystem.Controllers
                     endDate = DateTime.UtcNow;
                 }
 
+                // Validate date range
+                if (startDate.Value > endDate.Value)
+                {
+                    TempData["Error"] = "Start date cannot be after end date.";
+                    startDate = DateTime.UtcNow.AddMonths(-1);
+                    endDate = DateTime.UtcNow;
+                }
+
                 viewModel.StartDate = startDate.Value;
                 viewModel.EndDate = endDate.Value;
 
-                // Generate reports based on type
+                // Generate reports based on type with individual error handling
                 switch (reportType?.ToLower())
                 {
                     case "donations":
-                        viewModel.DonationReport = await GenerateDonationReportAsync(startDate.Value, endDate.Value);
+                        try
+                        {
+                            viewModel.DonationReport = await GenerateDonationReportAsync(startDate.Value, endDate.Value);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Error generating donation report");
+                            viewModel.DonationReport = new DonationReport
+                            {
+                                StartDate = startDate.Value,
+                                EndDate = endDate.Value
+                            };
+                        }
                         break;
                     case "users":
-                        viewModel.UserReport = await GenerateUserReportAsync(startDate.Value, endDate.Value);
+                        try
+                        {
+                            viewModel.UserReport = await GenerateUserReportAsync(startDate.Value, endDate.Value);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Error generating user report");
+                            viewModel.UserReport = new UserReport
+                            {
+                                StartDate = startDate.Value,
+                                EndDate = endDate.Value
+                            };
+                        }
                         break;
                     case "ngos":
-                        viewModel.NGOReport = await GenerateNGOReportAsync(startDate.Value, endDate.Value);
+                        try
+                        {
+                            viewModel.NGOReport = await GenerateNGOReportAsync(startDate.Value, endDate.Value);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Error generating NGO report");
+                            viewModel.NGOReport = new NGOReport
+                            {
+                                StartDate = startDate.Value,
+                                EndDate = endDate.Value
+                            };
+                        }
                         break;
                     case "analytics":
-                        viewModel.AnalyticsReport = await _analyticsService.GenerateFullReportAsync();
+                        try
+                        {
+                            viewModel.AnalyticsReport = await _analyticsService.GenerateFullReportAsync();
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Error generating analytics report");
+                            viewModel.AnalyticsReport = new AnalyticsReport();
+                        }
                         break;
                     default:
-                        // Overview report
-                        viewModel.AnalyticsReport = await _analyticsService.GenerateFullReportAsync();
-                        viewModel.DonationReport = await GenerateDonationReportAsync(startDate.Value, endDate.Value);
-                        viewModel.UserReport = await GenerateUserReportAsync(startDate.Value, endDate.Value);
+                        // Overview report - generate all with individual error handling
+                        try
+                        {
+                            viewModel.AnalyticsReport = await _analyticsService.GenerateFullReportAsync();
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Error generating analytics report");
+                            viewModel.AnalyticsReport = new AnalyticsReport();
+                        }
+                        try
+                        {
+                            viewModel.DonationReport = await GenerateDonationReportAsync(startDate.Value, endDate.Value);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Error generating donation report");
+                            viewModel.DonationReport = new DonationReport
+                            {
+                                StartDate = startDate.Value,
+                                EndDate = endDate.Value
+                            };
+                        }
+                        try
+                        {
+                            viewModel.UserReport = await GenerateUserReportAsync(startDate.Value, endDate.Value);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Error generating user report");
+                            viewModel.UserReport = new UserReport
+                            {
+                                StartDate = startDate.Value,
+                                EndDate = endDate.Value
+                            };
+                        }
                         break;
                 }
 
@@ -467,8 +596,13 @@ namespace SmartDonationSystem.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error generating reports");
-                TempData["Error"] = $"An error occurred while generating reports: {ex.Message}";
-                return View(new AdminReportsViewModel());
+                TempData["Error"] = "An error occurred while generating reports. Please try again or contact support if the problem persists.";
+                return View(new AdminReportsViewModel
+                {
+                    ReportType = reportType ?? "overview",
+                    StartDate = startDate ?? DateTime.UtcNow.AddMonths(-1),
+                    EndDate = endDate ?? DateTime.UtcNow
+                });
             }
         }
 
@@ -477,29 +611,73 @@ namespace SmartDonationSystem.Controllers
         /// </summary>
         private async Task<DonationReport> GenerateDonationReportAsync(DateTime startDate, DateTime endDate)
         {
-            var donations = await _context.Donations
-                .Include(d => d.Donor)
-                .Include(d => d.NGO)
-                .Where(d => d.CreatedAt >= startDate && d.CreatedAt <= endDate)
-                .AsNoTracking()
-                .ToListAsync();
-
-            return new DonationReport
+            try
             {
-                StartDate = startDate,
-                EndDate = endDate,
-                TotalDonations = donations.Count,
-                AvailableDonations = donations.Count(d => d.Status == "Available"),
-                ReservedDonations = donations.Count(d => d.Status == "Reserved"),
-                CollectedDonations = donations.Count(d => d.Status == "Collected"),
-                ExpiredDonations = donations.Count(d => d.Status == "Expired"),
-                TotalQuantity = donations.Sum(d => d.Quantity),
-                DonationsByStatus = donations.GroupBy(d => d.Status)
-                    .ToDictionary(g => g.Key, g => g.Count()),
-                DonationsByFoodType = donations.GroupBy(d => d.FoodType)
-                    .ToDictionary(g => g.Key, g => g.Count()),
-                RecentDonations = donations.OrderByDescending(d => d.CreatedAt).Take(20).ToList()
-            };
+                var donations = await _context.Donations
+                    .Include(d => d.Donor)
+                    .Include(d => d.NGO)
+                    .Where(d => d.CreatedAt != null && d.CreatedAt >= startDate && d.CreatedAt <= endDate)
+                    .AsNoTracking()
+                    .ToListAsync();
+
+                // Null-safe grouping for Status
+                var donationsByStatus = donations
+                    .Where(d => !string.IsNullOrEmpty(d.Status))
+                    .GroupBy(d => d.Status ?? "Unknown")
+                    .ToDictionary(g => g.Key ?? "Unknown", g => g.Count());
+
+                // Null-safe grouping for FoodType
+                var donationsByFoodType = donations
+                    .Where(d => !string.IsNullOrEmpty(d.FoodType))
+                    .GroupBy(d => d.FoodType ?? "Unknown")
+                    .ToDictionary(g => g.Key ?? "Unknown", g => g.Count());
+
+                // Null-safe quantity sum
+                var totalQuantity = donations
+                    .Where(d => d.Quantity > 0)
+                    .Sum(d => (double?)d.Quantity) ?? 0;
+
+                // Null-safe date ordering
+                var recentDonations = donations
+                    .Where(d => d.CreatedAt != null)
+                    .OrderByDescending(d => d.CreatedAt)
+                    .Take(20)
+                    .ToList();
+
+                return new DonationReport
+                {
+                    StartDate = startDate,
+                    EndDate = endDate,
+                    TotalDonations = donations.Count,
+                    AvailableDonations = donations.Count(d => d.Status == "Available"),
+                    ReservedDonations = donations.Count(d => d.Status == "Reserved"),
+                    CollectedDonations = donations.Count(d => d.Status == "Collected"),
+                    ExpiredDonations = donations.Count(d => d.Status == "Expired"),
+                    TotalQuantity = (int)totalQuantity,
+                    DonationsByStatus = donationsByStatus,
+                    DonationsByFoodType = donationsByFoodType,
+                    RecentDonations = recentDonations
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating donation report for {StartDate} to {EndDate}", startDate, endDate);
+                // Return empty report instead of throwing
+                return new DonationReport
+                {
+                    StartDate = startDate,
+                    EndDate = endDate,
+                    TotalDonations = 0,
+                    AvailableDonations = 0,
+                    ReservedDonations = 0,
+                    CollectedDonations = 0,
+                    ExpiredDonations = 0,
+                    TotalQuantity = 0,
+                    DonationsByStatus = new Dictionary<string, int>(),
+                    DonationsByFoodType = new Dictionary<string, int>(),
+                    RecentDonations = new List<Donation>()
+                };
+            }
         }
 
         /// <summary>
@@ -507,34 +685,60 @@ namespace SmartDonationSystem.Controllers
         /// </summary>
         private async Task<UserReport> GenerateUserReportAsync(DateTime startDate, DateTime endDate)
         {
-            var users = await _userManager.Users
-                .Where(u => u.CreatedAt >= startDate && u.CreatedAt <= endDate)
-                .AsNoTracking()
-                .ToListAsync();
-
-            var userReport = new UserReport
+            try
             {
-                StartDate = startDate,
-                EndDate = endDate,
-                TotalUsers = users.Count,
-                NewUsers = users.Count,
-                UsersByRole = new Dictionary<string, int>()
-            };
+                var users = await _userManager.Users
+                    .Where(u => u.CreatedAt != null && u.CreatedAt >= startDate && u.CreatedAt <= endDate)
+                    .AsNoTracking()
+                    .ToListAsync();
 
-            foreach (var user in users)
-            {
-                var roles = await _userManager.GetRolesAsync(user);
-                foreach (var role in roles)
+                var userReport = new UserReport
                 {
-                    if (!userReport.UsersByRole.ContainsKey(role))
-                    {
-                        userReport.UsersByRole[role] = 0;
-                    }
-                    userReport.UsersByRole[role]++;
-                }
-            }
+                    StartDate = startDate,
+                    EndDate = endDate,
+                    TotalUsers = users.Count,
+                    NewUsers = users.Count,
+                    UsersByRole = new Dictionary<string, int>()
+                };
 
-            return userReport;
+                foreach (var user in users)
+                {
+                    try
+                    {
+                        var roles = await _userManager.GetRolesAsync(user);
+                        foreach (var role in roles ?? Enumerable.Empty<string>())
+                        {
+                            if (!string.IsNullOrEmpty(role))
+                            {
+                                if (!userReport.UsersByRole.ContainsKey(role))
+                                {
+                                    userReport.UsersByRole[role] = 0;
+                                }
+                                userReport.UsersByRole[role]++;
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, "Error getting roles for user {UserId}", user?.Id);
+                        // Continue with next user
+                    }
+                }
+
+                return userReport;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating user report for {StartDate} to {EndDate}", startDate, endDate);
+                return new UserReport
+                {
+                    StartDate = startDate,
+                    EndDate = endDate,
+                    TotalUsers = 0,
+                    NewUsers = 0,
+                    UsersByRole = new Dictionary<string, int>()
+                };
+            }
         }
 
         /// <summary>
@@ -542,34 +746,71 @@ namespace SmartDonationSystem.Controllers
         /// </summary>
         private async Task<NGOReport> GenerateNGOReportAsync(DateTime startDate, DateTime endDate)
         {
-            var ngos = await _context.NGOs
-                .Include(n => n.User)
-                .Include(n => n.Donations)
-                .Include(n => n.DonationRequests)
-                .Where(n => n.CreatedAt >= startDate && n.CreatedAt <= endDate)
-                .AsNoTracking()
-                .ToListAsync();
-
-            return new NGOReport
+            try
             {
-                StartDate = startDate,
-                EndDate = endDate,
-                TotalNGOs = ngos.Count,
-                ActiveNGOs = ngos.Count(n => n.Donations.Any() || n.DonationRequests.Any()),
-                TotalDonationsReceived = ngos.Sum(n => n.Donations.Count),
-                TotalRequestsMade = ngos.Sum(n => n.DonationRequests.Count),
-                AverageCapacity = ngos.Any() ? (int)ngos.Average(n => n.Capacity) : 0,
-                NGODetails = ngos.Select(n => new NGODetail
+                var ngos = await _context.NGOs
+                    .Include(n => n.User)
+                    .Include(n => n.Donations)
+                    .Include(n => n.DonationRequests)
+                    .Where(n => n.CreatedAt != null && n.CreatedAt >= startDate && n.CreatedAt <= endDate)
+                    .AsNoTracking()
+                    .ToListAsync();
+
+                // Null-safe calculations
+                var activeNGOs = ngos.Count(n => 
+                    (n.Donations != null && n.Donations.Any()) || 
+                    (n.DonationRequests != null && n.DonationRequests.Any()));
+
+                var totalDonationsReceived = ngos
+                    .Where(n => n.Donations != null)
+                    .Sum(n => n.Donations.Count);
+
+                var totalRequestsMade = ngos
+                    .Where(n => n.DonationRequests != null)
+                    .Sum(n => n.DonationRequests.Count);
+
+                var averageCapacity = ngos.Any() && ngos.All(n => n.Capacity > 0)
+                    ? (int)ngos.Average(n => n.Capacity)
+                    : 0;
+
+                var ngoDetails = ngos.Select(n => new NGODetail
                 {
                     Id = n.Id,
-                    Name = n.Name,
-                    Location = n.Location,
+                    Name = n.Name ?? "Unknown",
+                    Location = n.Location ?? "Unknown",
                     Capacity = n.Capacity,
-                    DonationsReceived = n.Donations.Count,
-                    RequestsMade = n.DonationRequests.Count,
+                    DonationsReceived = n.Donations?.Count ?? 0,
+                    RequestsMade = n.DonationRequests?.Count ?? 0,
                     CreatedAt = n.CreatedAt
-                }).ToList()
-            };
+                }).ToList();
+
+                return new NGOReport
+                {
+                    StartDate = startDate,
+                    EndDate = endDate,
+                    TotalNGOs = ngos.Count,
+                    ActiveNGOs = activeNGOs,
+                    TotalDonationsReceived = totalDonationsReceived,
+                    TotalRequestsMade = totalRequestsMade,
+                    AverageCapacity = averageCapacity,
+                    NGODetails = ngoDetails
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating NGO report for {StartDate} to {EndDate}", startDate, endDate);
+                return new NGOReport
+                {
+                    StartDate = startDate,
+                    EndDate = endDate,
+                    TotalNGOs = 0,
+                    ActiveNGOs = 0,
+                    TotalDonationsReceived = 0,
+                    TotalRequestsMade = 0,
+                    AverageCapacity = 0,
+                    NGODetails = new List<NGODetail>()
+                };
+            }
         }
     }
 

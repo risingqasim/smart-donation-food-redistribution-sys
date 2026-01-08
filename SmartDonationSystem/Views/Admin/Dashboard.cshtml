@@ -98,6 +98,8 @@
         border: 1px solid #e5e7eb;
         margin-bottom: 1.5rem;
         height: 100%;
+        display: flex;
+        flex-direction: column;
     }
 
     [data-theme="dark"] .chart-card {
@@ -109,14 +111,67 @@
         font-size: 1.125rem;
         font-weight: 600;
         color: #1f2937;
-        margin-bottom: 1.5rem;
+        margin-bottom: 1rem;
         display: flex;
         align-items: center;
+        justify-content: space-between;
         gap: 0.5rem;
     }
 
     [data-theme="dark"] .chart-card h3 {
         color: #f9fafb;
+    }
+
+    .chart-container {
+        position: relative;
+        height: 300px;
+        max-height: 300px;
+        overflow: hidden;
+        flex: 1;
+    }
+
+    .chart-container canvas {
+        max-height: 100%;
+    }
+
+    .recent-list-container {
+        max-height: 400px;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    [data-theme="dark"] .recent-list-container {
+        scrollbar-color: #4b5563 #1f2937;
+    }
+
+    .recent-list-container::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .recent-list-container::-webkit-scrollbar-track {
+        background: #f3f4f6;
+        border-radius: 3px;
+    }
+
+    [data-theme="dark"] .recent-list-container::-webkit-scrollbar-track {
+        background: #1f2937;
+    }
+
+    .recent-list-container::-webkit-scrollbar-thumb {
+        background: #d1d5db;
+        border-radius: 3px;
+    }
+
+    [data-theme="dark"] .recent-list-container::-webkit-scrollbar-thumb {
+        background: #4b5563;
+    }
+
+    .recent-list-container::-webkit-scrollbar-thumb:hover {
+        background: #9ca3af;
+    }
+
+    [data-theme="dark"] .recent-list-container::-webkit-scrollbar-thumb:hover {
+        background: #6b7280;
     }
 
     .recent-item {
@@ -238,10 +293,17 @@
     <div class="col-lg-6">
         <div class="chart-card">
             <h3>
-                <i class="fas fa-chart-line text-primary"></i>
-                Donations Per Month
+                <span>
+                    <i class="fas fa-chart-bar text-primary"></i>
+                    Donations Per Month (Summary)
+                </span>
+                <a asp-action="MonthlyReports" class="btn btn-sm btn-outline-primary">
+                    <i class="fas fa-external-link-alt me-1"></i>View Details
+                </a>
             </h3>
-            <canvas id="monthlyDonationsChart" height="250"></canvas>
+            <div class="chart-container">
+                <canvas id="monthlyDonationsChart"></canvas>
+            </div>
         </div>
     </div>
 
@@ -251,7 +313,9 @@
                 <i class="fas fa-chart-pie text-primary"></i>
                 Food Type Distribution
             </h3>
-            <canvas id="foodTypeChart" height="250"></canvas>
+            <div class="chart-container">
+                <canvas id="foodTypeChart"></canvas>
+            </div>
         </div>
     </div>
 </div>
@@ -268,32 +332,34 @@
             </div>
             @if (Model.RecentDonations.Any())
             {
-                <div class="list-group list-group-flush">
-                    @foreach (var donation in Model.RecentDonations.Take(5))
-                    {
-                        var statusClass = donation.Status switch
+                <div class="recent-list-container">
+                    <div class="list-group list-group-flush">
+                        @foreach (var donation in Model.RecentDonations.Take(5))
                         {
-                            "Available" => "success",
-                            "Reserved" => "warning",
-                            "Collected" => "info",
-                            _ => "secondary"
-                        };
-                        <div class="recent-item">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-1 fw-semibold">@donation.Title</h6>
-                                    <small class="text-muted d-block mb-2">
-                                        <i class="fas fa-user me-1"></i>@donation.Donor?.FirstName @donation.Donor?.LastName
-                                    </small>
-                                    <div>
-                                        <span class="badge bg-@statusClass">@donation.Status</span>
-                                        <span class="badge bg-secondary ms-1">@donation.FoodType</span>
+                            var statusClass = donation.Status switch
+                            {
+                                "Available" => "success",
+                                "Reserved" => "warning",
+                                "Collected" => "info",
+                                _ => "secondary"
+                            };
+                            <div class="recent-item">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1 fw-semibold">@donation.Title</h6>
+                                        <small class="text-muted d-block mb-2">
+                                            <i class="fas fa-user me-1"></i>@donation.Donor?.FirstName @donation.Donor?.LastName
+                                        </small>
+                                        <div>
+                                            <span class="badge bg-@statusClass">@donation.Status</span>
+                                            <span class="badge bg-secondary ms-1">@donation.FoodType</span>
+                                        </div>
                                     </div>
+                                    <small class="text-muted">@donation.CreatedAt.ToString("MMM dd")</small>
                                 </div>
-                                <small class="text-muted">@donation.CreatedAt.ToString("MMM dd")</small>
                             </div>
-                        </div>
-                    }
+                        }
+                    </div>
                 </div>
             }
             else
@@ -323,25 +389,27 @@
             }
             @if (pendingDonations.Any())
             {
-                <div class="list-group list-group-flush">
-                    @foreach (var donation in pendingDonations)
-                    {
-                        <div class="recent-item">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-1 fw-semibold">@donation.Title</h6>
-                                    <small class="text-muted d-block mb-2">
-                                        <i class="fas fa-user me-1"></i>@donation.Donor?.FirstName @donation.Donor?.LastName
-                                    </small>
-                                    <div>
-                                        <span class="badge bg-info">@donation.FoodType</span>
-                                        <span class="badge bg-secondary ms-1">@donation.Quantity @donation.Unit</span>
+                <div class="recent-list-container">
+                    <div class="list-group list-group-flush">
+                        @foreach (var donation in pendingDonations)
+                        {
+                            <div class="recent-item">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1 fw-semibold">@donation.Title</h6>
+                                        <small class="text-muted d-block mb-2">
+                                            <i class="fas fa-user me-1"></i>@donation.Donor?.FirstName @donation.Donor?.LastName
+                                        </small>
+                                        <div>
+                                            <span class="badge bg-info">@donation.FoodType</span>
+                                            <span class="badge bg-secondary ms-1">@donation.Quantity @donation.Unit</span>
+                                        </div>
                                     </div>
+                                    <small class="text-muted">@donation.CreatedAt.ToString("MMM dd")</small>
                                 </div>
-                                <small class="text-muted">@donation.CreatedAt.ToString("MMM dd")</small>
                             </div>
-                        </div>
-                    }
+                        }
+                    </div>
                 </div>
             }
             else
@@ -363,22 +431,22 @@
         const monthlyData = @Html.Raw(Json.Serialize(monthlyTrends));
         const monthlyCtx = document.getElementById('monthlyDonationsChart').getContext('2d');
         
+        const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
+        const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)';
+        const textColor = isDarkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.9)';
+        const tickColor = isDarkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)';
+        
         new Chart(monthlyCtx, {
-            type: 'line',
+            type: 'bar',
             data: {
                 labels: monthlyData.map(item => item.month),
                 datasets: [{
                     label: 'Donations',
                     data: monthlyData.map(item => item.donationCount),
-                    borderColor: '#4f46e5',
-                    backgroundColor: 'rgba(79, 70, 229, 0.1)',
-                    tension: 0.4,
-                    fill: true,
-                    pointRadius: 5,
-                    pointHoverRadius: 7,
-                    pointBackgroundColor: '#4f46e5',
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 2
+                    backgroundColor: '#4f46e5',
+                    borderColor: '#4338ca',
+                    borderWidth: 1,
+                    borderRadius: 4
                 }]
             },
             options: {
@@ -388,21 +456,28 @@
                     legend: {
                         display: true,
                         position: 'top',
+                        labels: {
+                            color: textColor
+                        }
                     }
                 },
                 scales: {
                     y: {
                         beginAtZero: true,
                         ticks: {
-                            precision: 0
+                            precision: 0,
+                            color: tickColor
                         },
                         grid: {
-                            color: 'rgba(0, 0, 0, 0.05)'
+                            color: gridColor
                         }
                     },
                     x: {
                         grid: {
                             display: false
+                        },
+                        ticks: {
+                            color: tickColor
                         }
                     }
                 }
@@ -437,7 +512,8 @@
                         position: 'bottom',
                         labels: {
                             padding: 15,
-                            usePointStyle: true
+                            usePointStyle: true,
+                            color: textColor
                         }
                     }
                 }
