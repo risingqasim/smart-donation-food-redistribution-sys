@@ -343,8 +343,8 @@
         }
 
         [data-theme="dark"] .ngo-navbar .ngo-dropdown-menu {
-            background: #1f2937 !important;
-            border-color: #374151;
+            background: #252525 !important;
+            border-color: #404040;
         }
 
         .ngo-dropdown-header {
@@ -355,7 +355,7 @@
 
         [data-theme="dark"] .ngo-dropdown-header {
             background: #111827;
-            border-bottom-color: #374151;
+            border-bottom-color: #404040;
         }
 
         .ngo-dropdown-header .ngo-profile-name {
@@ -413,7 +413,7 @@
         }
 
         [data-theme="dark"] .ngo-navbar .ngo-dropdown-divider {
-            border-color: #374151;
+            border-color: #404040;
         }
 
         .ngo-navbar .ngo-dropdown-toggle::after {
@@ -483,8 +483,8 @@
         }
 
         [data-theme="dark"] .ngo-navbar .notification-dropdown {
-            background: #1f2937 !important;
-            border-color: #374151 !important;
+            background: #252525 !important;
+            border-color: #404040 !important;
         }
 
         /* Operational Dashboard Sidebar Styles - UI Guidelines Applied */
@@ -536,9 +536,15 @@
             margin: 0;
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 0.75rem;
             letter-spacing: -0.01em;
             line-height: 1.4;
+            transition: all 0.3s ease;
+        }
+
+        .ngo-sidebar.collapsed .ngo-sidebar-header h3 {
+            justify-content: center;
         }
 
         .ngo-sidebar-header h3 i {
@@ -563,8 +569,8 @@
             background: linear-gradient(135deg, rgba(20, 184, 166, 0.1) 0%, rgba(13, 148, 136, 0.1) 100%);
             border: 1px solid rgba(20, 184, 166, 0.2);
             border-radius: 0.5rem;
-            width: 28px;
-            height: 28px;
+            width: 32px;
+            height: 32px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -583,8 +589,18 @@
             box-shadow: 0 2px 6px rgba(20, 184, 166, 0.25);
         }
 
-        .ngo-sidebar.collapsed .ngo-sidebar-toggle i {
-            transform: rotate(180deg);
+        .ngo-sidebar-toggle i {
+            font-size: 1rem;
+            transition: transform 0.3s ease;
+        }
+
+        .ngo-sidebar.collapsed .ngo-sidebar-toggle {
+            right: 50%;
+            transform: translateX(50%);
+        }
+
+        .ngo-sidebar.collapsed .ngo-sidebar-toggle:hover {
+            transform: translateX(50%) scale(1.05);
         }
 
         .ngo-sidebar-nav {
@@ -622,7 +638,7 @@
             transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .ngo-nav-item i {
+        .ngo-nav-item .menu-icon {
             width: 24px;
             text-align: center;
             font-size: 1.25rem;
@@ -630,6 +646,11 @@
             transition: all 0.3s ease;
             position: relative;
             z-index: 1;
+            display: inline-block;
+            line-height: 1;
+            color: inherit;
+            opacity: 1;
+            visibility: visible;
         }
 
         .ngo-nav-item .nav-item-content {
@@ -641,20 +662,49 @@
             z-index: 1;
         }
 
-        .ngo-nav-item span {
-            transition: opacity 0.2s ease;
+        .ngo-nav-item span,
+        .ngo-nav-item .menu-text {
+            transition: opacity 0.2s ease, width 0.2s ease;
+            white-space: nowrap;
         }
 
-        .ngo-sidebar.collapsed .ngo-nav-item span {
+        .ngo-sidebar.collapsed .ngo-nav-item {
+            justify-content: center;
+            align-items: center;
+            padding: 0.75rem;
+            gap: 0;
+            width: 100%;
+            display: flex;
+        }
+
+        .ngo-sidebar.collapsed .ngo-nav-item .menu-text,
+        .ngo-sidebar.collapsed .ngo-nav-item .nav-item-content {
+            opacity: 0;
+            width: 0;
+            height: 0;
+            overflow: hidden;
+            position: absolute;
+            pointer-events: none;
+        }
+
+        .ngo-sidebar.collapsed .ngo-nav-item .ngo-nav-badge {
             opacity: 0;
             width: 0;
             overflow: hidden;
+            position: absolute;
+            pointer-events: none;
         }
 
-        .ngo-sidebar.collapsed .ngo-nav-item .nav-badge {
-            opacity: 0;
-            width: 0;
-            overflow: hidden;
+        .ngo-sidebar.collapsed .ngo-nav-item .menu-icon {
+            margin: 0;
+            display: inline-block !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            width: auto !important;
+            height: auto !important;
+            font-size: 1.5rem;
+            line-height: 1;
+            color: inherit !important;
         }
 
         .ngo-nav-item:hover {
@@ -664,11 +714,16 @@
             border-color: rgba(20, 184, 166, 0.2);
         }
 
+        .ngo-sidebar.collapsed .ngo-nav-item:hover {
+            transform: translateX(0);
+            background: linear-gradient(135deg, rgba(20, 184, 166, 0.15) 0%, rgba(13, 148, 136, 0.15) 100%);
+        }
+
         .ngo-nav-item:hover::before {
             height: 60%;
         }
 
-        .ngo-nav-item:hover i {
+        .ngo-nav-item:hover .menu-icon {
             transform: scale(1.1);
             color: var(--ngo-primary);
         }
@@ -686,7 +741,7 @@
             background: rgba(255, 255, 255, 0.2);
         }
 
-        .ngo-nav-item.active i {
+        .ngo-nav-item.active .menu-icon {
             color: white;
             transform: scale(1.1);
         }
@@ -966,50 +1021,29 @@
     <!-- NGO Layout Wrapper -->
     <div class="ngo-layout-wrapper">
         <!-- Sidebar -->
-        <aside class="ngo-sidebar" id="ngoSidebar">
-            <button class="ngo-sidebar-toggle" id="ngoSidebarToggle" aria-label="Toggle sidebar">
-                <i class="fas fa-chevron-left"></i>
-            </button>
-            
-            <div class="ngo-sidebar-header">
-                <h3>
-                    <i class="fas fa-building"></i>
-                    <span>Operations</span>
-                </h3>
-            </div>
-            
-            <nav class="ngo-sidebar-nav">
-                <a asp-controller="NGO" asp-action="Dashboard" class="ngo-nav-item" id="nav-dashboard">
-                    <i class="fas fa-tachometer-alt"></i>
-                    <div class="nav-item-content">
-                        <span>Dashboard</span>
-                    </div>
-                </a>
-                
-                <a asp-controller="NGO" asp-action="AvailableDonations" class="ngo-nav-item" id="nav-incoming">
-                    <i class="fas fa-inbox"></i>
-                    <div class="nav-item-content">
-                        <span>Incoming Donations</span>
-                        <span class="ngo-nav-badge" id="badge-new">New</span>
-                    </div>
-                </a>
-                
-                <a asp-controller="NGO" asp-action="MyRequests" class="ngo-nav-item" id="nav-accepted">
-                    <i class="fas fa-check-circle"></i>
-                    <div class="nav-item-content">
-                        <span>Accepted Donations</span>
-                        <span class="ngo-nav-badge pending" id="badge-pending">Pending</span>
-                    </div>
-                </a>
-                
-                <a asp-controller="Map" asp-action="Index" class="ngo-nav-item" id="nav-map">
-                    <i class="fas fa-map-marked-alt"></i>
-                    <div class="nav-item-content">
-                        <span>Map View</span>
-                    </div>
-                </a>
-            </nav>
-        </aside>
+        @{
+            var ngoSidebarConfig = new SidebarConfig
+            {
+                Role = "NGO",
+                HeaderIcon = "fas fa-building",
+                HeaderTitle = "Operations",
+                Items = new List<SidebarItem>
+                {
+                    new SidebarItem { Controller = "NGO", Action = "Dashboard", Icon = "fas fa-tachometer-alt", Text = "Dashboard", Id = "nav-dashboard", HasContentWrapper = true },
+                    new SidebarItem { Controller = "NGO", Action = "AvailableDonations", Icon = "fas fa-inbox", Text = "Incoming Donations", Id = "nav-incoming", HasBadge = true, BadgeText = "New", BadgeId = "badge-new", HasContentWrapper = true },
+                    new SidebarItem { Controller = "NGO", Action = "MyRequests", Icon = "fas fa-check-circle", Text = "Accepted Donations", Id = "nav-accepted", HasBadge = true, BadgeText = "Pending", BadgeClass = "pending", BadgeId = "badge-pending", HasContentWrapper = true },
+                    new SidebarItem { Controller = "Map", Action = "Index", Icon = "fas fa-map-marked-alt", Text = "Map View", Id = "nav-map", HasContentWrapper = true }
+                },
+                ActivePathHandlers = new List<ActivePathHandler>
+                {
+                    new ActivePathHandler { Name = "Dashboard", Condition = "currentPath.includes('/ngo/dashboard') || currentPath === '/ngo'", NavId = "nav-dashboard" },
+                    new ActivePathHandler { Name = "Available Donations", Condition = "currentPath.includes('/ngo/availabledonations')", NavId = "nav-incoming" },
+                    new ActivePathHandler { Name = "My Requests", Condition = "currentPath.includes('/ngo/myrequests') || currentPath.includes('/ngo/viewrequests')", NavId = "nav-accepted" },
+                    new ActivePathHandler { Name = "Map View", Condition = "currentPath.includes('/map')", NavId = "nav-map" }
+                }
+            };
+        }
+        <partial name="_Sidebar" model="ngoSidebarConfig" />
 
         <!-- Main Content -->
         <main class="ngo-main-content">
@@ -1051,103 +1085,6 @@
     <script src="https://unpkg.com/@@microsoft/signalr@latest/dist/browser/signalr.min.js"></script>
     <script src="~/js/site.js"></script>
     
-    <!-- NGO Sidebar Script -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const sidebar = document.getElementById('ngoSidebar');
-            const sidebarToggle = document.getElementById('ngoSidebarToggle');
-            const mobileSidebarToggle = document.getElementById('mobileSidebarToggle');
-            const sidebarOverlay = document.getElementById('sidebarOverlay');
-            const isMobile = window.innerWidth <= 991;
-
-            // Desktop sidebar toggle
-            if (sidebarToggle) {
-                sidebarToggle.addEventListener('click', function() {
-                    if (!isMobile) {
-                        sidebar.classList.toggle('collapsed');
-                        // Save preference to localStorage
-                        localStorage.setItem('ngoSidebarCollapsed', sidebar.classList.contains('collapsed'));
-                    }
-                });
-            }
-
-            // Mobile sidebar toggle
-            if (mobileSidebarToggle) {
-                mobileSidebarToggle.addEventListener('click', function() {
-                    sidebar.classList.toggle('show');
-                    sidebarOverlay.classList.toggle('show');
-                    document.body.style.overflow = sidebar.classList.contains('show') ? 'hidden' : '';
-                });
-            }
-
-            // Close sidebar when clicking overlay
-            if (sidebarOverlay) {
-                sidebarOverlay.addEventListener('click', function() {
-                    sidebar.classList.remove('show');
-                    sidebarOverlay.classList.remove('show');
-                    document.body.style.overflow = '';
-                });
-            }
-
-            // Restore sidebar state on desktop
-            if (!isMobile && localStorage.getItem('ngoSidebarCollapsed') === 'true') {
-                sidebar.classList.add('collapsed');
-            }
-
-            // Handle window resize
-            window.addEventListener('resize', function() {
-                const isNowMobile = window.innerWidth <= 991;
-                if (isNowMobile) {
-                    sidebar.classList.remove('collapsed', 'show');
-                    sidebarOverlay.classList.remove('show');
-                    document.body.style.overflow = '';
-                }
-            });
-
-            // Set active nav item based on current URL
-            const currentPath = window.location.pathname.toLowerCase();
-            const navItems = document.querySelectorAll('.ngo-nav-item');
-            
-            navItems.forEach(item => {
-                const href = item.getAttribute('href');
-                if (href && href !== '#' && currentPath.includes(href.toLowerCase())) {
-                    item.classList.add('active');
-                }
-            });
-
-            // Special handling for Dashboard
-            if (currentPath.includes('/ngo/dashboard') || currentPath === '/ngo') {
-                const dashboardNav = document.getElementById('nav-dashboard');
-                if (dashboardNav) dashboardNav.classList.add('active');
-            }
-
-            // Special handling for Available Donations
-            if (currentPath.includes('/ngo/availabledonations')) {
-                const incomingNav = document.getElementById('nav-incoming');
-                if (incomingNav) incomingNav.classList.add('active');
-            }
-
-            // Special handling for My Requests (Accepted Donations)
-            if (currentPath.includes('/ngo/myrequests') || currentPath.includes('/ngo/viewrequests')) {
-                const acceptedNav = document.getElementById('nav-accepted');
-                if (acceptedNav) acceptedNav.classList.add('active');
-            }
-
-            // Special handling for Map
-            if (currentPath.includes('/map')) {
-                const mapNav = document.getElementById('nav-map');
-                if (mapNav) mapNav.classList.add('active');
-            }
-
-            // Update badge counts (can be enhanced with real-time data)
-            // Example: Update badge counts from API or SignalR
-            function updateBadgeCounts() {
-                // This can be replaced with actual API calls
-                // For now, badges are static but styled to be dynamic
-            }
-            updateBadgeCounts();
-        });
-    </script>
     
     <!-- Navbar Scroll Effect -->
     <script>

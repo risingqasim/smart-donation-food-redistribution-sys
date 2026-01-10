@@ -60,9 +60,16 @@
         }
 
         .donor-main-content {
-            padding: 2rem;
-            max-width: 1200px;
-            margin: 0 auto;
+            flex: 1;
+            margin-left: var(--donor-sidebar-width);
+            min-height: calc(100vh - 76px);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .donor-sidebar.collapsed ~ .donor-main-content {
+            margin-left: var(--donor-sidebar-collapsed-width);
         }
 
         /* Toast Notifications */
@@ -166,9 +173,15 @@
             margin: 0;
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 0.75rem;
             letter-spacing: -0.01em;
             line-height: 1.4;
+            transition: all 0.3s ease;
+        }
+
+        .donor-sidebar.collapsed .donor-sidebar-header h3 {
+            justify-content: center;
         }
 
         .donor-sidebar-header h3 i {
@@ -181,9 +194,13 @@
         }
 
         .donor-sidebar.collapsed .donor-sidebar-header h3 span {
-            opacity: 0;
-            width: 0;
-            overflow: hidden;
+            display: none;
+        }
+
+        .donor-sidebar.collapsed .donor-sidebar-header h3 i {
+            display: block;
+            opacity: 1;
+            visibility: visible;
         }
 
         .donor-sidebar-toggle {
@@ -193,8 +210,8 @@
             background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%);
             border: 1px solid rgba(16, 185, 129, 0.2);
             border-radius: 0.5rem;
-            width: 28px;
-            height: 28px;
+            width: 32px;
+            height: 32px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -213,8 +230,18 @@
             box-shadow: 0 2px 6px rgba(16, 185, 129, 0.25);
         }
 
-        .donor-sidebar.collapsed .donor-sidebar-toggle i {
-            transform: rotate(180deg);
+        .donor-sidebar-toggle i {
+            font-size: 1rem;
+            transition: transform 0.3s ease;
+        }
+
+        .donor-sidebar.collapsed .donor-sidebar-toggle {
+            right: 50%;
+            transform: translateX(50%);
+        }
+
+        .donor-sidebar.collapsed .donor-sidebar-toggle:hover {
+            transform: translateX(50%) scale(1.05);
         }
 
         .donor-sidebar-nav {
@@ -252,7 +279,7 @@
             transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .donor-nav-item i {
+        .donor-nav-item .menu-icon {
             width: 24px;
             text-align: center;
             font-size: 1.25rem;
@@ -260,18 +287,50 @@
             transition: all 0.3s ease;
             position: relative;
             z-index: 1;
+            display: inline-block;
+            line-height: 1;
+            color: inherit;
+            opacity: 1;
+            visibility: visible;
         }
 
-        .donor-nav-item span {
+        .donor-nav-item span,
+        .donor-nav-item .menu-text {
             position: relative;
             z-index: 1;
-            transition: opacity 0.2s ease;
+            transition: opacity 0.2s ease, width 0.2s ease;
+            white-space: nowrap;
         }
 
-        .donor-sidebar.collapsed .donor-nav-item span {
+        .donor-sidebar.collapsed .donor-nav-item {
+            justify-content: center;
+            align-items: center;
+            padding: 0.75rem;
+            gap: 0;
+            width: 100%;
+            display: flex;
+        }
+
+        .donor-sidebar.collapsed .donor-nav-item .menu-text,
+        .donor-sidebar.collapsed .donor-nav-item .nav-item-content {
             opacity: 0;
             width: 0;
+            height: 0;
             overflow: hidden;
+            position: absolute;
+            pointer-events: none;
+        }
+
+        .donor-sidebar.collapsed .donor-nav-item .menu-icon {
+            margin: 0;
+            display: inline-block !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            width: auto !important;
+            height: auto !important;
+            font-size: 1.5rem;
+            line-height: 1;
+            color: inherit !important;
         }
 
         .donor-nav-item:hover {
@@ -281,11 +340,16 @@
             border-color: rgba(16, 185, 129, 0.2);
         }
 
+        .donor-sidebar.collapsed .donor-nav-item:hover {
+            transform: translateX(0);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.15) 100%);
+        }
+
         .donor-nav-item:hover::before {
             height: 60%;
         }
 
-        .donor-nav-item:hover i {
+        .donor-nav-item:hover .menu-icon {
             transform: scale(1.1);
             color: var(--donor-primary);
         }
@@ -303,7 +367,7 @@
             background: rgba(255, 255, 255, 0.2);
         }
 
-        .donor-nav-item.active i {
+        .donor-nav-item.active .menu-icon {
             color: white;
             transform: scale(1.1);
         }
@@ -313,19 +377,6 @@
             box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3), 0 2px 4px rgba(16, 185, 129, 0.2);
         }
 
-        /* Main Content Area */
-        .donor-main-content {
-            flex: 1;
-            margin-left: var(--donor-sidebar-width);
-            min-height: calc(100vh - 76px);
-            background-color: var(--bg-primary);
-            color: var(--text-primary);
-            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease, color 0.3s ease;
-        }
-
-        .donor-sidebar.collapsed ~ .donor-main-content {
-            margin-left: var(--donor-sidebar-collapsed-width);
-        }
 
         .donor-content-wrapper {
             padding: 2rem;
@@ -690,8 +741,8 @@
         }
 
         [data-theme="dark"] .donor-navbar .donor-dropdown-menu {
-            background: #1f2937 !important;
-            border-color: #374151;
+            background: #252525 !important;
+            border-color: #404040;
         }
 
         .donor-dropdown-header {
@@ -702,7 +753,7 @@
 
         [data-theme="dark"] .donor-dropdown-header {
             background: #111827;
-            border-bottom-color: #374151;
+            border-bottom-color: #404040;
         }
 
         .donor-dropdown-header .donor-profile-name {
@@ -760,7 +811,7 @@
         }
 
         [data-theme="dark"] .donor-navbar .donor-dropdown-divider {
-            border-color: #374151;
+            border-color: #404040;
         }
 
         .donor-navbar .donor-dropdown-toggle::after {
@@ -830,8 +881,8 @@
         }
 
         [data-theme="dark"] .donor-navbar .notification-dropdown {
-            background: #1f2937 !important;
-            border-color: #374151 !important;
+            background: #252525 !important;
+            border-color: #404040 !important;
         }
 
         .mobile-sidebar-overlay {
@@ -1001,40 +1052,29 @@
     <!-- Donor Layout Wrapper -->
     <div class="donor-layout-wrapper">
         <!-- Sidebar -->
-        <aside class="donor-sidebar" id="donorSidebar">
-            <button class="donor-sidebar-toggle" id="donorSidebarToggle" aria-label="Toggle sidebar">
-                <i class="fas fa-chevron-left"></i>
-            </button>
-            
-            <div class="donor-sidebar-header">
-                <h3>
-                    <i class="fas fa-heart"></i>
-                    <span>Donor Portal</span>
-                </h3>
-            </div>
-            
-            <nav class="donor-sidebar-nav">
-                <a asp-controller="Donor" asp-action="Dashboard" class="donor-nav-item" id="nav-dashboard">
-                    <i class="fas fa-tachometer-alt"></i>
-                    <span>Dashboard</span>
-                </a>
-                
-                <a asp-controller="Donations" asp-action="Create" class="donor-nav-item" id="nav-donate">
-                    <i class="fas fa-heart"></i>
-                    <span>Donate Food</span>
-                </a>
-                
-                <a asp-controller="Donor" asp-action="MyDonations" class="donor-nav-item" id="nav-my-donations">
-                    <i class="fas fa-box"></i>
-                    <span>My Donations</span>
-                </a>
-                
-                <a asp-controller="Map" asp-action="Index" class="donor-nav-item" id="nav-map">
-                    <i class="fas fa-map-marked-alt"></i>
-                    <span>Map View</span>
-                </a>
-            </nav>
-        </aside>
+        @{
+            var donorSidebarConfig = new SidebarConfig
+            {
+                Role = "Donor",
+                HeaderIcon = "fas fa-heart",
+                HeaderTitle = "Donor Portal",
+                Items = new List<SidebarItem>
+                {
+                    new SidebarItem { Controller = "Donor", Action = "Dashboard", Icon = "fas fa-tachometer-alt", Text = "Dashboard", Id = "nav-dashboard" },
+                    new SidebarItem { Controller = "Donations", Action = "Create", Icon = "fas fa-heart", Text = "Donate Food", Id = "nav-donate" },
+                    new SidebarItem { Controller = "Donor", Action = "MyDonations", Icon = "fas fa-box", Text = "My Donations", Id = "nav-my-donations" },
+                    new SidebarItem { Controller = "Map", Action = "Index", Icon = "fas fa-map-marked-alt", Text = "Map View", Id = "nav-map" }
+                },
+                ActivePathHandlers = new List<ActivePathHandler>
+                {
+                    new ActivePathHandler { Name = "Dashboard", Condition = "currentPath.includes('/donor/dashboard') || currentPath === '/donor'", NavId = "nav-dashboard" },
+                    new ActivePathHandler { Name = "Create Donation", Condition = "currentPath.includes('/donations/create')", NavId = "nav-donate" },
+                    new ActivePathHandler { Name = "My Donations", Condition = "currentPath.includes('/donor/mydonations')", NavId = "nav-my-donations" },
+                    new ActivePathHandler { Name = "Map View", Condition = "currentPath.includes('/map')", NavId = "nav-map" }
+                }
+            };
+        }
+        <partial name="_Sidebar" model="donorSidebarConfig" />
 
         <!-- Main Content -->
         <main class="donor-main-content">
@@ -1125,95 +1165,6 @@
         });
     </script>
     
-    <!-- Donor Sidebar Script -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const sidebar = document.getElementById('donorSidebar');
-            const sidebarToggle = document.getElementById('donorSidebarToggle');
-            const mobileSidebarToggle = document.getElementById('mobileSidebarToggle');
-            const sidebarOverlay = document.getElementById('sidebarOverlay');
-            const isMobile = window.innerWidth <= 991;
-
-            // Desktop sidebar toggle
-            if (sidebarToggle) {
-                sidebarToggle.addEventListener('click', function() {
-                    if (!isMobile) {
-                        sidebar.classList.toggle('collapsed');
-                        // Save preference to localStorage
-                        localStorage.setItem('donorSidebarCollapsed', sidebar.classList.contains('collapsed'));
-                    }
-                });
-            }
-
-            // Mobile sidebar toggle
-            if (mobileSidebarToggle) {
-                mobileSidebarToggle.addEventListener('click', function() {
-                    sidebar.classList.toggle('show');
-                    sidebarOverlay.classList.toggle('show');
-                    document.body.style.overflow = sidebar.classList.contains('show') ? 'hidden' : '';
-                });
-            }
-
-            // Close sidebar when clicking overlay
-            if (sidebarOverlay) {
-                sidebarOverlay.addEventListener('click', function() {
-                    sidebar.classList.remove('show');
-                    sidebarOverlay.classList.remove('show');
-                    document.body.style.overflow = '';
-                });
-            }
-
-            // Restore sidebar state on desktop
-            if (!isMobile && localStorage.getItem('donorSidebarCollapsed') === 'true') {
-                sidebar.classList.add('collapsed');
-            }
-
-            // Handle window resize
-            window.addEventListener('resize', function() {
-                const isNowMobile = window.innerWidth <= 991;
-                if (isNowMobile) {
-                    sidebar.classList.remove('collapsed', 'show');
-                    sidebarOverlay.classList.remove('show');
-                    document.body.style.overflow = '';
-                }
-            });
-
-            // Set active nav item based on current URL
-            const currentPath = window.location.pathname.toLowerCase();
-            const navItems = document.querySelectorAll('.donor-nav-item');
-            
-            navItems.forEach(item => {
-                const href = item.getAttribute('href');
-                if (href && href !== '#' && currentPath.includes(href.toLowerCase())) {
-                    item.classList.add('active');
-                }
-            });
-
-            // Special handling for Dashboard
-            if (currentPath.includes('/donor/dashboard') || currentPath === '/donor') {
-                const dashboardNav = document.getElementById('nav-dashboard');
-                if (dashboardNav) dashboardNav.classList.add('active');
-            }
-
-            // Special handling for Create Donation
-            if (currentPath.includes('/donations/create')) {
-                const donateNav = document.getElementById('nav-donate');
-                if (donateNav) donateNav.classList.add('active');
-            }
-
-            // Special handling for My Donations
-            if (currentPath.includes('/donor/mydonations')) {
-                const myDonationsNav = document.getElementById('nav-my-donations');
-                if (myDonationsNav) myDonationsNav.classList.add('active');
-            }
-
-            // Special handling for Map View
-            if (currentPath.includes('/map')) {
-                const mapNav = document.getElementById('nav-map');
-                if (mapNav) mapNav.classList.add('active');
-            }
-        });
-    </script>
     
     <!-- Navbar Scroll Effect -->
     <script>

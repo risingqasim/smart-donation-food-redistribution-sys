@@ -1,0 +1,220 @@
+@model SmartDonationSystem.Models.SidebarConfig
+@{
+    var rolePrefix = Model.Role.ToLower();
+    var sidebarId = $"{rolePrefix}Sidebar";
+    var sidebarToggleId = Model.Role == "Admin" ? "sidebarToggle" : $"{rolePrefix}SidebarToggle";
+    var navItemClass = $"{rolePrefix}-nav-item";
+    var sidebarClass = $"{rolePrefix}-sidebar";
+    var sidebarHeaderClass = $"{rolePrefix}-sidebar-header";
+    var sidebarNavClass = $"{rolePrefix}-sidebar-nav";
+    var sidebarToggleClass = $"{rolePrefix}-sidebar-toggle";
+    var navSectionClass = $"{rolePrefix}-nav-section";
+    var navSectionTitleClass = $"{rolePrefix}-nav-section-title";
+    var navBadgeClass = Model.Role == "NGO" ? "ngo-nav-badge" : $"{rolePrefix}-nav-badge";
+}
+
+<aside class="@sidebarClass" id="@sidebarId" data-sidebar-role="@rolePrefix">
+    <button class="@sidebarToggleClass" id="@sidebarToggleId" aria-label="Toggle sidebar">
+        <i class="fas fa-bars"></i>
+    </button>
+    
+    <div class="@sidebarHeaderClass">
+        <h3>
+            <i class="@Model.HeaderIcon"></i>
+            <span>@Model.HeaderTitle</span>
+        </h3>
+    </div>
+    
+    <nav class="@sidebarNavClass">
+        @if (Model.Sections != null && Model.Sections.Any())
+        {
+            @foreach (var section in Model.Sections)
+            {
+                <div class="@navSectionClass">
+                    @if (!string.IsNullOrEmpty(section.Title))
+                    {
+                        <div class="@navSectionTitleClass">@(section.Title)</div>
+                    }
+                    @foreach (var item in section.Items)
+                    {
+                        <a asp-controller="@item.Controller" asp-action="@item.Action" class="@navItemClass" id="@item.Id">
+                            <i class="@item.Icon menu-icon"></i>
+                            @if (item.HasBadge || item.HasContentWrapper)
+                            {
+                                <div class="nav-item-content">
+                                    <span class="menu-text">@item.Text</span>
+                                    @if (item.HasBadge && !string.IsNullOrEmpty(item.BadgeText))
+                                    {
+                                        <span class="@navBadgeClass @item.BadgeClass" id="@item.BadgeId">@item.BadgeText</span>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <span class="menu-text">@item.Text</span>
+                            }
+                        </a>
+                    }
+                </div>
+            }
+        }
+        else if (Model.Items != null && Model.Items.Any())
+        {
+            @foreach (var item in Model.Items)
+            {
+                <a asp-controller="@item.Controller" asp-action="@item.Action" class="@navItemClass" id="@item.Id">
+                    <i class="@item.Icon menu-icon"></i>
+                    @if (item.HasBadge || item.HasContentWrapper)
+                    {
+                        <div class="nav-item-content">
+                            <span class="menu-text">@item.Text</span>
+                            @if (item.HasBadge && !string.IsNullOrEmpty(item.BadgeText))
+                            {
+                                <span class="@navBadgeClass @item.BadgeClass" id="@item.BadgeId">@item.BadgeText</span>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <span class="menu-text">@item.Text</span>
+                    }
+                </a>
+            }
+        }
+    </nav>
+</aside>
+
+<script>
+    // Restore sidebar state immediately when script loads (before DOMContentLoaded)
+    (function() {
+        const localStorageKey = '@(rolePrefix)SidebarCollapsed';
+        const sidebarId = '@sidebarId';
+        const isMobile = window.innerWidth <= 991;
+        
+        if (!isMobile && localStorage.getItem(localStorageKey) === 'true') {
+            // Use a MutationObserver or immediate check to apply state as soon as element exists
+            const applyCollapsedState = function() {
+                const sidebar = document.getElementById(sidebarId);
+                if (sidebar) {
+                    sidebar.classList.add('collapsed');
+                    return true;
+                }
+                return false;
+            };
+            
+            // Try immediately if DOM is already loaded
+            if (document.readyState === 'loading') {
+                // DOM is still loading, wait for it
+                document.addEventListener('DOMContentLoaded', applyCollapsedState);
+            } else {
+                // DOM is already loaded
+                applyCollapsedState();
+            }
+        }
+    })();
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebar = document.getElementById('@sidebarId');
+        const sidebarToggle = document.getElementById('@sidebarToggleId');
+        const mobileSidebarToggle = document.getElementById('mobileSidebarToggle');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const localStorageKey = '@(rolePrefix)SidebarCollapsed';
+        const navItemSelector = '.@navItemClass';
+
+        // Ensure sidebar state is restored from localStorage on every page load
+        const isMobile = window.innerWidth <= 991;
+        if (!isMobile && sidebar) {
+            const savedState = localStorage.getItem(localStorageKey);
+            if (savedState === 'true') {
+                sidebar.classList.add('collapsed');
+            } else if (savedState === 'false') {
+                sidebar.classList.remove('collapsed');
+            }
+            // If no saved state exists, default to expanded (no action needed)
+        }
+
+        // Desktop sidebar toggle
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const isMobile = window.innerWidth <= 991;
+                if (!isMobile && sidebar) {
+                    const isCollapsed = sidebar.classList.toggle('collapsed');
+                    // Persist state to localStorage
+                    localStorage.setItem(localStorageKey, isCollapsed.toString());
+                }
+            });
+        }
+
+        // Mobile sidebar toggle
+        if (mobileSidebarToggle) {
+            mobileSidebarToggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (sidebar && sidebarOverlay) {
+                    sidebar.classList.toggle('show');
+                    sidebarOverlay.classList.toggle('show');
+                    document.body.style.overflow = sidebar.classList.contains('show') ? 'hidden' : '';
+                }
+            });
+        }
+
+        // Close sidebar when clicking overlay
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (sidebar) {
+                    sidebar.classList.remove('show');
+                    sidebarOverlay.classList.remove('show');
+                    document.body.style.overflow = '';
+                }
+            });
+        }
+
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            const isNowMobile = window.innerWidth <= 991;
+            if (isNowMobile) {
+                sidebar.classList.remove('collapsed', 'show');
+                if (sidebarOverlay) sidebarOverlay.classList.remove('show');
+                document.body.style.overflow = '';
+            } else {
+                // Restore collapsed state when switching back to desktop
+                const savedState = localStorage.getItem(localStorageKey);
+                if (savedState === 'true' && sidebar) {
+                    sidebar.classList.add('collapsed');
+                } else if (savedState === 'false' && sidebar) {
+                    sidebar.classList.remove('collapsed');
+                }
+            }
+        });
+
+        // Set active nav item based on current URL
+        const currentPath = window.location.pathname.toLowerCase();
+        const navItems = document.querySelectorAll(navItemSelector);
+        
+        navItems.forEach(item => {
+            const href = item.getAttribute('href');
+            if (href && href !== '#' && currentPath.includes(href.toLowerCase())) {
+                item.classList.add('active');
+            }
+        });
+
+        @if (Model.ActivePathHandlers != null && Model.ActivePathHandlers.Any())
+        {
+            foreach (var handler in Model.ActivePathHandlers)
+            {
+                <text>
+                // Special handling for @handler.Name
+                if (@handler.Condition) {
+                    const navElement = document.getElementById('@handler.NavId');
+                    if (navElement) navElement.classList.add('active');
+                }
+                </text>
+            }
+        }
+    });
+</script>

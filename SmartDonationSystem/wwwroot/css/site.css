@@ -124,9 +124,9 @@
   --border-color: #404040;
   --border-light: #333333;
   
-  /* Card & Surface */
+  /* Card & Surface - MASTER THEME from AI Analytics Page */
   --card-bg: #252525;
-  --card-border: #333333;
+  --card-border: #404040;
   --card-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.5);
   --card-shadow-hover: 0 0.5rem 1rem rgba(0, 0, 0, 0.7);
   
