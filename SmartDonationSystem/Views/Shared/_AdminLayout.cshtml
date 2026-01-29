@@ -57,11 +57,11 @@
             margin-top: 76px;
         }
 
-        /* Enhanced Sidebar Styles - UI Guidelines Applied */
+        /* Enhanced Sidebar Styles - MATCHES NAVBAR COLORS EXACTLY */
         .admin-sidebar {
             width: var(--admin-sidebar-width);
-            background: linear-gradient(180deg, var(--card-bg) 0%, var(--bg-secondary) 100%);
-            border-right: 1px solid var(--border-color);
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
             padding: 0;
             position: fixed;
             left: 0;
@@ -71,14 +71,15 @@
             overflow-x: hidden;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 1000;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
             border-radius: 0;
         }
 
+        /* Sidebar always matches navbar - theme independent */
         [data-theme="dark"] .admin-sidebar {
-            background: linear-gradient(180deg, var(--card-bg) 0%, var(--bg-secondary) 100%);
-            border-right-color: var(--border-color);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 1px 3px rgba(0, 0, 0, 0.15);
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+            border-right-color: rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
         }
 
         .admin-sidebar.collapsed {
@@ -87,9 +88,9 @@
 
         .admin-sidebar-header {
             padding: 1.5rem 1.25rem;
-            border-bottom: 1px solid var(--border-color);
-            background: linear-gradient(135deg, rgba(79, 70, 229, 0.05) 0%, rgba(99, 102, 241, 0.05) 100%);
-            color: var(--text-primary);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.05) 100%) !important;
+            color: #ffffff !important;
             position: sticky;
             top: 0;
             z-index: 10;
@@ -97,14 +98,17 @@
             backdrop-filter: blur(10px);
         }
 
+        /* Sidebar header matches navbar */
         [data-theme="dark"] .admin-sidebar-header {
-            background: linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, rgba(99, 102, 241, 0.1) 100%);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.05) 100%) !important;
+            border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+            color: #ffffff !important;
         }
 
         .admin-sidebar-header h3 {
             font-size: 1rem;
             font-weight: 600;
-            color: var(--text-primary);
+            color: #ffffff !important;
             margin: 0;
             display: flex;
             align-items: center;
@@ -131,9 +135,9 @@
         }
 
         .admin-sidebar-header h3 i {
-            color: var(--admin-primary);
+            color: #ffffff !important;
             font-size: 1.375rem;
-            background: linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, rgba(99, 102, 241, 0.1) 100%);
+            background: rgba(255, 255, 255, 0.1);
             padding: 0.5rem;
             border-radius: 0.5rem;
             width: 2.25rem;
@@ -152,7 +156,7 @@
             align-items: center;
             padding: 0.75rem 1rem;
             margin-bottom: 0.375rem;
-            color: var(--text-secondary);
+            color: rgba(255, 255, 255, 0.85) !important;
             text-decoration: none;
             border-radius: 0.625rem;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -234,24 +238,25 @@
         }
 
         .admin-nav-item:hover {
-            background: linear-gradient(135deg, rgba(79, 70, 229, 0.08) 0%, rgba(99, 102, 241, 0.08) 100%);
-            color: var(--admin-primary);
+            background: rgba(255, 255, 255, 0.1) !important;
+            color: #ffffff !important;
             transform: translateX(4px);
-            border-color: rgba(79, 70, 229, 0.2);
+            border-color: rgba(255, 255, 255, 0.2);
         }
 
         .admin-sidebar.collapsed .admin-nav-item:hover {
             transform: translateX(0);
-            background: linear-gradient(135deg, rgba(79, 70, 229, 0.12) 0%, rgba(99, 102, 241, 0.12) 100%);
+            background: rgba(255, 255, 255, 0.15) !important;
         }
 
         .admin-nav-item:hover::before {
             height: 60%;
+            background: rgba(255, 255, 255, 0.2) !important;
         }
 
         .admin-nav-item:hover .menu-icon {
             transform: scale(1.1);
-            color: var(--admin-primary);
+            color: #ffffff !important;
         }
 
         .admin-nav-item.active {
@@ -284,7 +289,7 @@
 
         .admin-nav-divider {
             height: 1px;
-            background: linear-gradient(90deg, transparent 0%, var(--border-color) 20%, var(--border-color) 80%, transparent 100%);
+            background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.1) 20%, rgba(255, 255, 255, 0.1) 80%, transparent 100%) !important;
             margin: 1.5rem 1rem;
             position: relative;
         }
@@ -297,8 +302,17 @@
             transform: translate(-50%, -50%);
             width: 4px;
             height: 4px;
-            background: var(--border-color);
+            background: rgba(255, 255, 255, 0.1) !important;
             border-radius: 50%;
+        }
+
+        /* Sidebar divider matches navbar style */
+        [data-theme="dark"] .admin-nav-divider {
+            background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.1) 20%, rgba(255, 255, 255, 0.1) 80%, transparent 100%) !important;
+        }
+
+        [data-theme="dark"] .admin-nav-divider::before {
+            background: rgba(255, 255, 255, 0.1) !important;
         }
 
         /* Section Headings */
@@ -316,7 +330,7 @@
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.1em;
-            color: var(--text-muted);
+            color: rgba(255, 255, 255, 0.6) !important;
             padding: 0.5rem 1rem 0.375rem;
             margin-bottom: 0.375rem;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -332,8 +346,9 @@
             padding: 0.5rem 0.25rem 0.375rem;
         }
 
+        /* Sidebar section title matches navbar text style */
         [data-theme="dark"] .admin-nav-section-title {
-            color: rgba(255, 255, 255, 0.45);
+            color: rgba(255, 255, 255, 0.6) !important;
         }
 
         .admin-nav-section-title::after {
@@ -343,7 +358,7 @@
             bottom: 0;
             width: 24px;
             height: 2px;
-            background: linear-gradient(90deg, var(--admin-primary) 0%, transparent 100%);
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.3) 0%, transparent 100%);
             border-radius: 2px;
             opacity: 0.3;
         }
@@ -369,8 +384,8 @@
             position: absolute;
             top: 1.125rem;
             right: 0.875rem;
-            background: linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, rgba(99, 102, 241, 0.1) 100%);
-            border: 1px solid rgba(79, 70, 229, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 0.5rem;
             width: 32px;
             height: 32px;
@@ -379,17 +394,17 @@
             justify-content: center;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            color: var(--admin-primary);
+            color: rgba(255, 255, 255, 0.9);
             z-index: 10;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
         .admin-sidebar-toggle:hover {
-            background: linear-gradient(135deg, var(--admin-primary) 0%, var(--admin-primary-hover) 100%);
-            color: white;
-            border-color: var(--admin-primary);
+            background: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            border-color: rgba(255, 255, 255, 0.4);
             transform: scale(1.05);
-            box-shadow: 0 2px 6px rgba(79, 70, 229, 0.25);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
         }
 
         .admin-sidebar-toggle i {
@@ -603,12 +618,21 @@
         }
 
         .admin-sidebar::-webkit-scrollbar-thumb {
-            background: var(--border-color);
+            background: rgba(255, 255, 255, 0.2) !important;
             border-radius: 3px;
         }
 
         .admin-sidebar::-webkit-scrollbar-thumb:hover {
-            background: var(--text-muted);
+            background: rgba(255, 255, 255, 0.3) !important;
+        }
+
+        /* Sidebar scrollbar matches navbar style */
+        [data-theme="dark"] .admin-sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2) !important;
+        }
+
+        [data-theme="dark"] .admin-sidebar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3) !important;
         }
 
         /* Enhanced Admin Navbar Styles */
