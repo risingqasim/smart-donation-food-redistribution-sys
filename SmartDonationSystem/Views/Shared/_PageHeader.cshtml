@@ -1,0 +1,350 @@
+@using Microsoft.AspNetCore.Identity
+@using SmartDonationSystem.Models
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@{
+    var pageTitle = ViewData["Title"]?.ToString() ?? "Dashboard";
+    var role = User.IsInRole("Admin") ? "Admin" : User.IsInRole("Donor") ? "Donor" : User.IsInRole("NGO") ? "NGO" : "";
+}
+
+<div class="page-header">
+    <div class="page-header-content">
+        <!-- Mobile Sidebar Toggle -->
+        <button class="page-header-mobile-toggle" id="mobileSidebarToggle" aria-label="Toggle sidebar">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <!-- Page Title -->
+        <div class="page-header-title">
+            <h1 class="page-title">@pageTitle</h1>
+        </div>
+
+        <!-- Right Side Actions -->
+        <div class="page-header-actions">
+            <!-- Theme Toggle -->
+            <button type="button" class="page-header-theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                <i class="fas fa-moon" id="themeIcon"></i>
+            </button>
+
+            <!-- Notification Bell -->
+            <div class="page-header-notification">
+                <partial name="_NotificationPartial" />
+            </div>
+
+            <!-- Profile Dropdown -->
+            @if (SignInManager.IsSignedIn(User))
+            {
+                <div class="page-header-profile dropdown">
+                    <a class="page-header-profile-link dropdown-toggle d-flex align-items-center" href="#" id="pageHeaderUserDropdown" role="button" 
+                       data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="page-header-profile-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="page-header-profile-info">
+                            <span class="page-header-profile-name">@User.Identity?.Name</span>
+                            @if (!string.IsNullOrEmpty(role))
+                            {
+                                <span class="page-header-role-badge">@role</span>
+                            }
+                        </div>
+                    </a>
+                    <ul class="dropdown-menu page-header-dropdown-menu dropdown-menu-end" aria-labelledby="pageHeaderUserDropdown">
+                        <li>
+                            <div class="page-header-dropdown-header">
+                                <div class="page-header-profile-name">@User.Identity?.Name</div>
+                                @if (!string.IsNullOrEmpty(role))
+                                {
+                                    <span class="page-header-role-badge">@role</span>
+                                }
+                            </div>
+                        </li>
+                        <li><hr class="page-header-dropdown-divider"></li>
+                        <li>
+                            <a class="page-header-dropdown-item" href="#" onclick="alert('Account management coming soon'); return false;">
+                                <i class="fas fa-user-cog"></i>
+                                <span>Manage Account</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="page-header-dropdown-item" asp-controller="@role" asp-action="Dashboard">
+                                <i class="fas fa-tachometer-alt"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+                        <li><hr class="page-header-dropdown-divider"></li>
+                        <li>
+                            <form class="form-inline" asp-controller="Account" asp-action="Logout" method="post"
+                                  asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="page-header-dropdown-item w-100 text-start border-0 bg-transparent">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    <span>Logout</span>
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Page Header Styles - Unified Design for All Roles */
+    .page-header {
+        background: var(--card-bg);
+        border-bottom: 1px solid var(--border-color);
+        padding: 1rem 0;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+
+    [data-theme="dark"] .page-header {
+        background: var(--card-bg);
+        border-bottom-color: var(--border-color);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .page-header-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 0 2rem;
+        max-width: 1600px;
+        margin: 0 auto;
+    }
+
+    .page-header-mobile-toggle {
+        display: none;
+        align-items: center;
+        justify-content: center;
+        width: 42px;
+        height: 42px;
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        color: var(--text-primary);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .page-header-mobile-toggle:hover {
+        background: var(--bg-secondary);
+        border-color: var(--border-color);
+    }
+
+    .page-header-title {
+        flex: 1;
+    }
+
+    .page-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        transition: color 0.3s ease;
+    }
+
+    .page-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .page-header-theme-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        border: 1px solid var(--border-color);
+        background: var(--card-bg);
+        color: var(--text-primary);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .page-header-theme-toggle:hover {
+        background: var(--bg-secondary);
+        border-color: var(--border-color);
+        transform: scale(1.1);
+    }
+
+    .page-header-theme-toggle i {
+        transition: transform 0.3s ease, opacity 0.3s ease;
+        font-size: 1.1rem;
+    }
+
+    .page-header-theme-toggle:hover i {
+        transform: rotate(180deg);
+    }
+
+    .page-header-notification {
+        position: relative;
+    }
+
+    .page-header-profile {
+        position: relative;
+    }
+
+    .page-header-profile-link {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        color: var(--text-primary) !important;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+    }
+
+    .page-header-profile-link:hover {
+        background: var(--bg-secondary);
+        border-color: var(--border-color);
+        color: var(--text-primary) !important;
+    }
+
+    .page-header-profile-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: var(--bg-secondary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid var(--border-color);
+    }
+
+    .page-header-profile-avatar i {
+        font-size: 1.25rem;
+        color: var(--text-primary);
+    }
+
+    .page-header-profile-info {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+
+    .page-header-profile-name {
+        font-size: 0.9375rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        line-height: 1.2;
+    }
+
+    .page-header-role-badge {
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.125rem 0.5rem;
+        border-radius: 0.75rem;
+        background: var(--primary-color);
+        color: #ffffff;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .page-header-dropdown-menu {
+        background: var(--card-bg) !important;
+        border: 1px solid var(--border-color) !important;
+        border-radius: 0.75rem;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        padding: 0.75rem 0;
+        margin-top: 0.75rem;
+        min-width: 240px;
+    }
+
+    [data-theme="dark"] .page-header-dropdown-menu {
+        background: var(--card-bg) !important;
+        border-color: var(--border-color) !important;
+    }
+
+    .page-header-dropdown-header {
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid var(--border-color);
+        background: var(--bg-secondary);
+    }
+
+    .page-header-dropdown-header .page-header-profile-name {
+        color: var(--text-primary);
+        font-size: 0.9375rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .page-header-dropdown-item {
+        color: var(--text-primary) !important;
+        padding: 0.75rem 1.25rem;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-weight: 500;
+        text-decoration: none;
+    }
+
+    .page-header-dropdown-item:hover,
+    .page-header-dropdown-item:focus {
+        background-color: var(--bg-secondary) !important;
+        color: var(--text-primary) !important;
+        padding-left: 1.5rem;
+    }
+
+    .page-header-dropdown-item i {
+        width: 20px;
+        text-align: center;
+        font-size: 1rem;
+    }
+
+    .page-header-dropdown-divider {
+        border-color: var(--border-color);
+        margin: 0.5rem 0;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 991px) {
+        .page-header-content {
+            padding: 0 1rem;
+        }
+
+        .page-header-mobile-toggle {
+            display: flex;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+        }
+
+        .page-header-profile-info {
+            display: none;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .page-title {
+            font-size: 1.25rem;
+        }
+
+        .page-header-actions {
+            gap: 0.5rem;
+        }
+
+        .page-header-theme-toggle,
+        .page-header-profile-link {
+            width: 38px;
+            height: 38px;
+            padding: 0.5rem;
+        }
+    }
+</style>

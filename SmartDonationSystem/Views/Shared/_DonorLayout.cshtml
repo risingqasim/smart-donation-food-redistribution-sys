@@ -55,8 +55,8 @@
         }
 
         .donor-layout-wrapper {
-            min-height: calc(100vh - 76px);
-            margin-top: 76px;
+            min-height: 100vh;
+            margin-top: 0;
         }
 
         .donor-main-content {
@@ -132,8 +132,8 @@
             padding: 0;
             position: fixed;
             left: 0;
-            top: 76px;
-            height: calc(100vh - 76px);
+            top: 0;
+            height: 100vh;
             overflow-y: auto;
             overflow-x: hidden;
             z-index: 1000;
@@ -902,7 +902,7 @@
         .mobile-sidebar-overlay {
             display: none;
             position: fixed;
-            top: 76px;
+            top: 0;
             left: 0;
             right: 0;
             bottom: 0;
@@ -951,124 +951,6 @@
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-lg donor-navbar fixed-top">
-            <div class="container-fluid px-4">
-                <!-- Mobile Sidebar Toggle -->
-                <button class="donor-mobile-sidebar-toggle" id="mobileSidebarToggle" aria-label="Toggle sidebar">
-                    <i class="fas fa-bars"></i>
-                </button>
-
-                <!-- Brand -->
-                <a class="donor-navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                    <div class="donor-brand-icon">
-                        <i class="fas fa-hands-helping"></i>
-                    </div>
-                    <span class="donor-brand-text">Smart Donation</span>
-                </a>
-                
-                <!-- Mobile Toggle -->
-                <button class="donor-navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" 
-                        aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="donor-navbar-toggler-icon"></span>
-                </button>
-                
-                <!-- Navbar Content -->
-                <div class="collapse navbar-collapse" id="navbarContent">
-                    <!-- Action-Based Navigation -->
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item">
-                            <a class="donor-action-nav-link" asp-controller="Donor" asp-action="Dashboard">
-                                <i class="fas fa-tachometer-alt"></i>
-                                <span>Dashboard</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="donor-action-nav-link" asp-controller="Donations" asp-action="Create">
-                                <i class="fas fa-heart"></i>
-                                <span>Donate Food</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="donor-action-nav-link" asp-controller="Donor" asp-action="MyDonations">
-                                <i class="fas fa-box"></i>
-                                <span>My Donations</span>
-                            </a>
-                        </li>
-                    </ul>
-                    
-                    <!-- Right Side: Theme Toggle, Notifications & Profile -->
-                    <ul class="navbar-nav ms-auto align-items-center">
-                        <!-- Theme Toggle -->
-                        <li class="nav-item">
-                            <button type="button" class="donor-theme-toggle" id="themeToggle" aria-label="Toggle theme">
-                                <i class="fas fa-moon" id="themeIcon"></i>
-                            </button>
-                        </li>
-                        <!-- Notification Bell -->
-                        <li class="nav-item donor-notification-container">
-                            <partial name="_NotificationPartial" />
-                        </li>
-                        <!-- Profile Dropdown with Role Badge -->
-                        @if (SignInManager.IsSignedIn(User))
-                        {
-                            <li class="nav-item dropdown donor-profile-dropdown">
-                                <a class="nav-link donor-dropdown-toggle d-flex align-items-center" href="#" id="donorUserDropdown" role="button" 
-                                   data-bs-toggle="dropdown" aria-expanded="false">
-                                    <div class="donor-profile-avatar">
-                                        <i class="fas fa-user"></i>
-                                    </div>
-                                    <div class="donor-profile-info">
-                                        <span class="donor-profile-name">@User.Identity?.Name</span>
-                                        @if (User.IsInRole("Donor"))
-                                        {
-                                            <span class="donor-role-badge">Donor</span>
-                                        }
-                                    </div>
-                                </a>
-                                <ul class="dropdown-menu donor-dropdown-menu dropdown-menu-end" aria-labelledby="donorUserDropdown">
-                                    <li>
-                                        <div class="donor-dropdown-header">
-                                            <div class="donor-profile-name">@User.Identity?.Name</div>
-                                            @if (User.IsInRole("Donor"))
-                                            {
-                                                <span class="donor-role-badge">Donor</span>
-                                            }
-                                        </div>
-                                    </li>
-                                    <li><hr class="donor-dropdown-divider"></li>
-                                    <li>
-                                        <a class="donor-dropdown-item" href="#" onclick="alert('Account management coming soon'); return false;">
-                                            <i class="fas fa-user-cog"></i>
-                                            <span>Manage Account</span>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="donor-dropdown-item" asp-controller="Donor" asp-action="Dashboard">
-                                            <i class="fas fa-tachometer-alt"></i>
-                                            <span>Dashboard</span>
-                                        </a>
-                                    </li>
-                                    <li><hr class="donor-dropdown-divider"></li>
-                                    <li>
-                                        <form class="form-inline" asp-controller="Account" asp-action="Logout" method="post"
-                                              asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-                                            @Html.AntiForgeryToken()
-                                            <button type="submit" class="donor-dropdown-item w-100 text-start border-0 bg-transparent">
-                                                <i class="fas fa-sign-out-alt"></i>
-                                                <span>Logout</span>
-                                            </button>
-                                        </form>
-                                    </li>
-                                </ul>
-                            </li>
-                        }
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>
-
     <!-- Mobile Sidebar Overlay -->
     <div class="mobile-sidebar-overlay" id="sidebarOverlay"></div>
 
@@ -1102,6 +984,9 @@
         <!-- Main Content -->
         <main class="donor-main-content">
             <div class="donor-content-wrapper">
+                <!-- Page Header -->
+                <partial name="_PageHeader" />
+                
                 <!-- Toast Container -->
                 <div class="toast-container" id="toastContainer"></div>
 
@@ -1184,51 +1069,6 @@
             @if (TempData["Info"] != null)
             {
                 <text>showToast('@Html.Raw(TempData["Info"])', 'info');</text>
-            }
-        });
-    </script>
-    
-    
-    <!-- Navbar Scroll Effect -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const navbar = document.querySelector('.donor-navbar');
-            
-            // Add scroll effect
-            window.addEventListener('scroll', function() {
-                if (window.scrollY > 50) {
-                    navbar.classList.add('scrolled');
-                } else {
-                    navbar.classList.remove('scrolled');
-                }
-            });
-            
-            // Add active class to current page nav link
-            const currentPath = window.location.pathname.toLowerCase();
-            const navLinks = document.querySelectorAll('.donor-action-nav-link');
-            
-            navLinks.forEach(link => {
-                const href = link.getAttribute('href');
-                if (href && (currentPath === href.toLowerCase() || 
-                    currentPath.startsWith(href.toLowerCase()) && href !== '/')) {
-                    link.classList.add('active');
-                }
-            });
-
-            // Special handling for Donor Dashboard
-            if (currentPath.includes('/donor/dashboard') || currentPath === '/donor') {
-                const dashboardNav = document.querySelector('a[href*="/donor/dashboard"]');
-                if (dashboardNav) dashboardNav.classList.add('active');
-            }
-
-            if (currentPath.includes('/donations/create')) {
-                const donateNav = document.querySelector('a[href*="/donations/create"]');
-                if (donateNav) donateNav.classList.add('active');
-            }
-
-            if (currentPath.includes('/donor/mydonations')) {
-                const myDonationsNav = document.querySelector('a[href*="/donor/mydonations"]');
-                if (myDonationsNav) myDonationsNav.classList.add('active');
             }
         });
     </script>
